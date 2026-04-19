@@ -1,0 +1,444 @@
+{
+  "@@locale": "fr",
+  "appTitle": "Petalia Field Pro",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "observation": "Visite",
+  "@observation": {
+    "description": "Field visit"
+  },
+  "parcel": "Parcelle",
+  "@parcel": {
+    "description": "Agricultural parcel"
+  },
+  "crop": "Culture",
+  "@crop": {
+    "description": "Type of crop"
+  },
+  "health": "Santé",
+  "@health": {
+    "description": "Health status"
+  },
+  "good": "Bon",
+  "@good": {
+    "description": "Good health"
+  },
+  "fair": "Moyen",
+  "@fair": {
+    "description": "Fair health"
+  },
+  "bad": "Mauvais",
+  "@bad": {
+    "description": "Bad health"
+  },
+  "save": "Enregistrer",
+  "@save": {
+    "description": "Save button"
+  },
+  "cancel": "Annuler",
+  "@cancel": {
+    "description": "Cancel button"
+  },
+  "delete": "Supprimer",
+  "@delete": {
+    "description": "Delete action"
+  },
+  "edit": "Modifier",
+  "@edit": {
+    "description": "Edit action"
+  },
+  "add": "Ajouter",
+  "@add": {
+    "description": "Add action"
+  },
+  "search": "Rechercher",
+  "@search": {
+    "description": "Search"
+  },
+  "settings": "Paramètres",
+  "@settings": {
+    "description": "Settings"
+  },
+  "map": "Carte",
+  "@map": {
+    "description": "Map view"
+  },
+  "dashboard": "Tableau de bord",
+  "@dashboard": {
+    "description": "Dashboard"
+  },
+  "alerts": "Alertes",
+  "@alerts": {
+    "description": "Alerts"
+  },
+  "reports": "Rapports",
+  "@reports": {
+    "description": "Reports"
+  },
+  "noParcelFound": "Parcelle introuvable",
+  "@noParcelFound": {
+    "description": "Message when parcel not found"
+  },
+  "noObservationYet": "Aucune visite",
+  "@noObservationYet": {
+    "description": "Message when no observation"
+  },
+  "lastVisit": "Dernière visite",
+  "@lastVisit": {
+    "description": "Last visit date"
+  },
+  "growthStage": "Stade phénologique",
+  "@growthStage": {
+    "description": "Growth stage"
+  },
+  "severity": "Sévérité",
+  "@severity": {
+    "description": "Severity level"
+  },
+  "symptoms": "Symptômes",
+  "@symptoms": {
+    "description": "Observed symptoms"
+  },
+  "recommendations": "Recommandations",
+  "@recommendations": {
+    "description": "AI recommendations"
+  },
+  "photos": "Photos",
+  "@photos": {
+    "description": "Photos"
+  },
+  "notes": "Notes",
+  "@notes": {
+    "description": "Text notes"
+  },
+  "audioNote": "Note vocale",
+  "@audioNote": {
+    "description": "Audio note"
+  },
+  "checklist": "Liste de vérification",
+  "@checklist": {
+    "description": "Checklist"
+  },
+  "visitOverdue": "Visite oubliée",
+  "@visitOverdue": {
+    "description": "Alert for overdue visit"
+  },
+  "irrigation": "Irrigation",
+  "@irrigation": {
+    "description": "Irrigation status"
+  },
+  "soilMoisture": "Humidité du sol",
+  "@soilMoisture": {
+    "description": "Soil moisture"
+  },
+  "dry": "Sec",
+  "@dry": {
+    "description": "Dry soil"
+  },
+  "moist": "Humide",
+  "@moist": {
+    "description": "Moist soil"
+  },
+  "soaked": "Trempé",
+  "@soaked": {
+    "description": "Soaked soil"
+  },
+  "welcome": "Bienvenue",
+  "@welcome": {
+    "description": "Welcome message"
+  },
+  "startVisit": "Commencer la visite",
+  "@startVisit": {
+    "description": "Start visit button"
+  },
+  "newParcel": "Nouvelle parcelle",
+  "@newParcel": {
+    "description": "New parcel button"
+  },
+  "owner": "Propriétaire",
+  "@owner": {
+    "description": "Parcel owner"
+  },
+  "village": "Village",
+  "@village": {
+    "description": "Village name"
+  },
+  "area": "Superficie",
+  "@area": {
+    "description": "Parcel area"
+  },
+  "hectares": "ha",
+  "@hectares": {
+    "description": "Hectares unit"
+  },
+  "loading": "Chargement...",
+  "@loading": {
+    "description": "Loading message"
+  },
+  "error": "Erreur",
+  "@error": {
+    "description": "Error message"
+  },
+  "retry": "Réessayer",
+  "@retry": {
+    "description": "Retry button"
+  },
+  "noData": "Aucune donnée",
+  "@noData": {
+    "description": "No data message"
+  },
+  "confirm": "Confirmer",
+  "@confirm": {
+    "description": "Confirm button"
+  },
+  "close": "Fermer",
+  "@close": {
+    "description": "Close button"
+  },
+  "back": "Retour",
+  "@back": {
+    "description": "Back button"
+  },
+  "next": "Suivant",
+  "@next": {
+    "description": "Next button"
+  },
+  "done": "Terminé",
+  "@done": {
+    "description": "Done button"
+  },
+  "language": "Langue",
+  "@language": {
+    "description": "Language setting"
+  },
+  "theme": "Thème",
+  "@theme": {
+    "description": "Theme setting"
+  },
+  "light": "Clair",
+  "@light": {
+    "description": "Light theme"
+  },
+  "dark": "Sombre",
+  "@dark": {
+    "description": "Dark theme"
+  },
+  "highContrast": "Contraste élevé",
+  "@highContrast": {
+    "description": "High contrast mode"
+  },
+  "largeText": "Grand texte",
+  "@largeText": {
+    "description": "Large text mode"
+  },
+  "syncNow": "Synchroniser",
+  "@syncNow": {
+    "description": "Sync now button"
+  },
+  "lastSync": "Dernière synchronisation",
+  "@lastSync": {
+    "description": "Last sync time"
+  },
+  "offline": "Hors ligne",
+  "@offline": {
+    "description": "Offline status"
+  },
+  "online": "En ligne",
+  "@online": {
+    "description": "Online status"
+  },
+  "downloadMap": "Télécharger la carte",
+  "@downloadMap": {
+    "description": "Download map button"
+  },
+  "downloadProgress": "Téléchargement {percent}%",
+  "@downloadProgress": {
+    "description": "Download progress",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "addPhoto": "Ajouter une photo",
+  "@addPhoto": {
+    "description": "Add photo button"
+  },
+  "takePhoto": "Prendre une photo",
+  "@takePhoto": {
+    "description": "Take photo button"
+  },
+  "fromGallery": "Depuis la galerie",
+  "@fromGallery": {
+    "description": "From gallery button"
+  },
+  "howIsTheCrop": "Comment va votre culture ?",
+  "@howIsTheCrop": {
+    "description": "Quick health question"
+  },
+  "everythingOk": "Tout va bien",
+  "@everythingOk": {
+    "description": "Everything is good"
+  },
+  "someProblems": "Quelques problèmes",
+  "@someProblems": {
+    "description": "Some problems"
+  },
+  "critical": "État critique",
+  "@critical": {
+    "description": "Critical state"
+  },
+  "moreDetails": "Plus de détails (optionnel)",
+  "@moreDetails": {
+    "description": "More details toggle"
+  },
+  "fieldMeasurements": "Mesures de terrain (optionnel)",
+  "@fieldMeasurements": {
+    "description": "Field measurements toggle"
+  },
+  "cropHeight": "Taille des cultures",
+  "@cropHeight": {
+    "description": "Crop height"
+  },
+  "plantSpacing": "Espacement des plants",
+  "@plantSpacing": {
+    "description": "Plant spacing"
+  },
+  "plantDensity": "Densité des plants",
+  "@plantDensity": {
+    "description": "Plant density"
+  },
+  "sparse": "Clairsemé",
+  "@sparse": {
+    "description": "Sparse density"
+  },
+  "normal": "Normal",
+  "@normal": {
+    "description": "Normal density"
+  },
+  "dense": "Dense",
+  "@dense": {
+    "description": "Dense density"
+  },
+  "flowering": "Floraison",
+  "@flowering": {
+    "description": "Flowering status"
+  },
+  "none": "Non",
+  "@none": {
+    "description": "None"
+  },
+  "partial": "Partiel",
+  "@partial": {
+    "description": "Partial"
+  },
+  "full": "Oui",
+  "@full": {
+    "description": "Full"
+  },
+  "irrigationStatus": "État de l'irrigation",
+  "@irrigationStatus": {
+    "description": "Irrigation status"
+  },
+  "working": "Fonctionnel",
+  "@working": {
+    "description": "Working"
+  },
+  "attention": "À surveiller",
+  "@attention": {
+    "description": "Needs attention"
+  },
+  "broken": "En panne",
+  "@broken": {
+    "description": "Broken"
+  },
+  "groundCover": "Couverture du sol",
+  "@groundCover": {
+    "description": "Ground cover"
+  },
+  "lessThan25": "< 25%",
+  "@lessThan25": {
+    "description": "Less than 25%"
+  },
+  "between25_50": "25 – 50%",
+  "@between25_50": {
+    "description": "Between 25 and 50%"
+  },
+  "between50_75": "50 – 75%",
+  "@between50_75": {
+    "description": "Between 50 and 75%"
+  },
+  "moreThan75": "> 75%",
+  "@moreThan75": {
+    "description": "More than 75%"
+  },
+  "isItSerious": "C'est grave ?",
+  "@isItSerious": {
+    "description": "Severity question"
+  },
+  "light": "Léger",
+  "@light": {
+    "description": "Light severity"
+  },
+  "medium": "Moyen",
+  "@medium": {
+    "description": "Medium severity"
+  },
+  "heavy": "Grave",
+  "@heavy": {
+    "description": "Heavy severity"
+  },
+  "whatDoYouSee": "Que voyez-vous ?",
+  "@whatDoYouSee": {
+    "description": "Symptoms question"
+  },
+  "yellowLeaves": "Feuilles jaunes",
+  "@yellowLeaves": {
+    "description": "Yellow leaves symptom"
+  },
+  "pests": "Nuisibles",
+  "@pests": {
+    "description": "Pests symptom"
+  },
+  "drought": "Sécheresse",
+  "@drought": {
+    "description": "Drought symptom"
+  },
+  "weeds": "Mauvaises herbes",
+  "@weeds": {
+    "description": "Weeds symptom"
+  },
+  "spots": "Taches de maladie",
+  "@spots": {
+    "description": "Disease spots symptom"
+  },
+  "whereIsTheCrop": "Où en est votre culture ?",
+  "@whereIsTheCrop": {
+    "description": "Growth stage question"
+  },
+  "semis": "Semis/Plantation",
+  "@semis": {
+    "description": "Sowing stage"
+  },
+  "germination": "Levée",
+  "@germination": {
+    "description": "Germination stage"
+  },
+  "vegetative": "Croissance",
+  "@vegetative": {
+    "description": "Vegetative stage"
+  },
+  "flowering": "Floraison",
+  "@flowering": {
+    "description": "Flowering stage"
+  },
+  "fruiting": "Formation fruits",
+  "@fruiting": {
+    "description": "Fruiting stage"
+  },
+  "maturation": "Maturité",
+  "@maturation": {
+    "description": "Maturation stage"
+  }
+}

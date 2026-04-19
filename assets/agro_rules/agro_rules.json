@@ -1,0 +1,716 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-04-18",
+  "source": "Seed Petalia Field Pro — règles consolidées à partir des fiches ISRA/CERAAS, ANCAR, CDH/Niayes. À valider par l'agronome consultant avant usage en prod.",
+  "notes": [
+    "Chaque règle est filtrée sur `crop` (cropId du CropsCatalog), `stages` (BBCH id ou code), `symptom`, `season`, `regions` (ids SenegalRegions) et un seuil `severityMin`.",
+    "`severityMin` est comparé à la sévérité normalisée 0..1 issue de l'observation.",
+    "Si plusieurs règles matchent, toutes sont remontées — le moteur trie par score décroissant.",
+    "`ppeRequired=true` impose un bandeau d'avertissement EPI dans l'UI reco.",
+    "`delayBeforeHarvestDays` = délai avant récolte du produit phyto conseillé.",
+    "`followupDays` est injecté dans le bouton \"Changer la date de prochaine visite\" de l'écran recommandations."
+  ],
+  "rules": [
+    {
+      "id": "ARA-VEG-YELLOW-RAINY",
+      "crop": "arachide",
+      "stages": ["vegetative", "flowering"],
+      "symptom": "yellow_leaves",
+      "season": "hivernage",
+      "regions": ["thies", "diourbel", "fatick", "kaolack", "kaffrine"],
+      "severityMin": 0.3,
+      "diagnosis": "Jaunissement sur arachide — nodulation défaillante ou carence en soufre plutôt qu'azote (arachide légumineuse : éviter l'urée).",
+      "recommendation": {
+        "title": "Vérifier la nodulation avant tout apport",
+        "actions": [
+          "Arracher 2–3 plantes au hasard, couper un nodule : rose/rouge = fixation OK, blanc/vert = défaillante.",
+          "Si nodulation OK : sulfate d'ammoniaque 50 kg/ha OU apport simple de soufre élémentaire 15 kg/ha.",
+          "Si nodulation absente : inoculation Bradyrhizobium au prochain semis — aucun apport azoté cette campagne."
+        ],
+        "costFcfaPerHa": 12000,
+        "delayBeforeHarvestDays": 0,
+        "ppeRequired": false,
+        "followupDays": 7
+      },
+      "validatedBy": "ISRA-CNRA-Bambey-fiche-technique-arachide-2022"
+    },
+    {
+      "id": "ARA-VEG-SPOTS-CERCO",
+      "crop": "arachide",
+      "stages": ["vegetative", "flowering", "fruiting"],
+      "symptom": "spots",
+      "season": "hivernage",
+      "regions": ["thies", "diourbel", "fatick", "kaolack", "kaffrine", "kolda", "sedhiou"],
+      "severityMin": 0.2,
+      "diagnosis": "Cercosporiose (précoce ou tardive) — taches brunes circulaires entourées d'un halo jaune, fréquente sous forte humidité.",
+      "recommendation": {
+        "title": "Traitement fongicide cuivre + hygiène",
+        "actions": [
+          "Appliquer oxychlorure de cuivre 50% à 2 kg/ha OU hydroxyde de cuivre 1,5 kg/ha dès apparition.",
+          "Répéter à 10–14 jours si pluies continues.",
+          "Éliminer les résidus de culture après récolte (rotation 2 ans arachide / céréale)."
+        ],
+        "costFcfaPerHa": 9000,
+        "delayBeforeHarvestDays": 21,
+        "ppeRequired": true,
+        "followupDays": 10
+      },
+      "validatedBy": "ISRA-CERAAS-2021"
+    },
+    {
+      "id": "ARA-VEG-ROSETTE",
+      "crop": "arachide",
+      "stages": ["germination", "vegetative"],
+      "symptom": "yellow_leaves",
+      "season": "hivernage",
+      "regions": ["louga", "thies", "diourbel", "kaffrine"],
+      "severityMin": 0.5,
+      "diagnosis": "Rosette (virus transmis par Aphis craccivora) — plantes rabougries, feuillage jaune chlorotique en bouquet. Aucun traitement curatif.",
+      "recommendation": {
+        "title": "Arrachage + variétés résistantes",
+        "actions": [
+          "Arracher et brûler les plants atteints (limiter la source de virus).",
+          "Traiter les foyers de pucerons avec un insecticide systémique (acétamipride 20 g/ha) — attention aux abeilles.",
+          "La campagne prochaine : semer uniquement 'Fleur 11' ou 'ICGV-IS' (résistantes rosette)."
+        ],
+        "costFcfaPerHa": 6000,
+        "delayBeforeHarvestDays": 14,
+        "ppeRequired": true,
+        "followupDays": 5
+      },
+      "validatedBy": "ISRA-CNRA-Bambey"
+    },
+    {
+      "id": "ARA-VEG-PESTS-APHIDS",
+      "crop": "arachide",
+      "stages": ["vegetative", "flowering"],
+      "symptom": "pests",
+      "season": "hivernage",
+      "regions": ["thies", "diourbel", "fatick", "kaolack", "kaffrine", "louga"],
+      "severityMin": 0.3,
+      "diagnosis": "Pucerons (Aphis craccivora) — vecteurs potentiels du virus de la rosette. Colonies sur jeunes pousses.",
+      "recommendation": {
+        "title": "Traitement ciblé foyers pucerons",
+        "actions": [
+          "Pulvériser acétamipride 20 g/ha OU pirimicarbe 250 g/ha sur les foyers uniquement.",
+          "Éviter les pyréthrinoïdes (favorisent les acariens en seconde génération).",
+          "Préserver les coccinelles et chrysopes — traitement localisé."
+        ],
+        "costFcfaPerHa": 5000,
+        "delayBeforeHarvestDays": 14,
+        "ppeRequired": true,
+        "followupDays": 5
+      },
+      "validatedBy": "ANCAR-fiche-puceron-2023"
+    },
+    {
+      "id": "ARA-HARVEST-DROUGHT",
+      "crop": "arachide",
+      "stages": ["fruiting", "ripening", "maturation"],
+      "symptom": "drought",
+      "season": "hivernage",
+      "regions": ["louga", "thies", "diourbel", "fatick", "kaolack", "kaffrine"],
+      "severityMin": 0.4,
+      "diagnosis": "Stress hydrique en fin de cycle — risque élevé d'aflatoxines si arrachage retardé sous humidité résiduelle.",
+      "recommendation": {
+        "title": "Anticiper l'arrachage, sécher correctement",
+        "actions": [
+          "Arracher dès que 70–80% des gousses sont matures (couleur intérieure coque brune).",
+          "Sécher en andains inversés 3–5 jours maximum, jamais au contact direct du sol humide.",
+          "Stocker dans un magasin ventilé, humidité des gousses < 8 %."
+        ],
+        "costFcfaPerHa": 0,
+        "delayBeforeHarvestDays": 0,
+        "ppeRequired": false,
+        "followupDays": 3
+      },
+      "validatedBy": "ISRA-CERAAS-aflatoxines-2020"
+    },
+    {
+      "id": "MIL-VEG-STRIGA",
+      "crop": "mil",
+      "stages": ["vegetative", "stem_elongation"],
+      "symptom": "weeds",
+      "season": "hivernage",
+      "regions": ["diourbel", "louga", "kaffrine", "thies", "fatick"],
+      "severityMin": 0.3,
+      "diagnosis": "Striga hermonthica — plante parasite à fleurs violettes, s'accroche aux racines du mil et siphonne la sève.",
+      "recommendation": {
+        "title": "Arrachage manuel + fumure organique",
+        "actions": [
+          "Arracher les striga AVANT floraison et les brûler (éviter la dispersion des graines).",
+          "Apport de fumier 3–5 t/ha à la prochaine campagne (le striga tolère mal un sol riche).",
+          "Rotation : intercaler niébé ou arachide avant le prochain mil.",
+          "Semer variétés tolérantes : Souna 3 ou Thialack 2."
+        ],
+        "costFcfaPerHa": 3000,
+        "delayBeforeHarvestDays": 0,
+        "ppeRequired": false,
+        "followupDays": 14
+      },
+      "validatedBy": "ICRISAT-ISRA-striga-2019"
+    },
+    {
+      "id": "MIL-FLO-PESTS-MINEUSE",
+      "crop": "mil",
+      "stages": ["flowering", "fruiting"],
+      "symptom": "pests",
+      "season": "hivernage",
+      "regions": ["louga", "diourbel", "kaffrine", "thies"],
+      "severityMin": 0.3,
+      "diagnosis": "Chenille mineuse de l'épi (Heliocheilus albipunctella) — dégâts au stade épiaison, perforations sur les grains en formation.",
+      "recommendation": {
+        "title": "Lâcher de parasitoïdes ou biopesticide neem",
+        "actions": [
+          "Priorité : lâcher Habrobracon hebetor (si disponible ISRA/Songhaï) — 3 lâchers espacés de 7 jours.",
+          "Alternative : pulvériser extrait de neem (azadirachtine 10 g/L) à 5 L/ha en soirée.",
+          "Surveiller la floraison : intervention dans les 72h suivant l'épiaison."
+        ],
+        "costFcfaPerHa": 8000,
+        "delayBeforeHarvestDays": 7,
+        "ppeRequired": true,
+        "followupDays": 7
+      },
+      "validatedBy": "ISRA-DPV-2022"
+    },
+    {
+      "id": "SOR-VEG-STRIGA",
+      "crop": "sorgho",
+      "stages": ["vegetative", "stem_elongation"],
+      "symptom": "weeds",
+      "season": "hivernage",
+      "regions": ["tambacounda", "kaffrine", "kolda", "sedhiou"],
+      "severityMin": 0.3,
+      "diagnosis": "Striga sur sorgho — le sorgho est particulièrement sensible, surtout après 2+ campagnes continues.",
+      "recommendation": {
+        "title": "Rotation + variétés tolérantes",
+        "actions": [
+          "Arracher le striga avant floraison, brûler les plantes.",
+          "Rotation obligatoire : légumineuse (niébé, arachide) la campagne suivante.",
+          "Variétés tolérantes : Faourou, Nguinthe, 621B.",
+          "Apport fumier 5 t/ha pour réduire la germination des semences de striga."
+        ],
+        "costFcfaPerHa": 3500,
+        "delayBeforeHarvestDays": 0,
+        "ppeRequired": false,
+        "followupDays": 14
+      },
+      "validatedBy": "ICRISAT-striga-sorgho-2021"
+    },
+    {
+      "id": "MAIS-VEG-CHENILLE-FAW",
+      "crop": "mais",
+      "stages": ["germination", "vegetative", "stem_elongation"],
+      "symptom": "pests",
+      "season": "hivernage",
+      "regions": ["thies", "fatick", "kaolack", "kaffrine", "tambacounda", "kolda", "sedhiou", "ziguinchor"],
+      "severityMin": 0.2,
+      "diagnosis": "Chenille légionnaire d'automne (Spodoptera frugiperda) — dégâts caractéristiques : trous irréguliers sur feuilles, excréments noirs dans le cornet.",
+      "recommendation": {
+        "title": "Intervention rapide sur le cornet",
+        "actions": [
+          "Inspection matinale tous les 2 jours au stade 4–10 feuilles.",
+          "Seuil : 20% de plants avec présence dans le cornet → traiter.",
+          "Traitement : émamectine benzoate 10 g/ha appliqué DANS le cornet (jet dirigé, pas en pulvérisation large).",
+          "Alternative bio : Bacillus thuringiensis kurstaki 0,5 kg/ha en soirée.",
+          "Rotation insecticides indispensable (résistance avérée)."
+        ],
+        "costFcfaPerHa": 11000,
+        "delayBeforeHarvestDays": 14,
+        "ppeRequired": true,
+        "followupDays": 5
+      },
+      "validatedBy": "DPV-Senegal-FAW-2023"
+    },
+    {
+      "id": "MAIS-VEG-YELLOW",
+      "crop": "mais",
+      "stages": ["vegetative", "stem_elongation"],
+      "symptom": "yellow_leaves",
+      "season": "hivernage",
+      "regions": ["thies", "fatick", "kaolack", "kaffrine", "tambacounda", "kolda"],
+      "severityMin": 0.3,
+      "diagnosis": "Carence en azote probable — jaunissement classique partant des feuilles basses, en V inversé sur le limbe.",
+      "recommendation": {
+        "title": "Apport urée fractionné",
+        "actions": [
+          "Urée 46% à 50 kg/ha en couverture au stade 8–10 feuilles.",
+          "Second apport 50 kg/ha à l'initiation paniculaire si jaunissement persiste.",
+          "Enfouir légèrement pour limiter la volatilisation (≤ 50% de perte sinon)."
+        ],
+        "costFcfaPerHa": 18000,
+        "delayBeforeHarvestDays": 0,
+        "ppeRequired": false,
+        "followupDays": 10
+      },
+      "validatedBy": "ANCAR-fiche-mais-2022"
+    },
+    {
+      "id": "MAIS-FLO-DROUGHT",
+      "crop": "mais",
+      "stages": ["flowering", "fruiting"],
+      "symptom": "drought",
+      "season": "hivernage",
+      "regions": ["thies", "fatick", "kaolack", "kaffrine", "diourbel"],
+      "severityMin": 0.4,
+      "diagnosis": "Stress hydrique à la floraison — période la plus critique : une semaine de sec = -30% de rendement.",
+      "recommendation": {
+        "title": "Irrigation d'appoint prioritaire",
+        "actions": [
+          "Irriguer 30 mm dans les 48h (goutte-à-goutte ou aspersion en soirée).",
+          "Si pas d'irrigation possible : paillage épais pour conserver l'humidité résiduelle.",
+          "Ne JAMAIS pulvériser de fongicide ou insecticide sous stress hydrique (risque phytotoxicité)."
+        ],
+        "costFcfaPerHa": 4000,
+        "delayBeforeHarvestDays": 0,
+        "ppeRequired": false,
+        "followupDays": 3
+      },
+      "validatedBy": "ISRA-CERAAS-stress-mais"
+    },
+    {
+      "id": "RIZ-VEG-PYRIC",
+      "crop": "riz",
+      "stages": ["vegetative", "stem_elongation", "flowering"],
+      "symptom": "spots",
+      "season": "hivernage",
+      "regions": ["saint_louis", "matam", "ziguinchor", "sedhiou"],
+      "severityMin": 0.3,
+      "diagnosis": "Pyriculariose (Magnaporthe oryzae) — taches losangiques gris-brun sur feuilles, col de la panicule noirci (collet).",
+      "recommendation": {
+        "title": "Fongicide systémique + gestion azote",
+        "actions": [
+          "Tricyclazole 300 g/ha au premier symptôme, répéter 10 j après si pression forte.",
+          "RÉDUIRE immédiatement les apports d'azote (favorise la maladie).",
+          "Drainer la rizière 24h si possible (casser le cycle humide)."
+        ],
+        "costFcfaPerHa": 15000,
+        "delayBeforeHarvestDays": 28,
+        "ppeRequired": true,
+        "followupDays": 7
+      },
+      "validatedBy": "SAED-ADRAO-pyriculariose-2020"
+    },
+    {
+      "id": "RIZ-VEG-FOREUR",
+      "crop": "riz",
+      "stages": ["vegetative", "stem_elongation"],
+      "symptom": "pests",
+      "season": "hivernage",
+      "regions": ["saint_louis", "matam"],
+      "severityMin": 0.3,
+      "diagnosis": "Foreur de tige (Chilo zacconius, Maliarpha separatella) — 'cœur mort' caractéristique, tiges creusées.",
+      "recommendation": {
+        "title": "Traitement granulés + rotation",
+        "actions": [
+          "Application granulés carbofuran 3% à 20 kg/ha en eau (submersion) — attention EPI strict.",
+          "Alternative bio : lâcher Trichogramma à 100 000/ha à l'apparition des premiers adultes.",
+          "Récolter le plus ras possible, brûler les chaumes."
+        ],
+        "costFcfaPerHa": 14000,
+        "delayBeforeHarvestDays": 21,
+        "ppeRequired": true,
+        "followupDays": 7
+      },
+      "validatedBy": "SAED-fiche-foreur-riz"
+    },
+    {
+      "id": "NIEBE-FLO-PESTS",
+      "crop": "niebe",
+      "stages": ["flowering", "fruiting"],
+      "symptom": "pests",
+      "season": "hivernage",
+      "regions": ["louga", "diourbel", "thies", "kaffrine", "tambacounda"],
+      "severityMin": 0.3,
+      "diagnosis": "Complexe ravageurs niébé — Maruca vitrata (perceur de gousse), thrips floraux, pucerons noirs (Aphis craccivora).",
+      "recommendation": {
+        "title": "Calendrier de traitement floraison",
+        "actions": [
+          "1er traitement : pré-floraison — émamectine 10 g/ha OU deltaméthrine 12,5 g/ha (attention abeilles, traiter en soirée).",
+          "2e traitement : 10 j après, formation gousses.",
+          "Alternative bio : neem azadirachtine 5 L/ha, 3 passages à 7 j d'intervalle."
+        ],
+        "costFcfaPerHa": 10000,
+        "delayBeforeHarvestDays": 14,
+        "ppeRequired": true,
+        "followupDays": 7
+      },
+      "validatedBy": "ISRA-fiche-niebe-2022"
+    },
+    {
+      "id": "TOM-FLO-MILDIOU",
+      "crop": "tomate",
+      "stages": ["flowering", "fruiting", "ripening"],
+      "symptom": "spots",
+      "season": "contreSaison",
+      "regions": ["dakar", "thies", "saint_louis"],
+      "severityMin": 0.2,
+      "diagnosis": "Mildiou de la tomate (Phytophthora infestans) — taches brunes huileuses sur feuilles + feutrage blanc au revers, apparaît sous forte humidité nocturne.",
+      "recommendation": {
+        "title": "Fongicide cuivre + aération",
+        "actions": [
+          "Traitement PRÉVENTIF dès que rosée matinale persiste : oxychlorure de cuivre 2 kg/ha, répéter tous les 7 j.",
+          "En curatif : métalaxyl-M + mancozèbe 2,5 kg/ha — délai avant récolte respecté strictement.",
+          "Aérer la culture : tuteurage, suppression des feuilles basses, pas d'arrosage foliaire en soirée."
+        ],
+        "costFcfaPerHa": 22000,
+        "delayBeforeHarvestDays": 14,
+        "ppeRequired": true,
+        "followupDays": 5
+      },
+      "validatedBy": "CDH-Niayes-2021"
+    },
+    {
+      "id": "TOM-VEG-TYLCV",
+      "crop": "tomate",
+      "stages": ["vegetative", "flowering"],
+      "symptom": "yellow_leaves",
+      "season": "contreSaison",
+      "regions": ["dakar", "thies", "saint_louis", "louga"],
+      "severityMin": 0.4,
+      "diagnosis": "TYLCV (Tomato Yellow Leaf Curl Virus) — transmis par mouche blanche (Bemisia tabaci). Feuilles enroulées vers le haut, jaunissement entre les nervures, nanisme.",
+      "recommendation": {
+        "title": "Pas de traitement curatif — gestion vecteur",
+        "actions": [
+          "Arracher et détruire les plants fortement atteints (foyer primaire de virus).",
+          "Filets anti-insectes sur pépinière et jeune culture si possible.",
+          "Traitement mouche blanche : spiromésifène 96 g/ha OU acétamipride 20 g/ha.",
+          "Prochaine campagne : variétés tolérantes (Mongal F1, Lindo F1)."
+        ],
+        "costFcfaPerHa": 18000,
+        "delayBeforeHarvestDays": 14,
+        "ppeRequired": true,
+        "followupDays": 7
+      },
+      "validatedBy": "CDH-ISRA-TYLCV-2020"
+    },
+    {
+      "id": "TOM-FRU-PESTS-HELICOVERPA",
+      "crop": "tomate",
+      "stages": ["flowering", "fruiting"],
+      "symptom": "pests",
+      "season": "contreSaison",
+      "regions": ["dakar", "thies", "saint_louis"],
+      "severityMin": 0.3,
+      "diagnosis": "Noctuelle de la tomate (Helicoverpa armigera) — chenilles perforent les fruits verts, dégâts quasi invisibles de l'extérieur.",
+      "recommendation": {
+        "title": "Traitement ciblé biologique ou chimique",
+        "actions": [
+          "Pose de pièges à phéromones (5/ha) pour détecter le vol précoce.",
+          "Bacillus thuringiensis 1 kg/ha dès détection des premières pontes.",
+          "Si pression forte : émamectine benzoate 14 g/ha (respecter rotation, résistance documentée).",
+          "Ramasser et enterrer les fruits tombés (foyer larvaire)."
+        ],
+        "costFcfaPerHa": 13000,
+        "delayBeforeHarvestDays": 7,
+        "ppeRequired": true,
+        "followupDays": 5
+      },
+      "validatedBy": "DPV-tomate-2022"
+    },
+    {
+      "id": "TOM-FRU-DROUGHT-BER",
+      "crop": "tomate",
+      "stages": ["fruiting", "ripening"],
+      "symptom": "drought",
+      "season": "contreSaison",
+      "regions": ["dakar", "thies", "saint_louis", "matam"],
+      "severityMin": 0.3,
+      "diagnosis": "Nécrose apicale (Blossom End Rot, BER) — pas une maladie, carence induite par irrégularité d'irrigation + carence calcium disponible.",
+      "recommendation": {
+        "title": "Régulariser l'arrosage + calcium foliaire",
+        "actions": [
+          "Arrosage RÉGULIER — jamais de gros stress suivi d'un gros apport.",
+          "Paillage pour lisser l'humidité du sol.",
+          "Pulvérisation foliaire de chlorure de calcium 0,5% tous les 7 j (matin ou soir).",
+          "Vérifier pH du sol — si > 7,5 le calcium est bloqué."
+        ],
+        "costFcfaPerHa": 4000,
+        "delayBeforeHarvestDays": 0,
+        "ppeRequired": false,
+        "followupDays": 7
+      },
+      "validatedBy": "CDH-Niayes-nutrition"
+    },
+    {
+      "id": "OIG-BULB-THRIPS",
+      "crop": "oignon",
+      "stages": ["vegetative", "bulb_formation"],
+      "symptom": "pests",
+      "season": "contreSaison",
+      "regions": ["saint_louis", "thies", "louga", "dakar"],
+      "severityMin": 0.3,
+      "diagnosis": "Thrips de l'oignon (Thrips tabaci) — stries argentées sur feuilles, pointes brûlées. Explosion sous temps sec et vent (harmattan).",
+      "recommendation": {
+        "title": "Spinosad + irrigation",
+        "actions": [
+          "Spinosad 48 g/ha dès seuil de 10 thrips/plante (pulvérisation fine, pression élevée).",
+          "Répéter à 7 j, alterner avec abamectine 9 g/ha pour éviter résistance.",
+          "Irrigation régulière : les thrips préfèrent les cultures hydriquement stressées."
+        ],
+        "costFcfaPerHa": 14000,
+        "delayBeforeHarvestDays": 7,
+        "ppeRequired": true,
+        "followupDays": 7
+      },
+      "validatedBy": "CDH-thrips-oignon-2021"
+    },
+    {
+      "id": "OIG-VEG-MILDIOU",
+      "crop": "oignon",
+      "stages": ["vegetative", "bulb_formation"],
+      "symptom": "spots",
+      "season": "contreSaison",
+      "regions": ["saint_louis", "louga", "thies"],
+      "severityMin": 0.3,
+      "diagnosis": "Mildiou de l'oignon (Peronospora destructor) — feutrage violacé sur feuilles affaissées, apparaît sous brumes matinales.",
+      "recommendation": {
+        "title": "Fongicide préventif alterné",
+        "actions": [
+          "Mancozèbe 2 kg/ha en préventif, tous les 10–14 j.",
+          "En curatif : métalaxyl-M + mancozèbe 2,5 kg/ha.",
+          "Drainage + écartement large pour aération."
+        ],
+        "costFcfaPerHa": 16000,
+        "delayBeforeHarvestDays": 21,
+        "ppeRequired": true,
+        "followupDays": 7
+      },
+      "validatedBy": "CDH-fiche-oignon-2020"
+    },
+    {
+      "id": "OIG-BULB-WEEDS",
+      "crop": "oignon",
+      "stages": ["vegetative", "bulb_formation"],
+      "symptom": "weeds",
+      "season": "contreSaison",
+      "regions": ["saint_louis", "thies", "louga", "dakar", "matam"],
+      "severityMin": 0.3,
+      "diagnosis": "Enherbement sévère — l'oignon supporte mal la concurrence au stade bulbaison (système racinaire superficiel).",
+      "recommendation": {
+        "title": "Désherbage manuel urgent",
+        "actions": [
+          "Sarclage manuel précautionneux (ne pas blesser les bulbes en formation).",
+          "Paillage léger après désherbage pour limiter la repousse.",
+          "La campagne suivante : herbicide de pré-émergence (pendiméthaline 1,5 kg/ha) sur sol nu."
+        ],
+        "costFcfaPerHa": 5000,
+        "delayBeforeHarvestDays": 0,
+        "ppeRequired": false,
+        "followupDays": 14
+      },
+      "validatedBy": "ANCAR-fiche-oignon"
+    },
+    {
+      "id": "CHOU-POMM-CHENILLE",
+      "crop": "chou",
+      "stages": ["vegetative", "head_formation"],
+      "symptom": "pests",
+      "season": "contreSaison",
+      "regions": ["dakar", "thies", "saint_louis"],
+      "severityMin": 0.3,
+      "diagnosis": "Chenilles défoliatrices (Plutella xylostella — teigne du chou, Spodoptera spp.) — trous en fenêtres, excréments verts dans la pomme.",
+      "recommendation": {
+        "title": "Bt ou spinosad selon stade",
+        "actions": [
+          "Bacillus thuringiensis kurstaki 0,5–1 kg/ha en soirée, répéter à 5 j.",
+          "Si pression forte : spinosad 48 g/ha.",
+          "Préserver parasitoïdes Cotesia — éviter pyréthrinoïdes.",
+          "Rotation indispensable (P. xylostella développe vite des résistances)."
+        ],
+        "costFcfaPerHa": 11000,
+        "delayBeforeHarvestDays": 7,
+        "ppeRequired": true,
+        "followupDays": 5
+      },
+      "validatedBy": "CDH-chou-2021"
+    },
+    {
+      "id": "PIM-FLO-MOUCHE-BLANCHE",
+      "crop": "piment",
+      "stages": ["vegetative", "flowering", "fruiting"],
+      "symptom": "pests",
+      "season": "contreSaison",
+      "regions": ["dakar", "thies", "saint_louis"],
+      "severityMin": 0.3,
+      "diagnosis": "Mouche blanche (Bemisia tabaci) — fumagine noire, chute de fleurs, vecteur de virus.",
+      "recommendation": {
+        "title": "Traitement alterné + filets",
+        "actions": [
+          "Alternance spiromésifène 96 g/ha et pyriproxyfène 50 g/ha (évite résistance).",
+          "Plaques jaunes engluées à 40/ha pour monitoring.",
+          "Filets anti-insectes en pépinière si possible."
+        ],
+        "costFcfaPerHa": 17000,
+        "delayBeforeHarvestDays": 7,
+        "ppeRequired": true,
+        "followupDays": 7
+      },
+      "validatedBy": "CDH-piment-mouche-blanche"
+    },
+    {
+      "id": "GOMBO-FLO-PESTS-JASSIDES",
+      "crop": "gombo",
+      "stages": ["vegetative", "flowering", "fruiting"],
+      "symptom": "pests",
+      "season": "hivernage",
+      "regions": ["dakar", "thies", "kaolack", "ziguinchor", "kolda", "sedhiou"],
+      "severityMin": 0.3,
+      "diagnosis": "Jassides (Amrasca biguttula) — feuilles qui s'enroulent et jaunissent en bordures, 'hopper burn'.",
+      "recommendation": {
+        "title": "Imidaclopride + variétés pileuses",
+        "actions": [
+          "Imidaclopride 25 g/ha dès apparition des 1ers symptômes.",
+          "Alterner avec thiaméthoxame (résistance).",
+          "Choisir variétés à feuilles velues (Volta, Hire F1) — naturellement moins sensibles."
+        ],
+        "costFcfaPerHa": 9000,
+        "delayBeforeHarvestDays": 7,
+        "ppeRequired": true,
+        "followupDays": 7
+      },
+      "validatedBy": "DPV-gombo"
+    },
+    {
+      "id": "MANGUE-FRU-MOUCHE-FRUITS",
+      "crop": "mangue",
+      "stages": ["fruiting", "ripening"],
+      "symptom": "pests",
+      "season": "hivernage",
+      "regions": ["ziguinchor", "sedhiou", "kolda", "tambacounda", "kedougou", "thies"],
+      "severityMin": 0.3,
+      "diagnosis": "Mouche des fruits (Bactrocera dorsalis surtout) — fruits piqués, pourrissement interne, chute prématurée. Fléau export mangue sénégalais.",
+      "recommendation": {
+        "title": "Piégeage massif + GF-120",
+        "actions": [
+          "Pièges à phéromone méthyl-eugénol : 10–15/ha, renouveler tous les 2 mois.",
+          "Appât protéique GF-120 (spinosad) : 1 L/ha en spot-treatment sur feuilles tous les 7 j avant véraison.",
+          "Ramasser TOUS les fruits tombés quotidiennement et les enterrer profondément (> 50 cm).",
+          "Taille éclaircissante pour aérer la canopée."
+        ],
+        "costFcfaPerHa": 25000,
+        "delayBeforeHarvestDays": 5,
+        "ppeRequired": true,
+        "followupDays": 7
+      },
+      "validatedBy": "COLEACP-DPV-mouche-fruits-2022"
+    },
+    {
+      "id": "RIZ-TAL-YELLOW",
+      "crop": "riz",
+      "stages": ["vegetative"],
+      "symptom": "yellow_leaves",
+      "season": "hivernage",
+      "regions": ["saint_louis", "matam", "ziguinchor"],
+      "severityMin": 0.3,
+      "diagnosis": "Carence en azote ou en zinc — feuilles basses jaunes (azote) OU taches jaunes entre nervures sur jeunes feuilles (zinc, fréquent en rizière alcaline).",
+      "recommendation": {
+        "title": "Diagnostic azote vs zinc",
+        "actions": [
+          "Si jaunissement des feuilles basses → urée 100 kg/ha au tallage, répartir en 2 apports.",
+          "Si taches jaunes sur jeunes feuilles → sulfate de zinc 25 kg/ha au repiquage.",
+          "Test simple : grattage feuille — si rétablissement en 3–5 j après urée, c'était l'azote."
+        ],
+        "costFcfaPerHa": 16000,
+        "delayBeforeHarvestDays": 0,
+        "ppeRequired": false,
+        "followupDays": 7
+      },
+      "validatedBy": "SAED-nutrition-riz"
+    },
+    {
+      "id": "GENERIC-DROUGHT-SEVERE",
+      "crop": "*",
+      "stages": ["*"],
+      "symptom": "drought",
+      "season": "*",
+      "regions": ["*"],
+      "severityMin": 0.7,
+      "diagnosis": "Stress hydrique sévère — toutes cultures confondues. Priorité absolue à la réhydratation.",
+      "recommendation": {
+        "title": "Irrigation de sauvetage",
+        "actions": [
+          "Apport immédiat de 20–30 mm si système d'irrigation disponible.",
+          "Éviter tout traitement phytosanitaire tant que la culture est stressée.",
+          "Paillage dès que possible pour limiter l'évapotranspiration.",
+          "Planifier une visite de suivi dans 3 jours pour réévaluer."
+        ],
+        "costFcfaPerHa": 5000,
+        "delayBeforeHarvestDays": 0,
+        "ppeRequired": false,
+        "followupDays": 3
+      },
+      "validatedBy": "règle générique — fallback stress sévère"
+    },
+    {
+      "id": "GENERIC-WEEDS",
+      "crop": "*",
+      "stages": ["germination", "vegetative"],
+      "symptom": "weeds",
+      "season": "*",
+      "regions": ["*"],
+      "severityMin": 0.3,
+      "diagnosis": "Concurrence des adventices — critique en début de cycle, les 40 premiers jours dictent le rendement.",
+      "recommendation": {
+        "title": "Désherbage mécanique rapide",
+        "actions": [
+          "Sarclage dans les 48h — priorité aux inter-rangs.",
+          "Second passage 15 j après selon repousse.",
+          "La campagne suivante : herbicide de pré-émergence adapté à la culture."
+        ],
+        "costFcfaPerHa": 4500,
+        "delayBeforeHarvestDays": 0,
+        "ppeRequired": false,
+        "followupDays": 14
+      },
+      "validatedBy": "règle générique"
+    },
+    {
+      "id": "GENERIC-PESTS-SEVERE",
+      "crop": "*",
+      "stages": ["*"],
+      "symptom": "pests",
+      "season": "*",
+      "regions": ["*"],
+      "severityMin": 0.6,
+      "diagnosis": "Infestation sévère multi-cultures — intervention urgente requise pour limiter les pertes.",
+      "recommendation": {
+        "title": "Traitement insecticide ciblé urgent",
+        "actions": [
+          "Identifier le ravageur (pucerons, chenilles, thrips, jassides) avant tout traitement.",
+          "Appliquer bio-insecticide neem (Azadirachtine 3,2 g/L) à 2,5 L/ha en début de soirée.",
+          "Si pression forte : lambda-cyhalothrine 25 EC à 0,5 L/ha — respecter le DAR.",
+          "Piégeage lumineux le soir pour suivi de population."
+        ],
+        "costFcfaPerHa": 18000,
+        "delayBeforeHarvestDays": 14,
+        "ppeRequired": true,
+        "followupDays": 3
+      },
+      "validatedBy": "DPV — protocole lutte intégrée ravageurs 2023"
+    },
+    {
+      "id": "GENERIC-HEALTHY",
+      "crop": "*",
+      "stages": ["*"],
+      "symptom": "healthy",
+      "season": "*",
+      "regions": ["*"],
+      "severityMin": 0.0,
+      "diagnosis": "Parcelle en bonne santé — aucun symptôme majeur détecté.",
+      "recommendation": {
+        "title": "Maintenir le suivi régulier",
+        "actions": [
+          "Prochaine visite selon calendrier (J+7 par défaut).",
+          "Continuer l'irrigation et la fertilisation conformes au plan de campagne.",
+          "Garder un œil sur l'apparition de foyers — intervention précoce = meilleur rendement."
+        ],
+        "costFcfaPerHa": 0,
+        "delayBeforeHarvestDays": 0,
+        "ppeRequired": false,
+        "followupDays": 7
+      },
+      "validatedBy": "règle générique"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:fmtc.jaffaketchup.dev)",
+      "WebSearch",
+      "WebFetch(domain:pub.dev)",
+      "Bash(dart analyze:*)"
+    ]
+  }
+}
