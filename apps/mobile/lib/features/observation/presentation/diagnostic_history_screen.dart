@@ -81,11 +81,13 @@ class _DiagnosticRequestCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isAnalyzed = request.status == DiagnosticStatus.analyzed;
     final isValidated = request.status == DiagnosticStatus.validated;
+    final isRejected = request.status == DiagnosticStatus.rejected;
 
     Color statusColor = Colors.grey;
     String statusLabel = 'En attente';
     if (isAnalyzed) { statusColor = AppColors.info; statusLabel = 'Analysé (Claude)'; }
     if (isValidated) { statusColor = AppColors.success; statusLabel = 'Validé par Expert'; }
+    if (isRejected) { statusColor = AppColors.danger; statusLabel = 'Rejeté par Expert'; }
 
     // Résoudre l'URL de l'image (si relative au backend)
     String imageUrl = request.photoUrl;
@@ -154,6 +156,37 @@ class _DiagnosticRequestCard extends ConsumerWidget {
             Text(
               request.aiResult!.recommendations,
               style: const TextStyle(fontSize: 13),
+            ),
+          ],
+          if (request.adminComment != null && request.adminComment!.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: statusColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: statusColor.withValues(alpha: 0.3)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.comment_rounded, size: 16, color: statusColor),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Commentaire de l\'Expert',
+                        style: TextStyle(fontWeight: FontWeight.w700, color: statusColor, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    request.adminComment!,
+                    style: const TextStyle(fontSize: 13, fontStyle: FontStyle.italic),
+                  ),
+                ],
+              ),
             ),
           ],
           if (isValidated) ...[

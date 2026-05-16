@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:dio/dio.dart';
 import '../network/dio_provider.dart';
+import '../../features/auth/presentation/auth_providers.dart';
+import '../../features/parcels/presentation/parcels_providers.dart';
 
 enum DiagnosticStatus { pending, analyzed, validated, rejected }
 
@@ -172,13 +174,28 @@ final aiDiagnosticServiceProvider = Provider((ref) {
 
 final diagnosticRequestsProvider = StreamProvider<List<DiagnosticRequest>>((ref) async* {
   final service = ref.watch(aiDiagnosticServiceProvider);
+  final currentUser = ref.watch(authStateProvider).value?.user;
+  final techName = currentUser?.name;
+  final parcels = ref.watch(parcelsProvider);
+  final parcelsMap = {for (final p in parcels) p.id: p};
+
+  List<DiagnosticRequest> filter(List<DiagnosticRequest> list) {
+    if (techName == null || techName.isEmpty) return list;
+    return list.where((req) {
+      final p = parcelsMap[req.parcelId];
+      if (p != null && p.technician != null && p.technician != 'Non affecté' && p.technician != techName) {
+        return false; // Appartenant à un autre technicien
+      }
+      return true;
+    }).toList();
+  }
   
   // Initial fetch
-  yield await service.fetchRequests();
+  yield filter(await service.fetchRequests());
 
   // Simple polling for the demo (every 10s)
   while (true) {
     await Future.delayed(const Duration(seconds: 10));
-    yield await service.fetchRequests();
+    yield filter(await service.fetchRequests());
   }
 });
