@@ -78,11 +78,11 @@ jobs:
             echo ".env written with $(wc -l < .env) lines"
 
             echo "=== [5/6] Pull images ==="
-            docker compose -f docker-compose.prod.yml pull
+            sudo docker compose -f docker-compose.prod.yml pull
 
             echo "=== [6/6] Start containers ==="
-            docker compose -f docker-compose.prod.yml up -d
-            docker compose -f docker-compose.prod.yml ps
-            docker image prune -f
+            sudo docker compose -f docker-compose.prod.yml up -d
+            sudo docker compose -f docker-compose.prod.yml ps
+            sudo docker image prune -f
 
             echo "=== Deploy complete ==="
