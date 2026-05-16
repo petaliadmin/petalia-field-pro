@@ -11,6 +11,7 @@ import {
   Map,
   Settings,
   LogOut,
+  LogIn,
   Bell,
   User,
   Users,
@@ -32,7 +33,18 @@ import {
   CircleCheckBig,
   Layers,
   Maximize2,
-  Leaf
+  Leaf,
+  Wallet,
+  Coins,
+  X,
+  Plus,
+  Check,
+  Eye,
+  FileText,
+  ArrowUpCircle,
+  Scale,
+  Sliders,
+  Trash2
 } from 'lucide-angular';
 
 bootstrapApplication(AppComponent, {
@@ -48,6 +60,7 @@ bootstrapApplication(AppComponent, {
         Map,
         Settings,
         LogOut,
+        LogIn,
         Bell,
         User,
         Users,
@@ -69,7 +82,18 @@ bootstrapApplication(AppComponent, {
         CircleCheckBig,
         Layers,
         Maximize2,
-        Leaf
+        Leaf,
+        Wallet,
+        Coins,
+        X,
+        Plus,
+        Check,
+        Eye,
+        FileText,
+        ArrowUpCircle,
+        Scale,
+        Sliders,
+        Trash2
       })
     }
   ]
