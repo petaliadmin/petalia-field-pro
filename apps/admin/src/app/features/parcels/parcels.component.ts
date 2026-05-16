@@ -89,79 +89,107 @@ import { environment } from '../../../environments/environment';
         <p class="text-slate-500 font-bold">Aucune parcelle trouvée</p>
       </div>
 
-      <!-- Parcels Grid -->
-      <div *ngIf="!loading" class="grid grid-cols-3 gap-6">
-        <div *ngFor="let parcel of filteredParcels"
-             class="bg-white rounded-[32px] p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between relative overflow-hidden group">
-          <div>
-            <div class="flex items-start justify-between mb-4">
-              <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full shrink-0"
-                      [ngClass]="{
-                        'bg-emerald-500': parcel.status === 'healthy',
-                        'bg-amber-500': parcel.status === 'water_stress',
-                        'bg-red-500': parcel.status === 'infection',
-                        'bg-slate-300': parcel.status === 'unknown'
-                      }"></span>
-                <span class="text-xs font-black px-2 py-0.5 rounded-full"
-                      [ngClass]="{
-                        'bg-emerald-100 text-emerald-700': parcel.status === 'healthy',
-                        'bg-amber-100 text-amber-700': parcel.status === 'water_stress',
-                        'bg-red-100 text-red-700': parcel.status === 'infection',
-                        'bg-slate-100 text-slate-600': parcel.status === 'unknown'
-                      }">
-                  {{ statusLabel(parcel.status) }}
-                </span>
-              </div>
-              <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                #{{ parcel.id | slice:0:8 }}
-              </span>
-            </div>
+      <!-- Parcels Table -->
+      <div *ngIf="!loading" class="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-gray-50/75 border-b border-gray-100 text-[11px] font-black text-slate-400 uppercase tracking-wider">
+                <th class="py-4 px-6">ID / Statut</th>
+                <th class="py-4 px-6">Producteur</th>
+                <th class="py-4 px-6">Contact</th>
+                <th class="py-4 px-6">Localisation & GPS</th>
+                <th class="py-4 px-6">Culture & Superficie</th>
+                <th class="py-4 px-6">Création</th>
+                <th class="py-4 px-6 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 text-sm font-medium text-slate-600">
+              <tr *ngFor="let parcel of filteredParcels" class="hover:bg-primary/5 transition-colors group">
+                <td class="py-4 px-6">
+                  <div class="flex items-center gap-2 mb-1.5">
+                    <span class="w-2.5 h-2.5 rounded-full shrink-0"
+                          [ngClass]="{
+                            'bg-emerald-500': parcel.status === 'healthy',
+                            'bg-amber-500': parcel.status === 'water_stress',
+                            'bg-red-500': parcel.status === 'infection',
+                            'bg-slate-300': parcel.status === 'unknown'
+                          }"></span>
+                    <span class="text-xs font-black px-2.5 py-0.5 rounded-lg"
+                          [ngClass]="{
+                            'bg-emerald-100 text-emerald-700': parcel.status === 'healthy',
+                            'bg-amber-100 text-amber-700': parcel.status === 'water_stress',
+                            'bg-red-100 text-red-700': parcel.status === 'infection',
+                            'bg-slate-100 text-slate-600': parcel.status === 'unknown'
+                          }">
+                      {{ statusLabel(parcel.status) }}
+                    </span>
+                  </div>
+                  <span class="text-[11px] font-mono font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100 select-all" title="Cliquez pour sélectionner l'ID">
+                    #{{ parcel.id }}
+                  </span>
+                </td>
 
-            <h3 class="font-black text-slate-900 mb-1 text-lg">{{ parcel.ownerName }}</h3>
+                <td class="py-4 px-6">
+                  <div class="font-black text-slate-900 text-base group-hover:text-primary transition-colors">{{ parcel.ownerName }}</div>
+                </td>
 
-            <div class="space-y-2 mt-4 mb-6">
-              <div *ngIf="parcel.location?.region" class="flex items-center gap-2 text-slate-500">
-                <lucide-icon name="map-pin" class="w-4 h-4 text-primary shrink-0"></lucide-icon>
-                <span class="text-xs font-bold">{{ parcel.location!.region }}</span>
-              </div>
-              <div *ngIf="parcel.area" class="flex items-center gap-2 text-slate-500">
-                <lucide-icon name="layers" class="w-4 h-4 text-amber-500 shrink-0"></lucide-icon>
-                <span class="text-xs font-bold">{{ parcel.area }} ha</span>
-              </div>
-              <div *ngIf="parcel.cropType" class="flex items-center gap-2 text-slate-500">
-                <lucide-icon name="leaf" class="w-4 h-4 text-emerald-500 shrink-0"></lucide-icon>
-                <span class="text-xs font-bold">{{ parcel.cropType }}</span>
-              </div>
-              <div class="flex items-center gap-2 text-slate-400">
-                <lucide-icon name="calendar" class="w-4 h-4 shrink-0"></lucide-icon>
-                <span class="text-xs font-bold">{{ parcel.createdAt | date:'dd/MM/yyyy' }}</span>
-              </div>
-            </div>
-          </div>
+                <td class="py-4 px-6">
+                  <div *ngIf="parcel.ownerPhone" class="flex items-center gap-1.5 text-slate-700">
+                    <lucide-icon name="phone" class="w-3.5 h-3.5 text-primary"></lucide-icon>
+                    <span class="font-bold text-xs">{{ parcel.ownerPhone }}</span>
+                  </div>
+                  <span *ngIf="!parcel.ownerPhone" class="text-xs text-slate-300 italic">Non renseigné</span>
+                </td>
 
-          <!-- Actions Footer -->
-          <div>
-            <div class="flex gap-2 mb-3">
-              <button (click)="openPassport(parcel.id)" class="flex-1 py-2.5 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-xl text-[11px] font-black transition-all flex items-center justify-center gap-1">
-                <lucide-icon name="file-text" class="w-3.5 h-3.5"></lucide-icon>
-                PASSEPORT
-              </button>
-              <button (click)="openDetailsModal(parcel)" class="px-3 py-2.5 bg-gray-50 text-slate-700 hover:bg-gray-100 rounded-xl text-[11px] font-black transition-all flex items-center gap-1">
-                <lucide-icon name="eye" class="w-3.5 h-3.5"></lucide-icon>
-                DÉTAILS
-              </button>
-            </div>
-            <div class="flex gap-2 pt-3 border-t border-gray-50">
-              <button (click)="openEditModal(parcel)" class="flex-1 py-2 bg-gray-50 text-slate-700 hover:bg-gray-100 rounded-xl text-xs font-black transition-all">MODIFIER</button>
-              <button (click)="openDeleteModal(parcel)" class="px-3 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl text-xs font-black transition-all">
-                <lucide-icon name="trash-2" class="w-4 h-4"></lucide-icon>
-              </button>
-            </div>
-          </div>
+                <td class="py-4 px-6">
+                  <div *ngIf="parcel.location?.region" class="flex items-center gap-1.5 text-slate-800 font-bold mb-1">
+                    <lucide-icon name="map-pin" class="w-3.5 h-3.5 text-primary"></lucide-icon>
+                    <span class="text-xs">{{ parcel.location!.region }}</span>
+                  </div>
+                  <div *ngIf="parcel.location?.lat && parcel.location?.lng" class="flex items-center gap-1.5 text-slate-400 text-[11px] font-mono">
+                    <lucide-icon name="compass" class="w-3.5 h-3.5 text-blue-500"></lucide-icon>
+                    <span>{{ parcel.location!.lat }}°N, {{ parcel.location!.lng }}°E</span>
+                  </div>
+                </td>
 
-          <!-- Abstract background shape -->
-          <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors pointer-events-none"></div>
+                <td class="py-4 px-6">
+                  <div *ngIf="parcel.cropType" class="flex items-center gap-1.5 text-emerald-700 font-black mb-1">
+                    <lucide-icon name="leaf" class="w-3.5 h-3.5 text-emerald-500"></lucide-icon>
+                    <span class="text-xs">{{ parcel.cropType }}</span>
+                  </div>
+                  <div *ngIf="parcel.area" class="flex items-center gap-1.5 text-slate-500 text-xs font-bold">
+                    <lucide-icon name="layers" class="w-3.5 h-3.5 text-amber-500"></lucide-icon>
+                    <span>{{ parcel.area }} ha</span>
+                  </div>
+                </td>
+
+                <td class="py-4 px-6">
+                  <div class="flex items-center gap-1.5 text-slate-500 text-xs font-bold">
+                    <lucide-icon name="calendar" class="w-3.5 h-3.5 text-slate-400"></lucide-icon>
+                    <span>{{ parcel.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                  </div>
+                </td>
+
+                <td class="py-4 px-6 text-right">
+                  <div class="flex items-center justify-end gap-1.5">
+                    <button (click)="openPassport(parcel.id)" title="Passeport Phytosanitaire" class="p-2 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-xl transition-all flex items-center justify-center">
+                      <lucide-icon name="file-text" class="w-4 h-4"></lucide-icon>
+                    </button>
+                    <button (click)="openDetailsModal(parcel)" title="Détails" class="p-2 bg-gray-50 text-slate-700 hover:bg-gray-100 rounded-xl transition-all flex items-center justify-center">
+                      <lucide-icon name="eye" class="w-4 h-4"></lucide-icon>
+                    </button>
+                    <button (click)="openEditModal(parcel)" title="Modifier" class="p-2 bg-gray-50 text-slate-700 hover:bg-gray-100 rounded-xl transition-all flex items-center justify-center">
+                      <lucide-icon name="edit" class="w-4 h-4"></lucide-icon>
+                    </button>
+                    <button (click)="openDeleteModal(parcel)" title="Supprimer" class="p-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl transition-all flex items-center justify-center">
+                      <lucide-icon name="trash-2" class="w-4 h-4"></lucide-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
