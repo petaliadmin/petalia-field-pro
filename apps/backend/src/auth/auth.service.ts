@@ -2,6 +2,7 @@ import { Injectable, Inject, UnauthorizedException, BadRequestException, Logger 
 import { JwtService } from '@nestjs/jwt';
 import { Redis } from 'ioredis';
 import { UsersService } from '../users/users.service';
+import { WalletService } from '../wallet/wallet.service';
 import { SmsService } from '../common/services/sms.service';
 import * as bcrypt from 'bcrypt';
 
@@ -12,6 +13,7 @@ export class AuthService {
   constructor(
     private jwtService: JwtService,
     private usersService: UsersService,
+    private walletService: WalletService,
     private smsService: SmsService,
     @Inject('REDIS_CLIENT') private redis: Redis,
   ) {}
@@ -67,6 +69,19 @@ export class AuthService {
         password: hashedPassword,
         email: `${phone}@petalia.agro`,
       });
+
+      // Règle métier : 50 crédits d'essai offerts pour chaque nouvel utilisateur
+      try {
+        await this.walletService.addCredits(
+          user.id,
+          50,
+          "Crédits d'essai offerts (Bienvenue sur Petalia)",
+          `WELCOME_${Date.now()}`,
+        );
+        this.logger.log(`Attribué 50 crédits de bienvenue à l'utilisateur ${user.id}`);
+      } catch (err) {
+        this.logger.error(`Erreur lors de l'attribution des crédits de bienvenue: ${err.message}`, err.stack);
+      }
     }
 
     // Supprimer le token de vérification

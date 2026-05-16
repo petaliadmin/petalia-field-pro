@@ -108,7 +108,12 @@ class WalletScreen extends ConsumerWidget {
                               ),
                               onPressed: () {
                                 HapticFeedback.selectionClick();
-                                ref.read(showBalanceProvider.notifier).state = !showBalance;
+                                final current = ref.read(showBalanceProvider);
+                                ref.read(showBalanceProvider.notifier).state = !current;
+                                if (!current) {
+                                  ref.read(creditServiceProvider.notifier).refreshBalance();
+                                  ref.invalidate(walletTransactionsProvider);
+                                }
                               },
                             ),
                           ],

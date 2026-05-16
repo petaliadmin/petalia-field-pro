@@ -208,3 +208,11 @@ Pour chaque tâche ou fonctionnalité implémentée, tu dois obligatoirement pre
 3. **Base de données (BDD / Redis)** : Modèles de données, migrations, intégrité, mise en cache.
 4. **Admin (Angular / Web)** : Répercussion sur le tableau de bord d'administration et de supervision.
 5. **Swagger / OpenAPI** : Documentation à jour et contrats d'API rigoureusement alignés.
+
+---
+
+# 🚀 12. CONTINUOUS DELIVERY RULE (COMMIT & PUSH)
+
+Après chaque implémentation, modification ou correction, et **uniquement après une vérification et validation réussie de l'ensemble de la stack** (builds réussis, tests passés, absence d'erreurs), tu dois obligatoirement :
+1. Effectuer un commit propre et descriptif résumant clairement les changements apportés.
+2. Pousser les modifications vers la branche principale (`main`) du dépôt distant pour garantir la livraison continue et la synchronisation du projet.

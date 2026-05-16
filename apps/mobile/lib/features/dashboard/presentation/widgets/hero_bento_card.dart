@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/services/credit_service.dart';
 import '../../../../core/services/settings_service.dart';
 import '../../../../core/services/tts_service.dart';
 import '../../../../core/services/weather_service.dart';
@@ -10,6 +11,7 @@ import '../../../../routes/route_names.dart';
 import '../../../../shared/widgets/glass_card.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
+import '../../wallet/presentation/wallet_providers.dart';
 
 class HeroBentoCard extends ConsumerWidget {
   const HeroBentoCard({super.key, required this.weather, required this.credits});
@@ -108,8 +110,6 @@ class HeroBentoCard extends ConsumerWidget {
   }
 }
 
-final showBalanceProvider = StateProvider<bool>((ref) => true);
-
 class CompactWallet extends ConsumerWidget {
   const CompactWallet({super.key, required this.credits});
   final int credits;
@@ -121,7 +121,14 @@ class CompactWallet extends ConsumerWidget {
     return Row(
       children: [
         IconButton(
-          onPressed: () => ref.read(showBalanceProvider.notifier).state = !showBalance,
+          onPressed: () {
+            final current = ref.read(showBalanceProvider);
+            ref.read(showBalanceProvider.notifier).state = !current;
+            if (!current) {
+              ref.read(creditServiceProvider.notifier).refreshBalance();
+              ref.invalidate(walletTransactionsProvider);
+            }
+          },
           icon: Icon(showBalance ? Icons.visibility_rounded : Icons.visibility_off_rounded, size: 16, color: Colors.white70),
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(),

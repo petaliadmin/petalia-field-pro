@@ -21,7 +21,10 @@
       "Bash(git remote *)",
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "PowerShell(gh run *)",
+      "PowerShell(Start-Process powershell -ArgumentList \"-NoExit\", \"-Command\", \"cd 'C:\\\\Developement\\\\petaliacropassist'; Write-Host 'Backend \\(Docker\\)' -ForegroundColor Cyan; docker compose up\")",
+      "PowerShell(docker compose ps *)"
     ]
   }
 }

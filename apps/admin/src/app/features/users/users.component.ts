@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { UserService, UserAccount } from '../../core/services/user.service';
+import { AlertConfirmService } from '../../core/services/alert-confirm.service';
 
 @Component({
   selector: 'app-users',
@@ -93,7 +94,7 @@ import { UserService, UserAccount } from '../../core/services/user.service';
               <lucide-icon name="coins" class="w-5 h-5 text-amber-600"></lucide-icon>
               <span class="text-xs font-bold text-amber-900 uppercase tracking-wider">Solde Crédits</span>
             </div>
-            <span class="text-base font-black text-amber-700">{{ user.walletBalance || 0 }} FCFA</span>
+            <span class="text-base font-black text-amber-700">{{ user.walletBalance || 0 }} CRÉDITS</span>
           </div>
 
           <!-- Actions -->
@@ -159,10 +160,15 @@ import { UserService, UserAccount } from '../../core/services/user.service';
             </div>
           </div>
 
-          <button (click)="saveUser()" class="w-full py-4 bg-primary text-white rounded-2xl font-black text-sm shadow-xl shadow-primary/20 hover:bg-primary-dark transition-all flex items-center justify-center gap-2">
-            <lucide-icon name="check" class="w-5 h-5"></lucide-icon>
-            {{ isEditing ? 'ENREGISTRER LES MODIFICATIONS' : 'CRÉER L\'UTILISATEUR' }}
-          </button>
+          <div class="flex gap-4 shrink-0 mt-6">
+            <button (click)="closeUserModal()" class="flex-1 py-4 bg-gray-100 text-slate-700 rounded-2xl font-black text-sm hover:bg-gray-200 transition-all">
+              ANNULER
+            </button>
+            <button (click)="saveUser()" class="flex-1 py-4 bg-primary text-white rounded-2xl font-black text-sm shadow-xl shadow-primary/20 hover:bg-primary-dark transition-all flex items-center justify-center gap-2">
+              <lucide-icon name="check" class="w-5 h-5"></lucide-icon>
+              {{ isEditing ? 'ENREGISTRER' : 'CRÉER' }}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -183,7 +189,7 @@ import { UserService, UserAccount } from '../../core/services/user.service';
           <div class="bg-amber-50 p-6 rounded-2xl border border-amber-100 mb-6 flex items-center justify-between">
             <div>
               <span class="text-xs font-bold text-amber-800 uppercase tracking-wider">Solde Actuel</span>
-              <div class="text-2xl font-black text-amber-900 mt-1">{{ selectedUser.walletBalance || 0 }} FCFA</div>
+              <div class="text-2xl font-black text-amber-900 mt-1">{{ selectedUser.walletBalance || 0 }} CRÉDITS</div>
             </div>
             <div class="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-600">
               <lucide-icon name="coins" class="w-6 h-6"></lucide-icon>
@@ -208,10 +214,10 @@ import { UserService, UserAccount } from '../../core/services/user.service';
 
           <!-- Amount Input -->
           <div class="mb-6 space-y-2">
-            <label class="text-xs font-bold text-slate-700 uppercase tracking-wider">Montant (FCFA)</label>
+            <label class="text-xs font-bold text-slate-700 uppercase tracking-wider">Montant (Crédits)</label>
             <div class="relative">
-              <input [(ngModel)]="walletOp.amount" type="number" placeholder="Ex: 5000" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:border-primary/20 outline-none transition-all">
-              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 uppercase">FCFA</span>
+              <input [(ngModel)]="walletOp.amount" type="number" placeholder="Ex: 50" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:border-primary/20 outline-none transition-all">
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 uppercase">CRÉDITS</span>
             </div>
             <p *ngIf="walletOp.type === 'AJUSTEMENT'" class="text-[11px] text-slate-500 italic">Astuce: Utilisez un montant négatif (ex: -1000) pour un ajustement en retrait.</p>
           </div>
@@ -223,10 +229,15 @@ import { UserService, UserAccount } from '../../core/services/user.service';
           </div>
 
           <!-- Submit Button -->
-          <button (click)="submitWalletOperation()" [disabled]="isLoading" class="w-full py-4 bg-primary text-white rounded-2xl font-black text-sm shadow-xl shadow-primary/20 hover:bg-primary-dark transition-all disabled:opacity-50 flex items-center justify-center gap-2">
-            <lucide-icon *ngIf="isLoading" name="loader-2" class="w-5 h-5 animate-spin"></lucide-icon>
-            CONFIRMER L'OPÉRATION
-          </button>
+          <div class="flex gap-4 shrink-0 mt-6">
+            <button (click)="closeWalletModal()" class="flex-1 py-4 bg-gray-100 text-slate-700 rounded-2xl font-black text-sm hover:bg-gray-200 transition-all">
+              ANNULER
+            </button>
+            <button (click)="submitWalletOperation()" [disabled]="isLoading" class="flex-1 py-4 bg-primary text-white rounded-2xl font-black text-sm shadow-xl shadow-primary/20 hover:bg-primary-dark transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+              <lucide-icon *ngIf="isLoading" name="loader-2" class="w-5 h-5 animate-spin"></lucide-icon>
+              CONFIRMER
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -261,6 +272,7 @@ export class UsersComponent implements OnInit {
   };
 
   private userService = inject(UserService);
+  private alertService = inject(AlertConfirmService);
 
   ngOnInit() {
     this.loadUsers();
@@ -303,25 +315,27 @@ export class UsersComponent implements OnInit {
 
   saveUser() {
     if (!this.currentUser.name || !this.currentUser.email) {
-      alert('Veuillez remplir les champs obligatoires (Nom et Email)');
+      this.alertService.warning('Veuillez remplir les champs obligatoires (Nom et Email)');
       return;
     }
 
     if (this.isEditing && this.currentUser.id) {
       this.userService.update(this.currentUser.id, this.currentUser).subscribe({
         next: () => {
+          this.alertService.success('Utilisateur modifié avec succès');
           this.loadUsers();
           this.closeUserModal();
         },
-        error: (err) => alert('Erreur lors de la modification : ' + err.message)
+        error: (err) => this.alertService.error('Erreur lors de la modification : ' + err.message)
       });
     } else {
       this.userService.create(this.currentUser).subscribe({
         next: () => {
+          this.alertService.success('Utilisateur créé avec succès');
           this.loadUsers();
           this.closeUserModal();
         },
-        error: (err) => alert('Erreur lors de la création : ' + err.message)
+        error: (err) => this.alertService.error('Erreur lors de la création : ' + err.message)
       });
     }
   }
@@ -342,11 +356,11 @@ export class UsersComponent implements OnInit {
   submitWalletOperation() {
     if (!this.selectedUser) return;
     if (!this.walletOp.amount) {
-      alert('Veuillez entrer un montant valide');
+      this.alertService.warning('Veuillez entrer un montant valide');
       return;
     }
     if (!this.walletOp.description.trim()) {
-      alert('Veuillez indiquer un motif obligatoire');
+      this.alertService.warning('Veuillez indiquer un motif obligatoire');
       return;
     }
 
@@ -359,22 +373,34 @@ export class UsersComponent implements OnInit {
     ).subscribe({
       next: (res) => {
         this.isLoading = false;
-        alert(`Opération réussie ! Nouveau solde : ${res.newBalance} FCFA`);
+        this.alertService.success(`Opération réussie ! Nouveau solde : ${res.newBalance} CRÉDITS`);
         this.closeWalletModal();
         this.loadUsers();
       },
       error: (err) => {
         this.isLoading = false;
-        alert('Erreur lors de l\'opération : ' + (err.error?.message || err.message));
+        this.alertService.error('Erreur lors de l\'opération : ' + (err.error?.message || err.message));
       }
     });
   }
 
   toggleStatus(user: UserAccount) {
-    const newStatus = user.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
-    this.userService.update(user.id, { status: newStatus as any }).subscribe({
-      next: () => this.loadUsers(),
-      error: (err) => alert('Erreur: ' + err.message)
+    const action = user.status === 'ACTIVE' ? 'désactiver' : 'activer';
+    this.alertService.confirm({
+      title: `${action === 'désactiver' ? 'Désactivation' : 'Activation'} du compte`,
+      message: `Voulez-vous vraiment ${action} le compte de ${user.name} ?`,
+      confirmText: action.toUpperCase(),
+      confirmButtonColor: user.status === 'ACTIVE' ? 'bg-amber-500 hover:bg-amber-600 shadow-amber-500/20' : 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20',
+      onConfirm: () => {
+        const newStatus = user.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+        this.userService.update(user.id, { status: newStatus as any }).subscribe({
+          next: () => {
+            this.alertService.success(`Le compte de ${user.name} a été ${action === 'désactiver' ? 'désactivé' : 'activé'} avec succès.`);
+            this.loadUsers();
+          },
+          error: (err) => this.alertService.error('Erreur: ' + err.message)
+        });
+      }
     });
   }
 }

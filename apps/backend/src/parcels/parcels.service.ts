@@ -39,6 +39,11 @@ export class ParcelsService {
     return this.parcelsRepository.save(parcel);
   }
 
+  async update(id: string, updateData: Partial<Parcel>): Promise<Parcel> {
+    await this.parcelsRepository.update(id, updateData);
+    return this.findOne(id);
+  }
+
   async remove(id: string): Promise<void> {
     await this.parcelsRepository.delete(id);
   }

@@ -59,8 +59,12 @@ export class ParcelsController {
     return this.documentService.generateParcelPassport(parcel);
   }
 
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateData: any) {
+    return this.parcelsService.update(id, updateData);
+  }
+
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
   remove(@Param('id') id: string) {
     return this.parcelsService.remove(id);
   }

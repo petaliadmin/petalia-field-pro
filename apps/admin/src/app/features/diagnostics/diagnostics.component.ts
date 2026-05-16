@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { DiagnosticService, DiagnosticRequest } from '../../core/services/diagnostic.service';
+import { AlertConfirmService } from '../../core/services/alert-confirm.service';
 
 @Component({
   selector: 'app-diagnostics',
@@ -133,13 +134,16 @@ import { DiagnosticService, DiagnosticRequest } from '../../core/services/diagno
               </div>
             </div>
 
-            <div class="mt-8 grid grid-cols-2 gap-4">
-              <button (click)="validate(false)" class="px-6 py-4 bg-red-50 text-red-600 rounded-2xl font-black text-sm hover:bg-red-100 transition-all flex items-center justify-center gap-2">
-                <lucide-icon name="circle-x" class="w-5 h-5"></lucide-icon>
+            <div class="mt-8 grid grid-cols-3 gap-3">
+              <button (click)="selectedRequest = null" class="px-4 py-4 bg-gray-100 text-slate-700 rounded-2xl font-black text-xs hover:bg-gray-200 transition-all flex items-center justify-center gap-1">
+                Annuler
+              </button>
+              <button (click)="validate(false)" class="px-4 py-4 bg-red-50 text-red-600 rounded-2xl font-black text-xs hover:bg-red-100 transition-all flex items-center justify-center gap-1">
+                <lucide-icon name="circle-x" class="w-4 h-4"></lucide-icon>
                 Rejeter
               </button>
-              <button (click)="validate(true)" class="px-6 py-4 bg-primary text-white rounded-2xl font-black text-sm hover:bg-primary-dark shadow-lg shadow-primary/30 transition-all flex items-center justify-center gap-2">
-                <lucide-icon name="circle-check" class="w-5 h-5"></lucide-icon>
+              <button (click)="validate(true)" class="px-4 py-4 bg-primary text-white rounded-2xl font-black text-xs hover:bg-primary-dark shadow-lg shadow-primary/30 transition-all flex items-center justify-center gap-1">
+                <lucide-icon name="circle-check" class="w-4 h-4"></lucide-icon>
                 Valider
               </button>
             </div>
@@ -168,6 +172,7 @@ export class DiagnosticsComponent implements OnInit {
   statusFilter = '';
 
   private diagnosticService = inject(DiagnosticService);
+  private alertService = inject(AlertConfirmService);
 
   ngOnInit() {
     this.loadDiagnostics();
@@ -193,13 +198,24 @@ export class DiagnosticsComponent implements OnInit {
   validate(approve: boolean) {
     if (!this.selectedRequest) return;
     
-    this.diagnosticService.validate(this.selectedRequest.id, approve, this.adminComment).subscribe({
-      next: () => {
-        this.loadDiagnostics();
-        this.selectedRequest = null;
-        this.adminComment = '';
-      },
-      error: (err) => alert('Erreur lors de la validation: ' + err.message)
+    const action = approve ? 'valider' : 'rejeter';
+    this.alertService.confirm({
+      title: `${approve ? 'Validation' : 'Rejet'} du diagnostic`,
+      message: `Voulez-vous vraiment ${action} le diagnostic pour la parcelle #${this.selectedRequest.parcelId.split('-')[0]} de ${this.selectedRequest.ownerName} ?`,
+      confirmText: action.toUpperCase(),
+      confirmButtonColor: approve ? 'bg-primary hover:bg-primary-dark shadow-primary/20' : 'bg-red-600 hover:bg-red-700 shadow-red-600/20',
+      onConfirm: () => {
+        if (!this.selectedRequest) return;
+        this.diagnosticService.validate(this.selectedRequest.id, approve, this.adminComment).subscribe({
+          next: () => {
+            this.alertService.success(`Le diagnostic a été ${approve ? 'validé' : 'rejeté'} avec succès.`);
+            this.loadDiagnostics();
+            this.selectedRequest = null;
+            this.adminComment = '';
+          },
+          error: (err) => this.alertService.error('Erreur lors de la validation: ' + err.message)
+        });
+      }
     });
   }
 }

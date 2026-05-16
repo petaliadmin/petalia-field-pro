@@ -25,4 +25,16 @@ export class ParcelService {
       map(res => Array.isArray(res) ? res : (res?.data || []))
     );
   }
+
+  create(parcel: Partial<Parcel>): Observable<Parcel> {
+    return this.http.post<Parcel>(this.apiUrl, parcel);
+  }
+
+  update(id: string, parcel: Partial<Parcel>): Observable<Parcel> {
+    return this.http.patch<Parcel>(`${this.apiUrl}/${id}`, parcel);
+  }
+
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
 }
