@@ -54,3 +54,9 @@ yarn-debug.log*
 yarn-error.log*
 .nest/
 
+# Flutter build outputs
+apps/mobile/build/
+apps/mobile/.dart_tool/
+apps/mobile/.flutter-plugins
+apps/mobile/.flutter-plugins-dependencies
+
