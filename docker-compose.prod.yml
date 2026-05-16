@@ -34,6 +34,8 @@ services:
     command: sh -c "node ./node_modules/.bin/typeorm migration:run -d dist/data-source.js && node dist/main"
     ports:
       - "3000:3000"
+    volumes:
+      - uploads_data:/usr/src/app/uploads
     depends_on:
       database:
         condition: service_healthy
@@ -42,3 +44,4 @@ services:
 
 volumes:
   postgres_data_prod:
+  uploads_data:

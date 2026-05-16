@@ -25,6 +25,8 @@ RUN npm install --only=production
 
 COPY --from=development /usr/src/app/dist ./dist
 
+RUN mkdir -p uploads
+
 EXPOSE 3000
 
 CMD ["node", "dist/main"]

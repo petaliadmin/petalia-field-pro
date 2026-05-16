@@ -1,11 +1,26 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { MulterModule } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname, join } from 'path';
+import { randomUUID } from 'crypto';
 import { DiagnosticsService } from './diagnostics.service';
 import { DiagnosticsController } from './diagnostics.controller';
 import { DiagnosticRequest } from './entities/diagnostic-request.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([DiagnosticRequest])],
+  imports: [
+    TypeOrmModule.forFeature([DiagnosticRequest]),
+    MulterModule.register({
+      storage: diskStorage({
+        destination: join(process.cwd(), 'uploads'),
+        filename: (_req, file, cb) => {
+          cb(null, `${randomUUID()}${extname(file.originalname)}`);
+        },
+      }),
+      limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
+    }),
+  ],
   controllers: [DiagnosticsController],
   providers: [DiagnosticsService],
   exports: [DiagnosticsService],
