@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { SystemController } from './system.controller';
+import { AgroRulesController, NdviController, SystemController } from './system.controller';
 import { SystemService } from './system.service';
 
 @Module({
-  controllers: [SystemController],
+  controllers: [SystemController, NdviController, AgroRulesController],
   providers: [SystemService],
   exports: [SystemService],
 })
