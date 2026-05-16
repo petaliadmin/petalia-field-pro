@@ -20,7 +20,12 @@ export class DiagnosticService {
   private apiUrl = `${environment.apiUrl}/diagnostics`;
 
   getAll(): Observable<DiagnosticRequest[]> {
-    return this.http.get<DiagnosticRequest[]>(this.apiUrl);
+    return this.http.get<DiagnosticRequest[]>(this.apiUrl).pipe(
+      map(requests => requests.map(req => ({
+        ...req,
+        photoUrl: req.photoUrl?.startsWith('http') ? req.photoUrl : `${environment.apiUrl}/${req.photoUrl}`
+      })))
+    );
   }
 
   validate(id: string, approve: boolean, comment: string): Observable<DiagnosticRequest> {
