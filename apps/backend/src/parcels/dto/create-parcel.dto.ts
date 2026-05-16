@@ -77,6 +77,10 @@ export class CreateParcelDto {
   @IsOptional()
   soilType?: string;
 
+  @IsString()
+  @IsOptional()
+  previousCrop?: string;
+
   @IsOptional()
   treatmentHistory?: any;
 }

@@ -40,7 +40,27 @@ export class ParcelsService {
   }
 
   async update(id: string, updateData: Partial<Parcel>): Promise<Parcel> {
-    await this.parcelsRepository.update(id, updateData);
+    const validKeys = [
+      'name',
+      'owner',
+      'village',
+      'phone',
+      'technician',
+      'crop',
+      'healthScore',
+      'boundary',
+      'estimatedYield',
+      'lastVisit',
+    ];
+    const cleanData: any = {};
+    for (const key of validKeys) {
+      if (key in updateData && (updateData as any)[key] !== undefined) {
+        cleanData[key] = (updateData as any)[key];
+      }
+    }
+    if (Object.keys(cleanData).length > 0) {
+      await this.parcelsRepository.update(id, cleanData);
+    }
     return this.findOne(id);
   }
 
