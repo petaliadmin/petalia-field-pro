@@ -29,13 +29,13 @@ export class ParcelService {
           ...item,
           id: item.id,
           ownerId: item.ownerId || item.id,
-          ownerName: item.ownerName || item.owner || item.name || 'Producteur inconnu',
-          ownerPhone: item.ownerPhone || item.phone || '',
+          ownerName: item.owner || item.ownerName || item.name || 'Producteur inconnu',
+          ownerPhone: item.phone || item.ownerPhone || '',
           technician: item.technician || item.technicianName || 'Non affecté',
-          area: item.area || item.estimatedYield || 1.5,
-          location: item.location || { lat: 16.033, lng: -16.483, region: item.village || 'Saint-Louis' },
+          area: item.estimatedYield || item.area || 1.5,
+          location: item.location || { lat: 16.033, lng: -16.483, region: item.village || item.location?.region || 'Saint-Louis' },
           status: item.status || (item.healthScore >= 80 ? 'healthy' : item.healthScore >= 50 ? 'water_stress' : 'infection'),
-          cropType: item.cropType || item.crop || 'Non spécifié',
+          cropType: item.crop || item.cropType || 'Non spécifié',
           createdAt: item.createdAt || new Date().toISOString()
         }));
       })
@@ -43,11 +43,28 @@ export class ParcelService {
   }
 
   create(parcel: Partial<Parcel>): Observable<Parcel> {
-    return this.http.post<Parcel>(this.apiUrl, parcel);
+    const payload = {
+      ...parcel,
+      owner: parcel.ownerName || 'Producteur inconnu',
+      phone: parcel.ownerPhone || '',
+      crop: parcel.cropType || 'Non spécifié',
+      estimatedYield: parcel.area || 1.5,
+      village: parcel.location?.region || 'Sénégal',
+      name: parcel.id || `PAR-${Math.floor(Math.random() * 10000)}`,
+    };
+    return this.http.post<Parcel>(this.apiUrl, payload);
   }
 
   update(id: string, parcel: Partial<Parcel>): Observable<Parcel> {
-    return this.http.patch<Parcel>(`${this.apiUrl}/${id}`, parcel);
+    const payload = {
+      ...parcel,
+      owner: parcel.ownerName || (parcel as any)['owner'],
+      phone: parcel.ownerPhone || (parcel as any)['phone'],
+      crop: parcel.cropType || (parcel as any)['crop'],
+      estimatedYield: parcel.area || (parcel as any)['estimatedYield'],
+      village: parcel.location?.region || (parcel as any)['village'],
+    };
+    return this.http.patch<Parcel>(`${this.apiUrl}/${id}`, payload);
   }
 
   delete(id: string): Observable<void> {

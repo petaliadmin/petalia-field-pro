@@ -181,6 +181,9 @@ import { environment } from '../../../environments/environment';
                     <button (click)="openPassport(parcel.id)" title="Passeport Phytosanitaire" class="p-2 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-xl transition-all flex items-center justify-center">
                       <lucide-icon name="file-text" class="w-4 h-4"></lucide-icon>
                     </button>
+                    <button (click)="openAssignModal(parcel)" title="Affecter Technicien" class="p-2 bg-amber-50 text-amber-600 hover:bg-amber-100 rounded-xl transition-all flex items-center justify-center">
+                      <lucide-icon name="user-check" class="w-4 h-4"></lucide-icon>
+                    </button>
                     <button (click)="openDetailsModal(parcel)" title="Détails" class="p-2 bg-gray-50 text-slate-700 hover:bg-gray-100 rounded-xl transition-all flex items-center justify-center">
                       <lucide-icon name="eye" class="w-4 h-4"></lucide-icon>
                     </button>
@@ -324,6 +327,38 @@ import { environment } from '../../../environments/environment';
           </button>
         </div>
       </div>
+
+      <!-- Assign Technician Modal -->
+      <div *ngIf="showAssignModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+        <div class="bg-white rounded-[32px] p-8 max-w-md w-full shadow-2xl border border-gray-100 relative overflow-hidden flex flex-col">
+          <div class="flex items-center justify-between mb-6 shrink-0">
+            <h3 class="text-xl font-black text-slate-900">Affecter un Technicien</h3>
+            <button (click)="closeAssignModal()" class="p-2 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-slate-50 transition-all">
+              <lucide-icon name="x" class="w-6 h-6"></lucide-icon>
+            </button>
+          </div>
+
+          <div class="space-y-4 mb-8">
+            <p class="text-xs text-slate-500 font-medium">
+              Affectez ou modifiez le technicien en charge de la parcelle de <span class="font-bold text-slate-800">{{ assignParcel?.ownerName }}</span>.
+            </p>
+            <div>
+              <label class="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-2">Nom du Technicien *</label>
+              <input [(ngModel)]="assignTechnicianInput" type="text" placeholder="Ex: Ousmane Diop" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:border-primary/20 outline-none transition-all">
+            </div>
+          </div>
+
+          <div class="flex gap-4 shrink-0">
+            <button (click)="closeAssignModal()" class="flex-1 py-4 bg-gray-100 text-slate-700 rounded-2xl font-black text-sm hover:bg-gray-200 transition-all">
+              ANNULER
+            </button>
+            <button (click)="saveAssignment()" class="flex-1 py-4 bg-amber-500 text-white rounded-2xl font-black text-sm shadow-xl shadow-amber-500/20 hover:bg-amber-600 transition-all flex items-center justify-center gap-2">
+              <lucide-icon name="check" class="w-5 h-5"></lucide-icon>
+              AFFECTER
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   `,
   styles: [`:host { display: block; }`]
@@ -346,6 +381,10 @@ export class ParcelsComponent implements OnInit {
   regionInput = '';
 
   selectedParcelDetails: Parcel | null = null;
+
+  showAssignModal = false;
+  assignParcel: Parcel | null = null;
+  assignTechnicianInput = '';
 
   private parcelService = inject(ParcelService);
   private alertService = inject(AlertConfirmService);
@@ -468,6 +507,35 @@ export class ParcelsComponent implements OnInit {
           },
           error: (err) => this.alertService.error('Erreur lors de la suppression : ' + err.message)
         });
+      }
+    });
+  }
+
+  openAssignModal(parcel: Parcel) {
+    this.assignParcel = parcel;
+    this.assignTechnicianInput = parcel.technician === 'Non affecté' ? '' : (parcel.technician || '');
+    this.showAssignModal = true;
+  }
+
+  closeAssignModal() {
+    this.showAssignModal = false;
+    this.assignParcel = null;
+  }
+
+  saveAssignment() {
+    if (!this.assignParcel) return;
+    this.loading = true;
+    this.cdr.detectChanges();
+    this.parcelService.update(this.assignParcel.id, { technician: this.assignTechnicianInput.trim() || 'Non affecté' }).subscribe({
+      next: () => {
+        this.alertService.success('Technicien affecté avec succès');
+        this.closeAssignModal();
+        this.loadParcels();
+      },
+      error: (err) => {
+        this.alertService.error("Erreur lors de l'affectation : " + err.message);
+        this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }

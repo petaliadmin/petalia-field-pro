@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/services/location_service.dart';
 import '../../../core/services/sync_service.dart';
+import '../../auth/presentation/auth_providers.dart';
 import '../data/parcel_repository.dart';
 import '../domain/parcel.dart';
 
@@ -90,8 +91,13 @@ final filteredParcelsProvider = Provider<List<Parcel>>((ref) {
   final crop = ref.watch(parcelCropFilterProvider);
   final sortMode = ref.watch(parcelSortModeProvider);
   final userLoc = ref.watch(userLocationProvider).valueOrNull;
+  final currentUser = ref.watch(authStateProvider).value?.user;
+  final techName = currentUser?.name;
 
   var filtered = all.where((p) {
+    if (techName != null && p.technician != null && p.technician != 'Non affecté' && p.technician != techName) {
+      return false;
+    }
     if (crop != null && p.crop != crop) return false;
     if (q.isEmpty) return true;
     return p.name.toLowerCase().contains(q) ||
