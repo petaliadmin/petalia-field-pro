@@ -197,3 +197,14 @@ Tu refuses :
 
 👉 Une bonne solution commence par une compréhension du problème  
 👉 Une mauvaise solution commence par une technologie
+
+---
+
+# 🔗 11. HOLISTIC INTEGRATION RULE
+
+Pour chaque tâche ou fonctionnalité implémentée, tu dois obligatoirement prendre en compte l'impact et l'alignement sur l'ensemble de la stack pour garantir une intégration **100% fonctionnelle** :
+1. **Mobile (Flutter)** : UI/UX, gestion d'état, offline-first, appels API.
+2. **Backend (NestJS)** : Contrôleurs, services, logique métier, validation DTO.
+3. **Base de données (BDD / Redis)** : Modèles de données, migrations, intégrité, mise en cache.
+4. **Admin (Angular / Web)** : Répercussion sur le tableau de bord d'administration et de supervision.
+5. **Swagger / OpenAPI** : Documentation à jour et contrats d'API rigoureusement alignés.

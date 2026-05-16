@@ -2,13 +2,22 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { WalletTransaction, TransactionType, WalletOperationType } from './entities/wallet-transaction.entity';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class WalletService {
   constructor(
     @InjectRepository(WalletTransaction)
     private transactionRepository: Repository<WalletTransaction>,
+    private usersService: UsersService,
   ) {}
+
+  async getTransactions(userId: string): Promise<WalletTransaction[]> {
+    return this.transactionRepository.find({
+      where: { userId },
+      order: { createdAt: 'DESC' },
+    });
+  }
 
   async getBalance(userId: string): Promise<number> {
     const result = await this.transactionRepository
@@ -18,6 +27,64 @@ export class WalletService {
       .getRawOne();
     
     return Number(result?.sum || 0);
+  }
+
+  async transferCredits(
+    senderId: string,
+    recipientPhone: string,
+    amount: number,
+    description?: string,
+  ) {
+    if (amount <= 0) {
+      throw new BadRequestException('Le montant doit être supérieur à zéro');
+    }
+
+    // Normaliser le numéro
+    const phone = recipientPhone.startsWith('+221') ? recipientPhone : '+221' + recipientPhone.replace(/^7/, '7');
+
+    const recipient = await this.usersService.findByPhone(phone);
+    if (!recipient) {
+      throw new BadRequestException('Producteur introuvable avec ce numéro');
+    }
+
+    if (recipient.id === senderId) {
+      throw new BadRequestException('Vous ne pouvez pas transférer des crédits à vous-même');
+    }
+
+    const sender = await this.usersService.findOne(senderId);
+
+    return this.transactionRepository.manager.transaction(async (manager) => {
+      const balance = await this.getBalanceWithManager(manager, senderId);
+      if (balance < amount) {
+        throw new BadRequestException('Solde de crédits insuffisant');
+      }
+
+      const desc = description?.trim() || `Transfert à ${recipient.name || phone}`;
+
+      // 1. Débit de l'émetteur
+      const debitTx = manager.create(WalletTransaction, {
+        userId: senderId,
+        amount,
+        description: desc,
+        type: TransactionType.DEBIT,
+        operationType: WalletOperationType.TRANSFER,
+        reference: `TRANSFER_OUT_${Date.now()}`,
+      });
+      await manager.save(debitTx);
+
+      // 2. Crédit du destinataire
+      const creditTx = manager.create(WalletTransaction, {
+        userId: recipient.id,
+        amount,
+        description: `Crédits reçus de ${sender.name || sender.phone}`,
+        type: TransactionType.CREDIT,
+        operationType: WalletOperationType.TRANSFER,
+        reference: `TRANSFER_IN_${Date.now()}`,
+      });
+      await manager.save(creditTx);
+
+      return { message: 'Transfert effectué avec succès', transaction: debitTx };
+    });
   }
 
   async addCredits(userId: string, amount: number, description: string, reference?: string) {

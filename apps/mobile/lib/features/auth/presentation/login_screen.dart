@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../routes/route_names.dart';
@@ -25,6 +26,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   String _pin = '';
   bool _loading = false;
   String? _error;
+  bool _needPhoneInput = false;
 
   late final AnimationController _shakeCtrl;
   bool _canCheckBiometrics = false;
@@ -37,8 +39,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       duration: const Duration(milliseconds: 400),
     );
 
-    // Default to +221 for Senegal
-    _phoneCtrl.text = '7'; 
+    final user = ref.read(authRepositoryProvider).currentUser();
+    if (user != null && user.phone.isNotEmpty) {
+      _phoneCtrl.text = user.phone.replaceFirst('+221', '');
+      _needPhoneInput = false;
+    } else {
+      _phoneCtrl.text = '';
+      _needPhoneInput = true;
+    }
+
     _checkBiometrics();
   }
 
@@ -96,7 +105,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     final l10n = AppLocalizations.of(context);
     final phone = _phoneCtrl.text.trim();
     if (phone.length < 9) {
-      setState(() => _error = l10n.authErrorInvalidPhone);
+      setState(() {
+        _error = l10n.authErrorInvalidPhone;
+        _pin = '';
+      });
       return;
     }
 
@@ -152,11 +164,43 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Veuillez entrer votre code secret\npour vous connecter',
+                      _needPhoneInput 
+                          ? 'Renseignez votre numéro de téléphone et\nvotre code secret pour récupérer votre compte'
+                          : 'Veuillez entrer votre code secret\npour vous connecter',
                       textAlign: TextAlign.center,
                       style: TextStyle(color: AppColors.textMutedOf(context), fontSize: 14),
                     ),
-                    const SizedBox(height: 60),
+                    if (_needPhoneInput) ...[
+                      const SizedBox(height: 32),
+                      const Text(
+                        'Numéro de téléphone',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 8),
+                      IntlPhoneField(
+                        controller: _phoneCtrl,
+                        initialCountryCode: 'SN',
+                        showCountryFlag: false,
+                        textInputAction: TextInputAction.done,
+                        decoration: InputDecoration(
+                          hintText: '77 123 45 67',
+                          hintStyle: TextStyle(color: AppColors.textMutedOf(context), fontSize: 14),
+                          filled: true,
+                          fillColor: AppColors.surfaceOf(context),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: AppColors.dividerOf(context)),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: AppColors.dividerOf(context)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                    ] else ...[
+                      const SizedBox(height: 60),
+                    ],
                     
                     PinIndicator(
                       length: 4,

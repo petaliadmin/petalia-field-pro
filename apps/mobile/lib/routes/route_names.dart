@@ -26,6 +26,9 @@ class Routes {
   static const routePlanner = '/route-planner';
   static const visitDetails = '/visit'; // /visit/:id
   static const wallet = '/wallet';
+  static const walletRecharge = '/wallet/recharge';
+  static const walletTransfer = '/wallet/transfer';
+  static const walletQr = '/wallet/qr';
   static const producers = '/producers';
   static const diagnosticHistory = '/diagnostics';
 }

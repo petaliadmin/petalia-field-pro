@@ -10,6 +10,7 @@ export enum WalletOperationType {
   RECHARGE = 'RECHARGE', // Crédit manuel par admin
   AJUSTEMENT = 'AJUSTEMENT', // Correction de solde par admin
   REGULATION = 'REGULATION', // Débit ou gel par admin
+  TRANSFER = 'TRANSFER', // Transfert entre producteurs
 }
 
 @Entity('wallet_transactions')

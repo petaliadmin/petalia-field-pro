@@ -32,6 +32,9 @@ import '../features/reports/presentation/reports_screen.dart';
 import '../features/route_planner/presentation/route_planner_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
 import '../features/wallet/presentation/credit_purchase_screen.dart';
+import '../features/wallet/presentation/wallet_screen.dart';
+import '../features/wallet/presentation/transfer_screen.dart';
+import '../features/wallet/presentation/qr_code_screen.dart';
 import '../shared/widgets/app_shell.dart';
 import 'route_names.dart';
 
@@ -140,7 +143,19 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: Routes.wallet,
+        pageBuilder: _slideUp(const WalletScreen()),
+      ),
+      GoRoute(
+        path: Routes.walletRecharge,
         pageBuilder: _slideUp(const CreditPurchaseScreen()),
+      ),
+      GoRoute(
+        path: Routes.walletTransfer,
+        pageBuilder: _slideUp(const TransferScreen()),
+      ),
+      GoRoute(
+        path: Routes.walletQr,
+        pageBuilder: _slideUp(const QrCodeScreen()),
       ),
       GoRoute(
         path: Routes.producers,
