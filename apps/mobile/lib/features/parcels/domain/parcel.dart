@@ -18,6 +18,9 @@ class Parcel {
   /// Peut être saisi à la main ou importé depuis le carnet de contacts.
   final String? phone;
 
+  /// Technicien agricole en charge du suivi de la parcelle. Optionnel.
+  final String? technician;
+
   /// Variété spécifique (ex: arachide "73-33"). Optionnel pour conserver la
   /// compatibilité avec les parcelles créées avant l'enrichissement du modèle.
   final String? variety;
@@ -56,6 +59,7 @@ class Parcel {
     required this.estimatedYield,
     required this.boundary,
     this.phone,
+    this.technician,
     this.variety,
     this.semisDate,
     this.region,
@@ -86,6 +90,7 @@ class Parcel {
             .map((p) => LatLng((p[0] as num).toDouble(), (p[1] as num).toDouble()))
             .toList(),
         phone: json['phone'] as String?,
+        technician: json['technician'] as String?,
         variety: json['variety'] as String?,
         semisDate: json['semisDate'] == null
             ? null
@@ -112,6 +117,7 @@ class Parcel {
         'estimatedYield': estimatedYield,
         'boundary': boundary.map((p) => [p.latitude, p.longitude]).toList(),
         if (phone != null) 'phone': phone,
+        if (technician != null) 'technician': technician,
         if (variety != null) 'variety': variety,
         if (semisDate != null) 'semisDate': semisDate!.toIso8601String(),
         if (region != null) 'region': region,
@@ -132,6 +138,7 @@ class Parcel {
     double? estimatedYield,
     List<LatLng>? boundary,
     String? phone,
+    String? technician,
     String? variety,
     DateTime? semisDate,
     String? region,
@@ -152,6 +159,7 @@ class Parcel {
         estimatedYield: estimatedYield ?? this.estimatedYield,
         boundary: boundary ?? this.boundary,
         phone: phone ?? this.phone,
+        technician: technician ?? this.technician,
         variety: variety ?? this.variety,
         semisDate: semisDate ?? this.semisDate,
         region: region ?? this.region,

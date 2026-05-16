@@ -30,6 +30,9 @@ export class Parcel {
   @Column({ nullable: true })
   phone: string;
 
+  @Column({ nullable: true })
+  technician: string;
+
   @Column()
   crop: string;
 

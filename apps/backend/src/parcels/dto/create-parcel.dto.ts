@@ -30,6 +30,10 @@ export class CreateParcelDto {
   phone?: string;
 
   @IsString()
+  @IsOptional()
+  technician?: string;
+
+  @IsString()
   @IsNotEmpty()
   crop: string;
 

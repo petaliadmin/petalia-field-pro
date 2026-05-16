@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
@@ -98,6 +98,7 @@ import { environment } from '../../../environments/environment';
                 <th class="py-4 px-6">Statut</th>
                 <th class="py-4 px-6">Producteur</th>
                 <th class="py-4 px-6">Contact</th>
+                <th class="py-4 px-6">Technicien</th>
                 <th class="py-4 px-6">Localisation & GPS</th>
                 <th class="py-4 px-6">Culture & Superficie</th>
                 <th class="py-4 px-6">Création</th>
@@ -137,6 +138,13 @@ import { environment } from '../../../environments/environment';
                     <span class="font-bold text-xs">{{ parcel.ownerPhone }}</span>
                   </div>
                   <span *ngIf="!parcel.ownerPhone" class="text-xs text-slate-300 italic">Non renseigné</span>
+                </td>
+
+                <td class="py-4 px-6">
+                  <div class="flex items-center gap-1.5 text-slate-700">
+                    <lucide-icon name="user" class="w-3.5 h-3.5 text-amber-500"></lucide-icon>
+                    <span class="font-bold text-xs">{{ parcel.technician }}</span>
+                  </div>
                 </td>
 
                 <td class="py-4 px-6">
@@ -341,6 +349,7 @@ export class ParcelsComponent implements OnInit {
 
   private parcelService = inject(ParcelService);
   private alertService = inject(AlertConfirmService);
+  private cdr = inject(ChangeDetectorRef);
 
   ngOnInit() {
     this.loadParcels();
@@ -348,9 +357,17 @@ export class ParcelsComponent implements OnInit {
 
   loadParcels() {
     this.loading = true;
+    this.cdr.detectChanges();
     this.parcelService.getAll().subscribe({
-      next: (data) => { this.parcels = data; this.loading = false; },
-      error: () => { this.loading = false; }
+      next: (data) => { 
+        this.parcels = data; 
+        this.loading = false; 
+        this.cdr.detectChanges();
+      },
+      error: () => { 
+        this.loading = false; 
+        this.cdr.detectChanges();
+      }
     });
   }
 

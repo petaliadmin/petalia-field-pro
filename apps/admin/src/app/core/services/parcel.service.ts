@@ -8,6 +8,7 @@ export interface Parcel {
   ownerId: string;
   ownerName: string;
   ownerPhone?: string;
+  technician?: string;
   area?: number;
   location?: { lat: number; lng: number; region?: string };
   status: 'healthy' | 'water_stress' | 'infection' | 'unknown';
@@ -30,6 +31,7 @@ export class ParcelService {
           ownerId: item.ownerId || item.id,
           ownerName: item.ownerName || item.owner || item.name || 'Producteur inconnu',
           ownerPhone: item.ownerPhone || item.phone || '',
+          technician: item.technician || item.technicianName || 'Non affecté',
           area: item.area || item.estimatedYield || 1.5,
           location: item.location || { lat: 16.033, lng: -16.483, region: item.village || 'Saint-Louis' },
           status: item.status || (item.healthScore >= 80 ? 'healthy' : item.healthScore >= 50 ? 'water_stress' : 'infection'),
