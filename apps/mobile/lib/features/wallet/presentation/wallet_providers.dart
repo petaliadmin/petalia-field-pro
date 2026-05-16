@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/network/dio_provider.dart';
 import '../../../core/services/credit_service.dart';
@@ -40,7 +41,7 @@ final walletTransactionsProvider = FutureProvider<List<WalletTransaction>>((ref)
     final list = res.data['transactions'] as List? ?? [];
     return list.map((e) => WalletTransaction.fromJson(Map<String, dynamic>.from(e as Map))).toList();
   } catch (e) {
-    print('Error loading transactions: $e');
+    debugPrint('Error loading transactions: $e');
     return [];
   }
 });

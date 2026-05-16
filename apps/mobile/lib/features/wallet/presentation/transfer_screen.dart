@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 
+import '../../../core/services/contact_picker.dart';
 import '../../../core/services/credit_service.dart';
 import '../../../theme/app_colors.dart';
 import 'wallet_providers.dart';
@@ -19,6 +20,7 @@ class TransferScreen extends ConsumerStatefulWidget {
 
 class _TransferScreenState extends ConsumerState<TransferScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _phoneController = TextEditingController();
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
   String _phoneNumber = '';
@@ -28,16 +30,49 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
   void initState() {
     super.initState();
     if (widget.initialPhone != null && widget.initialPhone!.isNotEmpty) {
-      _phoneNumber = widget.initialPhone!;
+      final clean = widget.initialPhone!.replaceAll('+221', '').replaceAll(' ', '');
+      _phoneController.text = clean;
+      _phoneNumber = '+221$clean';
       _isValidPhone = true;
     }
   }
 
   @override
   void dispose() {
+    _phoneController.dispose();
     _amountController.dispose();
     _noteController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickContactFromDevice() async {
+    HapticFeedback.lightImpact();
+    final contact = await pickContact();
+    if (contact == null || contact.phone == null || contact.phone!.isEmpty) return;
+
+    // Nettoyer le numéro (enlever +221, espaces, tirets)
+    String clean = contact.phone!.replaceAll('+221', '').replaceAll(RegExp(r'\D'), '');
+    if (clean.length > 9) {
+      // Prendre les 9 derniers chiffres (standard Sénégal)
+      clean = clean.substring(clean.length - 9);
+    }
+
+    setState(() {
+      _phoneController.text = clean;
+      _phoneNumber = '+221$clean';
+      _isValidPhone = clean.length == 9;
+    });
+
+    HapticFeedback.selectionClick();
+    if (contact.name != null && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Contact sélectionné : ${contact.name}'),
+          backgroundColor: AppColors.primary,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   void _submitTransfer() async {
@@ -194,14 +229,27 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
               ),
               const SizedBox(height: 36),
 
-              const Text(
-                'Destinataire',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Destinataire',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+                  ),
+                  TextButton.icon(
+                    onPressed: _pickContactFromDevice,
+                    icon: const Icon(Icons.contacts_rounded, size: 20, color: AppColors.primary),
+                    label: const Text(
+                      'Choisir un contact',
+                      style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 12),
               IntlPhoneField(
+                controller: _phoneController,
                 initialCountryCode: 'SN',
-                initialValue: widget.initialPhone?.replaceAll('+221', ''),
                 decoration: InputDecoration(
                   labelText: 'Numéro de téléphone',
                   hintText: '77 123 45 67',

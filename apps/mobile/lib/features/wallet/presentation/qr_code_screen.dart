@@ -19,7 +19,6 @@ class QrCodeScreen extends ConsumerStatefulWidget {
 class _QrCodeScreenState extends ConsumerState<QrCodeScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late MobileScannerController _scannerController;
-  bool _isScanning = true;
 
   @override
   void initState() {
@@ -34,10 +33,8 @@ class _QrCodeScreenState extends ConsumerState<QrCodeScreen> with SingleTickerPr
     _tabController.addListener(() {
       if (_tabController.index == 1) {
         _scannerController.start();
-        setState(() => _isScanning = true);
       } else {
         _scannerController.stop();
-        setState(() => _isScanning = false);
       }
     });
   }

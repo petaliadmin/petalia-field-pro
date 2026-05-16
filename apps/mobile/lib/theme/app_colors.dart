@@ -86,6 +86,13 @@ class AppColors {
   static Color shadowOf(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark ? darkShadow : shadow;
 
+  /// Theme-aware background color.
+  static Color backgroundOf(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark ? darkBackground : background;
+
+  /// Theme-aware danger color.
+  static Color dangerOf(BuildContext context) => danger;
+
   static Color healthFor(double score) {
     if (score >= 0.8) return healthExcellent;
     if (score >= 0.6) return healthGood;
