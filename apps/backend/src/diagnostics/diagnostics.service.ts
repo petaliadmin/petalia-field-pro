@@ -148,6 +148,10 @@ export class DiagnosticsService {
   }
 
   async findAll(): Promise<DiagnosticRequest[]> {
-    return this.repository.find({ order: { createdAt: 'DESC' } });
+    const results = await this.repository.find({ order: { createdAt: 'DESC' } });
+    return results.map(r => ({
+      ...r,
+      photoUrl: r.photoUrl && !r.photoUrl.includes('undefined') ? r.photoUrl : null,
+    }));
   }
 }

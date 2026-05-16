@@ -5,14 +5,15 @@ import {
   CallHandler,
   Inject,
 } from '@nestjs/common';
-import { Observable, of } from 'rxjs';
+import { Observable, of, from } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { Redis } from 'ioredis';
 
 @Injectable()
 export class IdempotencyInterceptor implements NestInterceptor {
   constructor(@Inject('REDIS_CLIENT') private readonly redis: Redis) {}
 
-  private readonly TTL = 86400; // 24 heures en secondes
+  private readonly TTL = 86400;
 
   async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
     const request = context.switchToHttp().getRequest();
@@ -27,20 +28,14 @@ export class IdempotencyInterceptor implements NestInterceptor {
       return of(JSON.parse(cachedValue));
     }
 
-    return new Observable((observer) => {
-      next.handle().subscribe({
-        next: async (res) => {
-          await this.redis.set(
-            `idempotency:${key}`,
-            JSON.stringify(res),
-            'EX',
-            this.TTL,
-          );
-          observer.next(res);
-        },
-        error: (err) => observer.error(err),
-        complete: () => observer.complete(),
-      });
-    });
+    return next.handle().pipe(
+      switchMap((res) =>
+        from(
+          this.redis
+            .set(`idempotency:${key}`, JSON.stringify(res), 'EX', this.TTL)
+            .then(() => res),
+        ),
+      ),
+    );
   }
 }
