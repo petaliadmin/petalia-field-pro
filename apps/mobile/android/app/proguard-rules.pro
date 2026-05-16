@@ -1,7 +1,3 @@
-# TensorFlow Lite rules
--keep class org.tensorflow.lite.** { *; }
--dontwarn org.tensorflow.lite.**
-
 # App specific rules
 -keep class com.example.petaliacropassist.** { *; }
 

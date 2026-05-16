@@ -28,25 +28,55 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Copy docker-compose.prod.yml to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: docker-compose.prod.yml
+          target: ~/petalia/
+
       - name: SSH Deploy to EC2
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            mkdir -p ~/petalia
-            cd ~/petalia
-            
-            # Download production compose file
-            curl -o docker-compose.prod.yml https://raw.githubusercontent.com/${{ github.repository }}/main/docker-compose.prod.yml
-            
-            # Prepare production environment
-            echo "DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}" > .env
-            echo "DB_USER=${{ secrets.DB_USER }}" >> .env
-            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+            set -ex
 
+            echo "=== [1/6] System info ==="
+            whoami
+            uname -a
+            df -h
+
+            echo "=== [2/6] Docker version ==="
+            docker --version || { echo "ERROR: docker not found"; exit 1; }
+            docker compose version || { echo "ERROR: docker compose not found"; exit 1; }
+
+            echo "=== [3/6] Navigate to deploy dir ==="
+            ls ~/petalia/
+            cd ~/petalia
+
+            echo "=== [4/6] Write .env ==="
+            cat > .env <<EOF
+            DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+            DB_USER=${{ secrets.DB_USER }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            EOF
+            echo ".env written with $(wc -l < .env) lines"
+
+            echo "=== [5/6] Pull images ==="
             docker compose -f docker-compose.prod.yml pull
+
+            echo "=== [6/6] Start containers ==="
             docker compose -f docker-compose.prod.yml up -d
+            docker compose -f docker-compose.prod.yml ps
             docker image prune -f
+
+            echo "=== Deploy complete ==="

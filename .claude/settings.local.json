@@ -17,7 +17,11 @@
       "Bash(timeout 90 bash *)",
       "PowerShell(Get-Process *)",
       "PowerShell(netstat *)",
-      "Bash(docker compose *)"
+      "Bash(docker compose *)",
+      "Bash(git remote *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
     ]
   }
 }
