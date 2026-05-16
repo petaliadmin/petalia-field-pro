@@ -11,6 +11,7 @@ import { WalletModule } from './wallet/wallet.module';
 import { DiagnosticsModule } from './diagnostics/diagnostics.module';
 import { UsersModule } from './users/users.module';
 import { PaymentModule } from './payment/payment.module';
+import { UssdModule } from './ussd/ussd.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { TerminusModule } from '@nestjs/terminus';
@@ -21,6 +22,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { SentryModule } from '@sentry/nestjs/setup';
 import { IdempotencyInterceptor } from './common/interceptors/idempotency.interceptor';
 import { RedisModule } from './redis/redis.module';
+import { SystemModule } from './system/system.module';
 
 import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
@@ -69,6 +71,7 @@ import * as winston from 'winston';
       inject: [ConfigService],
     }),
     RedisModule,
+    SystemModule,
     ParcelsModule,
     ExpertsModule,
     AuthModule,
@@ -77,6 +80,7 @@ import * as winston from 'winston';
     DiagnosticsModule,
     UsersModule,
     PaymentModule,
+    UssdModule,
   ],
   controllers: [AppController, HealthController],
   providers: [

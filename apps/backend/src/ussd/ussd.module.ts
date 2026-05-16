@@ -1,0 +1,12 @@
+import { Module } from '@nestjs/common';
+import { UssdController } from './ussd.controller';
+import { UssdService } from './ussd.service';
+import { UsersModule } from '../users/users.module';
+import { WalletModule } from '../wallet/wallet.module';
+
+@Module({
+  imports: [UsersModule, WalletModule],
+  controllers: [UssdController],
+  providers: [UssdService],
+})
+export class UssdModule {}

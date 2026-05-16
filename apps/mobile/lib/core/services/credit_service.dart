@@ -51,6 +51,11 @@ class CreditService extends StateNotifier<int> {
     }
     return false;
   }
+
+  Future<void> refreshLocal(int newBalance) async {
+    state = newBalance;
+    await _box.put(_kCredits, newBalance);
+  }
 }
 
 final creditServiceProvider = StateNotifierProvider<CreditService, int>((ref) => CreditService(ref));

@@ -46,4 +46,26 @@ export class SmsService {
       this.logger.log(`[SIMULATION SMS] Code pour ${phone} : ${code}`);
     }
   }
+
+  async sendSms(phone: string, message: string): Promise<void> {
+    this.logger.log(`====================================================`);
+    this.logger.log(`[ENVOI SMS PUSH] Téléphone: ${phone} | Message: ${message}`);
+    this.logger.log(`====================================================`);
+
+    if (this.twilioClient) {
+      try {
+        await this.twilioClient.messages.create({
+          body: message,
+          from: this.configService.get<string>('TWILIO_PHONE_NUMBER'),
+          to: phone,
+        });
+        this.logger.log(`SMS envoyé avec succès à ${phone}`);
+      } catch (error) {
+        this.logger.error(`Échec de l'envoi Twilio à ${phone}: ${error.message}`);
+      }
+    } else {
+      this.logger.log(`[SIMULATION SMS] Message pour ${phone} : ${message}`);
+    }
+  }
 }
+
