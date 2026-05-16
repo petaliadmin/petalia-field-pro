@@ -22,10 +22,10 @@ export class WalletService {
   async getBalance(userId: string): Promise<number> {
     const result = await this.transactionRepository
       .createQueryBuilder('t')
-      .select('SUM(CASE WHEN t.type = :credit THEN t.amount ELSE -t.amount END)', 'sum')
-      .where('t.userId = :userId', { userId, credit: TransactionType.CREDIT })
+      .select(`SUM(CASE WHEN t.type = '${TransactionType.CREDIT}' THEN t.amount ELSE -t.amount END)`, 'sum')
+      .where('t.userId = :userId', { userId })
       .getRawOne();
-    
+
     return Number(result?.sum || 0);
   }
 
@@ -185,11 +185,11 @@ export class WalletService {
   private async getBalanceWithManager(manager: any, userId: string): Promise<number> {
     const result = await manager
       .createQueryBuilder(WalletTransaction, 't')
-      .select('SUM(CASE WHEN t.type = :credit THEN t.amount ELSE -t.amount END)', 'sum')
-      .where('t.userId = :userId', { userId, credit: TransactionType.CREDIT })
-      .setLock('pessimistic_write') // Protection contre les accès concurrents
+      .select(`SUM(CASE WHEN t.type = '${TransactionType.CREDIT}' THEN t.amount ELSE -t.amount END)`, 'sum')
+      .where('t.userId = :userId', { userId })
+      .setLock('pessimistic_write')
       .getRawOne();
-    
+
     return Number(result?.sum || 0);
   }
 }

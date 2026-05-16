@@ -24,7 +24,9 @@ export class WalletController {
   @ApiOperation({ summary: 'Recharger son compte (Simulation)' })
   async topup(@Request() req, @Body() body: { amount: number; reference: string; description: string }) {
     const userId = req.user?.userId || req.user?.id || '1b8dc7ab-7282-4a29-9abe-dddb0228d882';
-    return this.walletService.addCredits(userId, body.amount, body.description, body.reference);
+    const transaction = await this.walletService.addCredits(userId, body.amount, body.description, body.reference);
+    const newBalance = await this.walletService.getBalance(userId);
+    return { transaction, newBalance };
   }
 
   @Get('transactions')
@@ -43,12 +45,14 @@ export class WalletController {
     @Body() body: { recipientPhone: string; amount: number; description?: string },
   ) {
     const userId = req.user?.userId || req.user?.id || '1b8dc7ab-7282-4a29-9abe-dddb0228d882';
-    return this.walletService.transferCredits(
+    const result = await this.walletService.transferCredits(
       userId,
       body.recipientPhone,
       body.amount,
       body.description,
     );
+    const newBalance = await this.walletService.getBalance(userId);
+    return { ...result, newBalance };
   }
 }
 
