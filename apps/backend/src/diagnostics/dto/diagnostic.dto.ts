@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsBoolean } from 'class-validator';
 
 export class CreateDiagnosticDto {
   @IsString()
@@ -15,6 +15,14 @@ export class CreateDiagnosticDto {
 }
 
 export class ValidateDiagnosticDto {
+  @IsBoolean()
+  @IsOptional()
+  approve?: boolean;
+
+  @IsString()
+  @IsOptional()
+  comment?: string;
+
   @IsString()
   @IsOptional()
   adminComment?: string;

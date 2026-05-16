@@ -95,8 +95,8 @@ export class DiagnosticsService {
     const request = await this.repository.findOneBy({ id });
     if (!request) throw new NotFoundException('Diagnostic introuvable');
 
-    request.status = DiagnosticStatus.VALIDATED;
-    request.adminComment = validateDto.adminComment ?? '';
+    request.status = validateDto.approve === false ? DiagnosticStatus.REJECTED : DiagnosticStatus.VALIDATED;
+    request.adminComment = validateDto.adminComment ?? validateDto.comment ?? '';
     request.validatedAt = new Date();
 
     const saved = await this.repository.save(request);

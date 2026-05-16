@@ -42,7 +42,7 @@ import { AlertConfirmService } from '../../core/services/alert-confirm.service';
                class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-md transition-all cursor-pointer">
             
             <div class="w-20 h-20 bg-gray-100 rounded-xl overflow-hidden relative group">
-               <img [src]="req.photoUrl" class="w-full h-full object-cover">
+               <img [src]="req.photoUrl" class="w-full h-full object-cover" (error)="onImgError($event)">
                <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                  <lucide-icon name="external-link" class="text-white w-5 h-5"></lucide-icon>
                </div>
@@ -96,7 +96,7 @@ import { AlertConfirmService } from '../../core/services/alert-confirm.service';
             </div>
 
             <div class="rounded-2xl overflow-hidden mb-6 aspect-video bg-gray-100 shadow-inner">
-               <img [src]="selectedRequest.photoUrl" class="w-full h-full object-cover">
+               <img [src]="selectedRequest.photoUrl" class="w-full h-full object-cover" (error)="onImgError($event)">
             </div>
 
             <div class="space-y-4 flex-1">
@@ -217,5 +217,10 @@ export class DiagnosticsComponent implements OnInit {
         });
       }
     });
+  }
+
+  onImgError(event: Event) {
+    (event.target as HTMLImageElement).src =
+      'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="%23cbd5e1" stroke-width="1.5"%3E%3Crect x="3" y="3" width="18" height="18" rx="2"/%3E%3Ccircle cx="8.5" cy="8.5" r="1.5"/%3E%3Cpath d="M21 15l-5-5L5 21"/%3E%3C/svg%3E';
   }
 }
