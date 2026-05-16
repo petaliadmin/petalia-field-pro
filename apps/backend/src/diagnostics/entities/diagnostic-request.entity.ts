@@ -21,8 +21,8 @@ export class DiagnosticRequest {
   @Column()
   ownerPhone: string;
 
-  @Column()
-  photoUrl: string;
+  @Column({ nullable: true })
+  photoUrl: string | null;
 
   @Column({
     type: 'enum',

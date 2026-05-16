@@ -13,8 +13,7 @@ export class DiagnosticsController {
     @Body() createDto: CreateDiagnosticDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    // Dans une version réelle, on uploaderait vers S3 ici
-    const photoUrl = `uploads/${file.filename}`;
+    const photoUrl = file?.filename ? `uploads/${file.filename}` : null;
     return this.diagnosticsService.create(createDto, photoUrl);
   }
 

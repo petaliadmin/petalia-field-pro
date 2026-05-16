@@ -16,7 +16,7 @@ export class DiagnosticsService {
     private readonly configService: ConfigService,
   ) {}
 
-  async create(createDto: CreateDiagnosticDto, photoUrl: string): Promise<DiagnosticRequest> {
+  async create(createDto: CreateDiagnosticDto, photoUrl: string | null): Promise<DiagnosticRequest> {
     const request = this.repository.create({
       ...createDto,
       photoUrl,
