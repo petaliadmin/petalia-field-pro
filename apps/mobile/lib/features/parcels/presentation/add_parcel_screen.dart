@@ -25,6 +25,7 @@ import '../../../shared/widgets/primary_button.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/success_feedback.dart';
 import '../../../theme/app_colors.dart';
+import '../../auth/presentation/auth_providers.dart';
 import '../domain/parcel.dart';
 import 'parcels_providers.dart';
 
@@ -358,12 +359,16 @@ class _AddParcelScreenState extends ConsumerState<AddParcelScreen> {
     setState(() => _saving = true);
     try {
       final yieldVal = double.tryParse(_yieldCtrl.text.trim()) ?? 0;
+      final currentUser = ref.read(authStateProvider).value?.user;
+      final techName = currentUser?.name ?? 'Technicien mobile';
+
       final Parcel p;
       if (_isEditing) {
         final phoneTrim = _phoneCtrl.text.trim();
         p = widget.existing!.copyWith(
           owner: _ownerCtrl.text.trim(),
           phone: phoneTrim.isEmpty ? null : phoneTrim,
+          technician: techName,
           village: _villageCtrl.text.trim(),
           crop: _crop!,
           growthStage: _growthStage!,
@@ -383,6 +388,7 @@ class _AddParcelScreenState extends ConsumerState<AddParcelScreen> {
           name: _generateParcelCode(),
           owner: _ownerCtrl.text.trim(),
           phone: phoneTrim.isEmpty ? null : phoneTrim,
+          technician: techName,
           village: _villageCtrl.text.trim(),
           crop: _crop!,
           growthStage: _growthStage!,
