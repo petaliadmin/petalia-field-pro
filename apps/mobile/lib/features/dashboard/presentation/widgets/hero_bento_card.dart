@@ -11,7 +11,7 @@ import '../../../../routes/route_names.dart';
 import '../../../../shared/widgets/glass_card.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_radius.dart';
-import '../../wallet/presentation/wallet_providers.dart';
+import '../../../wallet/presentation/wallet_providers.dart';
 
 class HeroBentoCard extends ConsumerWidget {
   const HeroBentoCard({super.key, required this.weather, required this.credits});
