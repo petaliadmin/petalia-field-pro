@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #2E5A44;
+  --accent: #B38D46;
+}
+
+body {
+  @apply bg-background text-slate-900 antialiased;
+  font-family: 'Inter', sans-serif;
+}
+
+.glass-card {
+  @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-xl;
+}
+
+.nav-link-active {
+  @apply bg-primary/10 text-primary border-r-4 border-primary;
+}

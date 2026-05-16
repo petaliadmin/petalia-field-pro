@@ -1,0 +1,1319 @@
+{
+  "schemaVersion": 3,
+  "updatedAt": "2026-05-07",
+  "source": "Petalia Field Pro — règles v3 multi-sources. Sources primaires exploitées : ISRA.sn, CERAAS, ANCAR, CDH/Niayes, SAED, DPV-Sénégal, ICRISAT, COLEACP, FAO/IITA, IRD/CIRAD (Agritrop), INSAH/CILSS (Liste CSP juillet 2023 + février 2025), ANACIM, UCAD-FST, ResearchGate (thèses), HAL-INRAE, OMS (mycotoxines), Springer/Phytoparasitica, AJOL, TEL-Thèses.",
+  "changelog": [
+    "v3 2026-05-07 : Enrichissement multi-sources (PDFs institutionnels, journaux peer-reviewed, liste CSP officielle juillet 2023 + session extraordinaire février 2025). Ajout des N° d'autorisation CSP sur produits-clés. Données rendements chiffrées sur niébé (AJOL 2013). Nouvelles données HAL-INRAE 2025 sur aflatoxines arachide Sénégal. Intégration biofongicide AFLASAFE SN 01 (CSP homologué). Ajout bio-insecticide MaviNPV niébé. Ajout variétés ISRA 2024 homologuées. Données ANACIM/agromét pour stades phénologiques. Correction Bio-fongicide Aflatoxine CSP confirmé.",
+    "v2 2026-05-07 : Corrections techniques majeures, ajout 4 nouvelles règles",
+    "v1 2026-04-18 : Version initiale"
+  ],
+  "cspReference": {
+    "lastVersion": "Juillet 2023 + Session Extraordinaire 10e (février 2025) + Session Extraordinaire 11e (octobre 2025)",
+    "source": "INSAH/CILSS — insah.cilss.int",
+    "url": "https://insah.cilss.int/du-csp-au-coahp/",
+    "note": "607 produits homologués en 2025 (+11% vs 2023). Vérifier expiration de chaque autorisation avant usage terrain."
+  },
+  "notes": [
+    "Chaque règle filtrée sur `crop`, `stages`, `symptom`, `season`, `regions`, `severityMin`.",
+    "`ppeRequired=true` : bandeau EPI obligatoire dans l'UI.",
+    "`delayBeforeHarvestDays` = DAR (Délai Avant Récolte) du produit le plus contraignant.",
+    "`followupDays` : injecté dans le bouton 'Prochaine visite'.",
+    "OBLIGATION LÉGALE : vérifier homologation CSP active sur insah.cilss.int avant tout conseil phytosanitaire.",
+    "Carbofuran : retiré de toutes les règles (phaseout FAO/OMS, toxicité classe Ia OMS).",
+    "Biofongicide AFLASAFE SN 01 (Aspergillus flavus non-aflatoxinogène) : homologué CSP au Sénégal (réf. 0920-H0/Bi.Fo/10-22/HOM-SAHEL, expire oct 2027). Usage : arachide + maïs, contrôle aflatoxines."
+  ],
+  "rules": [
+    {
+      "id": "ARA-VEG-YELLOW-RAINY",
+      "crop": "arachide",
+      "stages": [
+        "vegetative",
+        "flowering"
+      ],
+      "symptom": "yellow_leaves",
+      "season": "hivernage",
+      "regions": [
+        "thies",
+        "diourbel",
+        "fatick",
+        "kaolack",
+        "kaffrine"
+      ],
+      "severityMin": 0.3,
+      "scientificContext": "Arachis hypogaea L. — légumineuse fixatrice N₂ via Bradyrhizobium spp. Un jaunissement foliaire indique une nodulation défaillante ou carence en soufre. L'urée est contre-productive (inhibe fixation symbiotique). Source : ISRA-CNRA-Bambey fiches techniques + IFDC itinéraire technique arachide (Sénégal vulgarise NPK 6-20-10 bassin arachidier Sud — IFDC 2019).",
+      "diagnosis": "Jaunissement sur arachide — nodulation défaillante ou carence en soufre (S). NE PAS confondre avec carence azotée traitée à l'urée : contre-productif sur légumineuse.",
+      "recommendation": {
+        "title": "Diagnostiquer la nodulation avant tout apport",
+        "actions": [
+          "Arracher 2–3 plantes au hasard, couper un nodule racinaire : rose/rouge = fixation N₂ active ; blanc/vert/brun = défaillante.",
+          "Si nodulation fonctionnelle et jaunissement persistant (carence soufre) : sulfate d'ammoniaque (21-0-0-24S) à 50 kg/ha. Formule NPK 6-20-10 disponible en bassin arachidier (IFDC).",
+          "Si nodulation absente : inoculation Bradyrhizobium sur semences campagne suivante (Nitragin® ou équivalent homologué CSP). Aucun apport urée.",
+          "Vérifier pH sol : < 5,5 inhibe la nodulation → chaulage à la dolomite si nécessaire.",
+          "Variétés homologuées ISRA 2024 à fort potentiel de nodulation : Essamaye, Amoul Morom, Yakaar (cycle court adapté changement climatique)."
+        ],
+        "costFcfaPerHa": 12000,
+        "delayBeforeHarvestDays": 0,
+        "ppeRequired": false,
+        "followupDays": 7
+      },
+      "sources": [
+        "ISRA-CNRA-Bambey-fiche-technique-arachide-2022",
+        "IFDC-itinéraire-technique-arachide-Sénégal-2019 (ifdc.org)",
+        "ISRA.sn-résultats-recherche-variétés-homologuées-2024"
+      ]
+    },
+    {
+      "id": "ARA-VEG-SPOTS-CERCO",
+      "crop": "arachide",
+      "stages": [
+        "vegetative",
+        "flowering",
+        "fruiting"
+      ],
+      "symptom": "spots",
+      "season": "hivernage",
+      "regions": [
+        "thies",
+        "diourbel",
+        "fatick",
+        "kaolack",
+        "kaffrine",
+        "kolda",
+        "sedhiou"
+      ],
+      "severityMin": 0.2,
+      "scientificContext": "Cercospora arachidicola (cercosporiose précoce) et Phaeoisariopsis personata (cercosporiose tardive). Forte présence zones centre-sud et sud du Sénégal (données CERAAS/IAVAO 2017). Variété CH-119-20 sensible à la cercosporiose (intranet.isra.sn). Cycle épidémique : humidité > 80%, T° 25–30°C.",
+      "diagnosis": "Cercosporioses (précoce/tardive) — taches brun-rougeâtre cercospora arachidicola face supérieure OU brun foncé face inférieure phaeoisariopsis, halo jaune. Défoliation précoce possible (-20% rendement).",
+      "recommendation": {
+        "title": "Fongicide cuivre préventif + variétés tolérantes",
+        "actions": [
+          "PRÉVENTIF (dès fermeture des rangs) : oxychlorure de cuivre 50% WP à 2 kg/ha, 400–600 L eau/ha. Homologué CSP cultures oléagineuses.",
+          "CURATIF : mancozèbe 80% WP à 2 kg/ha OU hydroxyde de cuivre 77% WP à 1,5 kg/ha. Renouveler à 10–14 j sous pluies fréquentes ou après 20 mm.",
+          "FONGICIDE SYSTÉMIQUE (si pression forte) : Systane 240 EC (tébuconazole) OU Ortiva 250 SC (azoxystrobine) — validés IFDC pour traitement foliaire cercosporiose arachide.",
+          "VARIÉTÉS TOLÉRANTES homologuées : 55-437 (tolérant), GC8-35, ICGV 14857 (réseau IAVAO). Variété 69-101 (résistante rosette + tolérante cercosporiose, ISRA-Bambey).",
+          "Rotation céréale/arachide 2 ans minimum. Détruire résidus après récolte."
+        ],
+        "costFcfaPerHa": 9000,
+        "delayBeforeHarvestDays": 21,
+        "ppeRequired": true,
+        "followupDays": 10
+      },
+      "sources": [
+        "ISRA-CERAAS-2021",
+        "IAVAO-sélection-arachide-2017 (iavao.org — biologie cercosporiose)",
+        "IFDC-fiche-semence-arachide-2019 (traitements foliaires validés)",
+        "intranet.isra.sn — variétés sensibles/tolérantes"
+      ]
+    },
+    {
+      "id": "ARA-VEG-ROSETTE",
+      "crop": "arachide",
+      "stages": [
+        "germination",
+        "vegetative"
+      ],
+      "symptom": "yellow_leaves",
+      "season": "hivernage",
+      "regions": [
+        "louga",
+        "thies",
+        "diourbel",
+        "kaffrine"
+      ],
+      "severityMin": 0.5,
+      "scientificContext": "Groundnut Rosette Virus (GRV) — complex viral (sat-RNA + umbravirus). Vecteur Aphis craccivora Koch, transmission persistante en < 5 min. Variété 69-101 (ISRA-Bambey) sélectionnée spécifiquement pour résistance rosette dans zones forte pluviométrie (intranet.isra.sn). Semis précoce = mesure préventive n°1 (ISRA-Bambey).",
+      "diagnosis": "Rosette virale (GRV) — plantes rabougries, feuillage chlorotique jaune-vert en bouquet dense ('chlorotic rosette') ou feuilles déformées vert foncé ('green rosette'). Aucun traitement curatif connu.",
+      "recommendation": {
+        "title": "Arrachage foyers + contrôle vecteur + semis précoce obligatoire",
+        "actions": [
+          "Arracher et brûler IMMÉDIATEMENT tous plants atteints (foyers primaires virus + pucerons virulents).",
+          "Traiter foyers pucerons environnants : acétamipride 20% SP (référence IFDC pour pucerons arachide) à 20 g/ha en traitement localisé. Traiter hors activité pollinisateurs.",
+          "NE PAS replanter de semences non traitées dans la parcelle contaminée.",
+          "PRÉVENTION PRIMAIRE : semer avant le 15 juillet (réduction exposition 70%, ISRA-Bambey). Variétés résistantes GRV : Fleur 11, 69-101, 78-936, ICGV-IS.",
+          "Prochaine campagne : enrobage semences imidaclopride 600 FS à 5 mL/kg semences pour protection précoce 0–30 JAS contre pucerons vecteurs."
+        ],
+        "costFcfaPerHa": 6000,
+        "delayBeforeHarvestDays": 14,
+        "ppeRequired": true,
+        "followupDays": 5
+      },
+      "sources": [
+        "ISRA-CNRA-Bambey",
+        "intranet.isra.sn — variété 69-101 résistance rosette",
+        "CERAAS-programme-arachide-diffusion-variétés-2021"
+      ]
+    },
+    {
+      "id": "ARA-VEG-PESTS-APHIDS",
+      "crop": "arachide",
+      "stages": [
+        "vegetative",
+        "flowering"
+      ],
+      "symptom": "pests",
+      "season": "hivernage",
+      "regions": [
+        "thies",
+        "diourbel",
+        "fatick",
+        "kaolack",
+        "kaffrine",
+        "louga"
+      ],
+      "severityMin": 0.3,
+      "scientificContext": "Aphis craccivora Koch — puceron noir de l'arachide. Populations explosent en début hivernage (conditions sèches avant installation pluies). Vecteur GRV. L'acétamipride (15 g/L + lambda-cyhalothrine 10 g/L) est homologué CSP contre pucerons sur tomate (réf. 1015-J10/In/10-22/HOM-SAHEL) — proximité d'usage.",
+      "diagnosis": "Pucerons noirs (A. craccivora) — colonies denses sur pousses apicales, miellat collant, feuilles enroulées. Risque vecteur GRV si plants < 30 JAS.",
+      "recommendation": {
+        "title": "Traitement localisé foyers pucerons — préserver auxiliaires",
+        "actions": [
+          "Traitement localisé (foyers uniquement, pas toute la parcelle) : acétamipride 20% SP à 20 g/ha OU pirimicarbe 50% WP à 250 g/ha (sélectif, préserve coccinelles et parasitoïdes).",
+          "Éviter pyréthrinoïdes en début de saison (élimination ennemis naturels, risque acariens).",
+          "Préserver Coccinella septempunctata, Chrysoperla carnea, Lysiphlebus spp. — prédateurs naturels efficaces en champ non traité.",
+          "Si infestation avant 30 JAS et risque rosette élevé : traitement plus agressif justifié (imidaclopride 70% WS, dose foliaire réduite)."
+        ],
+        "costFcfaPerHa": 5000,
+        "delayBeforeHarvestDays": 14,
+        "ppeRequired": true,
+        "followupDays": 5
+      },
+      "sources": [
+        "ANCAR-fiche-puceron-2023",
+        "IFDC-fiche-semence-arachide-2019 (acétamipride validé pucerons arachide)",
+        "Liste-CSP-juillet-2023 (produits acétamipride homologués)"
+      ]
+    },
+    {
+      "id": "ARA-HARVEST-AFLATOXIN",
+      "crop": "arachide",
+      "stages": [
+        "fruiting",
+        "ripening",
+        "maturation"
+      ],
+      "symptom": "drought",
+      "season": "hivernage",
+      "regions": [
+        "louga",
+        "thies",
+        "diourbel",
+        "fatick",
+        "kaolack",
+        "kaffrine"
+      ],
+      "severityMin": 0.4,
+      "scientificContext": "NOUVELLE DONNÉE v3. Étude HAL-INRAE 2025 (Sénégal, ANSD 2023) : technique séchage 'gousses en l'air sur table' → teneur B1 5,67 ppb vs pratique paysanne 9,13 ppb. Seuil UE : 4 ppb B1. AFLASAFE SN 01 (Aspergillus flavus non-aflatoxinogène) homologué CSP Sénégal réf. 0920-H0/Bi.Fo/10-22/HOM-SAHEL, expire octobre 2027 — biofongicide applicable avant récolte. Filière arachide génère > 22 milliards FCFA (ANSD 2023).",
+      "diagnosis": "Stress hydrique en fin de cycle (stade gousse–maturation) — risque contamination aflatoxines (Aspergillus flavus). Indicateurs : feuilles basales sèches, sol craquelé, arrêt gonflement gousses.",
+      "recommendation": {
+        "title": "Prévention aflatoxines — arrachage anticipé + technique séchage optimisée",
+        "actions": [
+          "BIOFONGICIDE PRÉVENTIF (avant récolte) : AFLASAFE SN 01 homologué CSP Sénégal (réf. 0920-H0/Bi.Fo/10-22/HOM-SAHEL) — Aspergillus flavus non-aflatoxinogène, compétiteur biologique d'A. flavus toxinogène. Disponible via IITA-Sénégal.",
+          "Arracher dès 70–80% gousses avec intérieur coque brun/noir (test ISRA-Bambey).",
+          "TECHNIQUE DE SÉCHAGE VALIDÉE (HAL-INRAE 2025) : 'gousses en l'air sur table' → B1 = 5,67 ppb (vs pratique paysanne 9,13 ppb). Éviter contact sol humide > 48h.",
+          "Stocker en magasin ventilé, humidité gousses < 8%. Éviter l'humidité et les insectes des stocks.",
+          "Faire tester un échantillon avant commercialisation : seuil UE 4 ppb B1 (norme export), seuil CEDEAO 10 ppb. Contact : ISRA/CNIA pour analyse."
+        ],
+        "costFcfaPerHa": 3000,
+        "delayBeforeHarvestDays": 0,
+        "ppeRequired": false,
+        "followupDays": 3
+      },
+      "sources": [
+        "HAL-INRAE-hal-04927121v1-2025 (effet technique séchage sur aflatoxine B1, Sénégal)",
+        "ISRA-CERAAS-aflatoxines-2020",
+        "Liste-CSP-juillet-2023 réf. 0920 AFLASAFE SN 01",
+        "OMS-mycotoxines-fiche-2023 (who.int)",
+        "ANSD-2023 cité par HAL-INRAE-2025 (filière arachide Sénégal)"
+      ]
+    },
+    {
+      "id": "ARA-SEED-TREAT",
+      "crop": "arachide",
+      "stages": [
+        "germination"
+      ],
+      "symptom": "pests",
+      "season": "hivernage",
+      "regions": [
+        "thies",
+        "diourbel",
+        "fatick",
+        "kaolack",
+        "kaffrine",
+        "louga",
+        "tambacounda"
+      ],
+      "severityMin": 0.1,
+      "scientificContext": "Iules (Diplopoda) et charançons des semences — pertes peuplement 15–30% début campagne. Traitement semences validé IFDC 2019 (lambda-cyhalothrine 15 g/L + acétamipride 10 g/L m.a. homologué Sénégal). Incompatibilité inoculant/insecticide : appliquer séparément.",
+      "diagnosis": "Mauvaise levée — dégâts iules ou charançons sur graines en germination. Plants manquants, gaines coupées, graines rongées visibles à l'arrachage.",
+      "recommendation": {
+        "title": "Enrobage insecticide des semences avant semis",
+        "actions": [
+          "Enrober les semences avec lambda-cyhalothrine 15 g/L + acétamipride 10 g/L (IFDC validé au Sénégal) à 5–10 mL/10 kg semences.",
+          "Semer dans les 24h. Ne pas stocker semences traitées > 48h.",
+          "Si inoculation Bradyrhizobium prévue : appliquer insecticide J-1, inoculant au moment du semis (incompatibilité biochimique).",
+          "EPI obligatoire : gants nitrile, masque FFP2, lunettes. Ne jamais consommer semences traitées."
+        ],
+        "costFcfaPerHa": 3500,
+        "delayBeforeHarvestDays": 0,
+        "ppeRequired": true,
+        "followupDays": 10
+      },
+      "sources": [
+        "IFDC-fiche-semence-arachide-2019 (protocole traitement semences lambda-cyhalothrine + acétamipride)"
+      ]
+    },
+    {
+      "id": "MIL-VEG-STRIGA",
+      "crop": "mil",
+      "stages": [
+        "vegetative",
+        "stem_elongation"
+      ],
+      "symptom": "weeds",
+      "season": "hivernage",
+      "regions": [
+        "diourbel",
+        "louga",
+        "kaffrine",
+        "thies",
+        "fatick"
+      ],
+      "severityMin": 0.3,
+      "scientificContext": "Striga hermonthica (Delile) Benth. (Orobanchaceae) — parasite racinaire obligatoire. Graines germent via strigolactones exsudées par racines hôtes. Production : 50 000–200 000 graines viables > 20 ans. Souna 3 (90 j) et Thialack 2 (75 j) sont les variétés tolérantes vulgarisées ISRA. Données ISRA : variétés mil disponibles via RESOPP et ANCAR (isra.sn/résultats-2024).",
+      "diagnosis": "Striga hermonthica — tiges dressées fleurs rose-violacé (5–60 cm), parasitant racines mil. Symptômes avant émergence : pieds chétifs, jaunissement, retard de croissance (4–6 semaines d'effet souterrain avant émergence).",
+      "recommendation": {
+        "title": "Lutte intégrée Striga — priorité rotation + variétés tolérantes",
+        "actions": [
+          "ACTION IMMÉDIATE : arracher striga AVANT floraison (avant fleurs rose-violacé), brûler sur place.",
+          "FERTILISATION : fumier composté 3–5 t/ha (réduit exsudats strigolactones, confirme PROPAS/IITA).",
+          "ROTATION OBLIGATOIRE : niébé, arachide ou sésame la campagne suivante (réduction stock graines de 40% selon IITA).",
+          "VARIÉTÉS TOLÉRANTES ISRA (homologuées) : Souna 3 (90 j, zones Centre-Nord), Thialack 2 (75 j, zones sèches). Disponibles RESOPP + ANCAR.",
+          "OPTION AVANCÉE (projets ICRISAT) : herbicide imazapyr 0,5% sur semences IR (variétés imazapyr-résistantes — ISMAM). Demander disponibilité auprès de la DPV."
+        ],
+        "costFcfaPerHa": 3000,
+        "delayBeforeHarvestDays": 0,
+        "ppeRequired": false,
+        "followupDays": 14
+      },
+      "sources": [
+        "ICRISAT-ISRA-striga-2019",
+        "IITA-PROPAS-gestion-striga",
+        "isra.sn/résultats-2024 (variétés mil homologuées)",
+        "UCAD-FST-thèse-adventices-mil-arachide (dynamique Striga Sahel)"
+      ]
+    },
+    {
+      "id": "MIL-FLO-PESTS-MINEUSE",
+      "crop": "mil",
+      "stages": [
+        "flowering",
+        "fruiting"
+      ],
+      "symptom": "pests",
+      "season": "hivernage",
+      "regions": [
+        "louga",
+        "diourbel",
+        "kaffrine",
+        "thies"
+      ],
+      "severityMin": 0.3,
+      "scientificContext": "Heliocheilus albipunctella De Joannis (Noctuidae) — mineuse de l'épi du mil. Pertes 10–30% en zone Sahélienne (ISRA-DPV 2022). Habrobracon hebetor (parasitoïde larvaire) et azadirachtine (neem) sont les 2 options de biocontrôle disponibles au Sénégal. Bulletins ANACIM : surveillance épiaison par décade agrométéorologique.",
+      "diagnosis": "Chenille mineuse de l'épi (H. albipunctella) — perforations irrégulières sur épis, excréments noirs, papillons beige clair actifs au crépuscule.",
+      "recommendation": {
+        "title": "Biocontrôle prioritaire — intervention dans les 72h post-épiaison",
+        "actions": [
+          "SURVEILLANCE : 3 passages/semaine dès gonflement épis. Utiliser bulletins agrométéorologiques décadaires ANACIM pour anticiper stade épiaison.",
+          "BIOCONTRÔLE (prioritaire) : Habrobracon hebetor — 3 lâchers à 7 jours d'intervalle, 5 000–10 000 ind./ha. Disponible ISRA-DPV + Songhaï Sénégal.",
+          "BIOPESTICIDE : azadirachtine (neem) 3,2 g/L à 2,5 L/ha en soirée (18h–20h), 3 applications à 5 jours.",
+          "CHIMIQUE (pression forte, > 20% épis atteints) : émamectine benzoate 1,9% EC à 250 mL/ha, jet dirigé épis. DAR 7 jours.",
+          "Ne pas traiter par temps de pluie ou vent > 15 km/h."
+        ],
+        "costFcfaPerHa": 8000,
+        "delayBeforeHarvestDays": 7,
+        "ppeRequired": true,
+        "followupDays": 7
+      },
+      "sources": [
+        "ISRA-DPV-2022",
+        "PROPAS-IITA-lutte-biologique-mil",
+        "ANACIM-bulletin-agromét-décadaire (stades phénologiques mil)"
+      ]
+    },
+    {
+      "id": "SOR-VEG-STRIGA",
+      "crop": "sorgho",
+      "stages": [
+        "vegetative",
+        "stem_elongation"
+      ],
+      "symptom": "weeds",
+      "season": "hivernage",
+      "regions": [
+        "tambacounda",
+        "kaffrine",
+        "kolda",
+        "sedhiou"
+      ],
+      "severityMin": 0.3,
+      "scientificContext": "S. hermonthica sur sorgho (Sorghum bicolor). Variétés tolérantes homologuées ISRA 2024 : Faourou, Nguinthe, Nganda, Gologé, Payenne, Darou (isra.sn/résultats). Le sorgho est plus sensible que le mil. Pertes 20–80% selon infestation.",
+      "diagnosis": "Striga hermonthica sur sorgho — émergence plants parasites, pieds chétifs. Le sorgho est plus sensible que le mil — infestation modérée peut causer pertes sévères.",
+      "recommendation": {
+        "title": "Rotation + variétés tolérantes homologuées ISRA",
+        "actions": [
+          "Arracher striga AVANT floraison, brûler sur place (ne pas composter).",
+          "ROTATION OBLIGATOIRE : légumineuse (niébé Pakau, Lisard, Léona — variétés ISRA homologuées 2024) ou sésame la campagne suivante.",
+          "VARIÉTÉS TOLÉRANTES (homologuées ISRA 2024) : Faourou (105 j), Nguinthe (110 j, Casamance), Nganda, Gologé, Darou. Via RESOPP + ANCAR.",
+          "Apport fumier 3–5 t/ha pour enrichir sol et réduire exsudats strigolactones.",
+          "Infestation sévère (> 5 pieds/m²) : envisager jachère travaillée 1 campagne."
+        ],
+        "costFcfaPerHa": 3500,
+        "delayBeforeHarvestDays": 0,
+        "ppeRequired": false,
+        "followupDays": 14
+      },
+      "sources": [
+        "ICRISAT-striga-sorgho-2021",
+        "isra.sn/résultats-2024 (nouvelles variétés sorgho homologuées : Darou, Faourou, Nguinthe, Nganda, Gologé, Payenne)"
+      ]
+    },
+    {
+      "id": "MAIS-VEG-CHENILLE-FAW",
+      "crop": "mais",
+      "stages": [
+        "germination",
+        "vegetative",
+        "stem_elongation"
+      ],
+      "symptom": "pests",
+      "season": "hivernage",
+      "regions": [
+        "thies",
+        "fatick",
+        "kaolack",
+        "kaffrine",
+        "tambacounda",
+        "kolda",
+        "sedhiou",
+        "ziguinchor"
+      ],
+      "severityMin": 0.2,
+      "scientificContext": "Spodoptera frugiperda (J.E. Smith) — introduit Afrique de l'Ouest 2016 (IITA/Goergen et al., PLOS ONE 2016). Étude terrain Sénégal 2018–2019 nord-ouest (Springer Phytoparasitica 2023) : sans traitement = 1–25% dégâts foliaires, 3–44% dégâts épis. Bt kurstaki et neem (4,5 L/ha) efficaces sur L1-L3. Deltaméthrine moins efficace que lambda-cyhalothrine + acétamipride (étude terrain Sénégal). Variétés ISRA maïs recommandées ANACIM : Noor 96, Swan, Obatampa.",
+      "diagnosis": "Chenille légionnaire d'automne (S. frugiperda) — trous irréguliers stades L1-L2, dégâts cornet stades L3-L5 avec excréments noirs, larves avec Y inversé sur capsule céphalique noire.",
+      "recommendation": {
+        "title": "Lutte intégrée FAW — seuil 20% + biocontrôle en premier",
+        "actions": [
+          "SURVEILLANCE : inspection 2x/semaine dès stade 2 feuilles, 20 plants/0,5 ha.",
+          "SEUIL D'INTERVENTION : ≥ 20% plants avec larves dans le cornet → traiter immédiatement.",
+          "BIOCONTRÔLE (premier choix) : Bacillus thuringiensis kurstaki 0,5–1 kg/ha DANS LE CORNET, en soirée. Efficacité validée terrain Sénégal (Phytoparasitica 2023).",
+          "NEEM : azadirachtine 4,5 L/ha, efficacité validée terrain Sénégal (mêmes essais).",
+          "CHIMIQUE (L4-L5, pression forte) : émamectine benzoate 1,9% EC à 250 mL/ha, jet dirigé cornet. Éviter deltaméthrine seule (résistances documentées). Lambda-cyhalothrine + acétamipride : option validée sur terrain Sénégal.",
+          "Variétés ISRA recommandées ANACIM : Noor 96, Swan, Obatampa (meilleure vigueur juvénile = moins vulnérable)."
+        ],
+        "costFcfaPerHa": 11000,
+        "delayBeforeHarvestDays": 14,
+        "ppeRequired": true,
+        "followupDays": 5
+      },
+      "sources": [
+        "Springer-Phytoparasitica-FAW-Senegal-2023 (essais 2018–2019 NW Sénégal)",
+        "DPV-Senegal-FAW-2023",
+        "IITA-PROPAS-FAW",
+        "Goergen-et-al-PLOSONE-2016 (1er signalement Afrique de l'Ouest)",
+        "ANACIM-bulletin-agromét-variétés-maïs"
+      ]
+    },
+    {
+      "id": "MAIS-VEG-FAW-BIO",
+      "crop": "mais",
+      "stages": [
+        "germination",
+        "vegetative"
+      ],
+      "symptom": "pests",
+      "season": "hivernage",
+      "regions": [
+        "thies",
+        "fatick",
+        "kaolack",
+        "kaffrine",
+        "tambacounda",
+        "kolda",
+        "sedhiou",
+        "ziguinchor"
+      ],
+      "severityMin": 0.1,
+      "scientificContext": "Intervention précoce FAW (< seuil 20%) — approche IPM recommandée FAO et DPV pour limiter résistances. FortenzaTM Duo (imidaclopride + tébuconazole) en enrobage semences : protection systémique 0–30 JAS (IITA-PROPAS).",
+      "diagnosis": "Début d'infestation FAW (< 20% plants atteints) — larves L1-L2 sur quelques plantes, trous en fenêtres. Stade optimal pour biocontrôle.",
+      "recommendation": {
+        "title": "Biocontrôle préventif — stade précoce FAW",
+        "actions": [
+          "Confirmer identification : larve avec Y inversé sur capsule céphalique noire, excréments noirs dans le cornet.",
+          "Bt kurstaki 1 kg/ha dans le cornet en soirée, plants atteints + 2 rangs autour.",
+          "Option semences prochaine campagne : FortenzaTM Duo (imidaclopride + tébuconazole) enrobage — protection systémique 0–30 JAS.",
+          "Favoriser parasitoïdes naturels (Cotesia marginiventris, Telenomus remus) — éviter traitements préventifs sans justification."
+        ],
+        "costFcfaPerHa": 5000,
+        "delayBeforeHarvestDays": 0,
+        "ppeRequired": false,
+        "followupDays": 5
+      },
+      "sources": [
+        "FAO-IPM-FAW-guidelines",
+        "IITA-PROPAS-FAW-FortenzaDuo",
+        "Phytoparasitica-FAW-Senegal-2023"
+      ]
+    },
+    {
+      "id": "MAIS-VEG-YELLOW",
+      "crop": "mais",
+      "stages": [
+        "vegetative",
+        "stem_elongation"
+      ],
+      "symptom": "yellow_leaves",
+      "season": "hivernage",
+      "regions": [
+        "thies",
+        "fatick",
+        "kaolack",
+        "kaffrine",
+        "tambacounda",
+        "kolda"
+      ],
+      "severityMin": 0.3,
+      "scientificContext": "Carence N sur maïs — symptôme classique en V (jaunissement pointe feuilles basses). Bulletin ANACIM décadaire recommande : variétés ISRA Noor 96, Swan, Obatampa + désherbage, amendements organiques et enrobage semences insecticides. Pertes volatilisation urée en surface > 35°C : 50%.",
+      "diagnosis": "Carence azotée probable — jaunissement en V inversé depuis feuilles basses. Distinguer de Maize Streak Virus (stries irrégulières) et symptômes FAW.",
+      "recommendation": {
+        "title": "Apport urée fractionné — méthode anti-pertes",
+        "actions": [
+          "1er apport urée 46% à 50 kg/ha au stade 6–8 feuilles (20–25 JAS). Incorporer légèrement ou avant pluie prévue.",
+          "2ème apport 50 kg/ha à initiation paniculaire (35–40 JAS). Tôt le matin ou soirée uniquement.",
+          "NE PAS appliquer urée en surface par temps chaud-sec T° > 35°C (pertes NH₃ > 50% — ANACIM).",
+          "Si pas d'amélioration en 10 jours : envisager carence Zn (taches internervaires) ou S → sulfate de zinc 25 kg/ha ou sulfate d'ammoniaque.",
+          "Associer amendement organique (fumier 3 t/ha) pour améliorer efficacité engrais (recommandation ANACIM bulletin décadaire juin 2024)."
+        ],
+        "costFcfaPerHa": 18000,
+        "delayBeforeHarvestDays": 0,
+        "ppeRequired": false,
+        "followupDays": 10
+      },
+      "sources": [
+        "ANCAR-fiche-mais-2022",
+        "ANACIM-bulletin-agromét-décadaire-juin-2024 (recommandations maïs)"
+      ]
+    },
+    {
+      "id": "MAIS-FLO-DROUGHT",
+      "crop": "mais",
+      "stages": [
+        "flowering",
+        "fruiting"
+      ],
+      "symptom": "drought",
+      "season": "hivernage",
+      "regions": [
+        "thies",
+        "fatick",
+        "kaolack",
+        "kaffrine",
+        "diourbel"
+      ],
+      "severityMin": 0.4,
+      "scientificContext": "Stress hydrique floraison maïs — 5 jours de déficit = -25 à -50% rendement (ISRA-CERAAS). Fenêtre critique ±7 j autour émission soies. ANACIM : NDVI values relativement plus faibles en 2024 vs 2023 à la même période indique risque stress hydrique accru.",
+      "diagnosis": "Stress hydrique critique à la floraison — soies desséchées, feuilles enroulées, apex stérile potentiel. Fenêtre critique : émission soies ±7 jours.",
+      "recommendation": {
+        "title": "Irrigation de sauvetage — priorité absolue floraison",
+        "actions": [
+          "Irriguer 25–30 mm dans les 24–48h (aspersion soirée ou goutte-à-goutte).",
+          "Si pas d'irrigation : paillage épais (coques arachide, paille mil 5–8 cm) sur toute la parcelle.",
+          "INTERDIT sous stress hydrique : tout traitement phytosanitaire foliaire (phytotoxicité sur stomates ouverts).",
+          "Surveiller reprise pollinisation en 48h. Si soies > 10 jours sans pollinisation : rendement cette parcelle fortement compromis.",
+          "Consulter bulletins ANACIM pour prévisions pluies 10 jours — anticiper l'irrigation."
+        ],
+        "costFcfaPerHa": 4000,
+        "delayBeforeHarvestDays": 0,
+        "ppeRequired": false,
+        "followupDays": 3
+      },
+      "sources": [
+        "ISRA-CERAAS-stress-mais",
+        "ANACIM-bulletin-NDVI-juin-2024 (valeurs NDVI 2024 vs 2023)",
+        "FAO-climate-smart-maize-WA"
+      ]
+    },
+    {
+      "id": "RIZ-VEG-PYRIC",
+      "crop": "riz",
+      "stages": [
+        "vegetative",
+        "stem_elongation",
+        "flowering"
+      ],
+      "symptom": "spots",
+      "season": "hivernage",
+      "regions": [
+        "saint_louis",
+        "matam",
+        "ziguinchor",
+        "sedhiou"
+      ],
+      "severityMin": 0.3,
+      "scientificContext": "Magnaporthe oryzae (Cavara) Sacc. — ascomycète. Tricyclazole : inhibiteur biosynthèse mélanine, matière active de référence mondiale (données Academia.edu-Gharb 2024). Variétés ISRA pour Vallée du Fleuve : riz NERICA de bas-fond, Sahel 108 (SAED). Gestion eau : drainage 24h réduit humidité canopée et brise le cycle épidémique.",
+      "diagnosis": "Pyriculariose — lésions losangiques gris-brun feuilles, col panicule noirci possible (blast du col = perte totale panicule). Conditions : nuits fraîches < 24°C, humidité > 90%.",
+      "recommendation": {
+        "title": "Fongicide systémique + réduction azote + variétés résistantes",
+        "actions": [
+          "CURATIF au premier symptôme : tricyclazole 75% WP à 300 g/ha en 400 L eau/ha. DAR 28 jours.",
+          "Répéter à 10 jours si pression forte.",
+          "ALTERNATIVE si tricyclazole non disponible : propiconazole 250 EC à 500 mL/ha (validé Academia.edu 2024). DAR 28 jours.",
+          "RÉDUIRE IMMÉDIATEMENT les apports azote (favorise sporulation M. oryzae).",
+          "Drainer la rizière 24–48h si possible (brise le cycle humide).",
+          "VARIÉTÉS RÉSISTANTES (campagne suivante) : NERICA de bas-fond (ISRA), Sahel 108 (SAED, adapté Vallée Fleuve Sénégal), Orylux 6."
+        ],
+        "costFcfaPerHa": 15000,
+        "delayBeforeHarvestDays": 28,
+        "ppeRequired": true,
+        "followupDays": 7
+      },
+      "sources": [
+        "SAED-ADRAO-pyriculariose-2020",
+        "Academia.edu-pyriculariose-Gharb-2024 (tricyclazole + propiconazole efficacité)",
+        "isra.sn/résultats-2024 (variétés riz NERICA Vallée Fleuve)"
+      ]
+    },
+    {
+      "id": "RIZ-PANICLE-BLAST",
+      "crop": "riz",
+      "stages": [
+        "flowering",
+        "ripening"
+      ],
+      "symptom": "spots",
+      "season": "hivernage",
+      "regions": [
+        "saint_louis",
+        "matam"
+      ],
+      "severityMin": 0.4,
+      "scientificContext": "Blast du col (neck blast) — forme la plus dévastatrice. Col de la panicule noirci = 60–100% perte en conditions épidémiques. Traitement préventif OBLIGATOIRE si blast foliaire observé dans les 2 semaines précédant l'épiaison.",
+      "diagnosis": "Blast du col — col panicule noirci ou brun foncé, panicule stérile ou vide ('whiteheads'), affaissement de l'épi. Différencier de caries ou toxicité métallique.",
+      "recommendation": {
+        "title": "Fongicide préventif au stade épiaison — urgence maximale",
+        "actions": [
+          "PRÉVENTIF OBLIGATOIRE si blast foliaire observé ≤ 14 jours avant épiaison : tricyclazole 75% WP à 400 g/ha au 50% épiaison. DAR 28 jours.",
+          "Répéter 10–14 jours après si conditions humides persistent.",
+          "Si blast du col déjà installé : traitement curatif peu efficace. Documenter la perte, alerter SAED/ANCAR.",
+          "Alerter le conseiller SAED — blast du col souvent épidémique sur casier entier (coordination inter-parcelles)."
+        ],
+        "costFcfaPerHa": 18000,
+        "delayBeforeHarvestDays": 28,
+        "ppeRequired": true,
+        "followupDays": 5
+      },
+      "sources": [
+        "SAED-ADRAO-pyriculariose-2020",
+        "FAO-rice-blast-management"
+      ]
+    },
+    {
+      "id": "RIZ-VEG-FOREUR",
+      "crop": "riz",
+      "stages": [
+        "vegetative",
+        "stem_elongation"
+      ],
+      "symptom": "pests",
+      "season": "hivernage",
+      "regions": [
+        "saint_louis",
+        "matam"
+      ],
+      "severityMin": 0.3,
+      "scientificContext": "Chilo zacconius (Blesz.) et Maliarpha separatella (Rag.) — foreurs de tige riz. Carbofuran RETIRÉ : phaseout FAO/OMS (classe Ia OMS — toxicité aiguë humaine et faune aquatique). Trichogramma chilonis disponible via biocontrôle. Chlorpyrifos-ethyl : vérifier homologation CSP active.",
+      "diagnosis": "Foreurs de tige — talles centrales séchées ('cœur mort') ou 'panicules blanches' au stade épiaison. Orifices d'entrée visibles à la base des talles.",
+      "recommendation": {
+        "title": "Biocontrôle Trichogramma + gestion post-récolte",
+        "actions": [
+          "BIOCONTRÔLE (premier choix) : Trichogramma chilonis à 100 000 individus/ha, 2 lâchers à 7 jours. Disponible via ISRA-DPV.",
+          "CHIMIQUE (si biocontrôle non disponible) : chlorpyrifos-ethyl 5% GR à 20 kg/ha en rizière submergée. EPI strict. Vérifier homologation CSP active sur insah.cilss.int.",
+          "CARBOFURAN INTERDIT : retiré des recommandations (phaseout FAO/OMS — toxicité class Ia).",
+          "PROPHYLAXIE : récolter au ras du sol, broyer ou brûler chaumes immédiatement.",
+          "ROTATION : jachère sèche 1 campagne tous les 3 ans sur parcelles fortement infestées."
+        ],
+        "costFcfaPerHa": 14000,
+        "delayBeforeHarvestDays": 21,
+        "ppeRequired": true,
+        "followupDays": 7
+      },
+      "sources": [
+        "SAED-fiche-foreur-riz",
+        "FAO-carbofuran-phaseout",
+        "PROPAS-IITA-biocontrôle",
+        "Liste-CSP-juillet-2023 (chlorpyrifos-ethyl — vérifier expiration)"
+      ]
+    },
+    {
+      "id": "NIEBE-FLO-PESTS",
+      "crop": "niebe",
+      "stages": [
+        "flowering",
+        "fruiting"
+      ],
+      "symptom": "pests",
+      "season": "hivernage",
+      "regions": [
+        "louga",
+        "diourbel",
+        "thies",
+        "kaffrine",
+        "tambacounda"
+      ],
+      "severityMin": 0.3,
+      "scientificContext": "Maruca vitrata (Geyer) [Crambidae] — perceur gousse. Perte jusqu'à 80% rendement niébé non traité (thèse TEL-Thèses 2019, Djibril Souna, WorldVeg/IITA). Mega lurothrips sjostedti — thrips floraux dominant en population (607 ind. vs 15 Maruca sur TN5-78, AJOL 2013/Niger). Parasitoïde potentiel Therophilus javanus (WorldVeg/IITA) identifié pour lutte biologique AOC. Variétés ISRA 2024 niébé homologuées : Pakau, Lisard, Léona, Thieye, Kelle, Sam.",
+      "diagnosis": "Complexe Maruca-thrips-pucerons sur niébé — fleurs percées tombées (Maruca), fleurs déformées (thrips), colonies noires pédoncules (pucerons). Peut causer 80% perte gousses si non traité.",
+      "recommendation": {
+        "title": "Programme traitement floraison 2–3 passages + biocontrôle",
+        "actions": [
+          "1er traitement au stade 10% floraison : émamectine benzoate 1,9% EC à 250 mL/ha OU lambda-cyhalothrine 5% CS à 300 mL/ha. EN SOIRÉE obligatoirement (protéger abeilles pollinisatrices).",
+          "2ème traitement à J+10 (50% floraison — stade critique) : deltaméthrine 12,5 g/ha OU chlorpyrifos-ethyl 480 EC à 800 mL/ha.",
+          "BIOCONTRÔLE COMPLÉMENTAIRE (programme IITA/WorldVeg) : MaviNPV (baculovirus de M. vitrata) — efficacité validée terrain Niger (AJOL 2013) sur réduction population Maruca. Disponibilité : contacter IITA-Sénégal.",
+          "ALTERNATIVE BIO 3 passages à 7 j : azadirachtine (neem) 10 g/L à 2,5 L/ha (préserve pollinisateurs).",
+          "VARIÉTÉS TOLÉRANTES Maruca : IT97K-499-35, Mouride (ISRA). Nouvelles variétés ISRA 2024 : Pakau, Lisard, Léona — à tester selon zone."
+        ],
+        "costFcfaPerHa": 10000,
+        "delayBeforeHarvestDays": 14,
+        "ppeRequired": true,
+        "followupDays": 7
+      },
+      "sources": [
+        "ISRA-fiche-niebe-2022",
+        "TEL-Thèses-2019 (Djibril Souna — Maruca vitrata 80% perte + Therophilus javanus biocontrôle)",
+        "AJOL-IJBCS-2013 (lutte intégrée Maruca + thrips Niger — données population + rendements)",
+        "isra.sn/résultats-2024 (variétés niébé homologuées : Pakau, Lisard, Léona, Thieye, Kelle, Sam)"
+      ]
+    },
+    {
+      "id": "NIEBE-ROOT-ROT",
+      "crop": "niebe",
+      "stages": [
+        "germination",
+        "vegetative"
+      ],
+      "symptom": "spots",
+      "season": "hivernage",
+      "regions": [
+        "diourbel",
+        "louga",
+        "kaffrine",
+        "thies",
+        "fatick"
+      ],
+      "severityMin": 0.3,
+      "scientificContext": "Macrophomina phaseolina (Tassi) Goid. (charcoal rot) et Fusarium solani — champignons telluriques majeurs du niébé en zone Sahélienne. Favorisés par stress hydrique alternant avec humidité. Pertes 10–30% courantes mais rarement diagnostiquées en champ.",
+      "diagnosis": "Fonte de semis ou pourriture racinaire — germination irrégulière, plants flétrissant soudainement, racines brun-noirâtres ou grises (M. phaseolina = microclères noirs), collet brun creux.",
+      "recommendation": {
+        "title": "Traitement semences fongicide + rotation",
+        "actions": [
+          "Traiter semences : thirame 75% WS à 3 g/kg OU metalaxyl-M + thirame (Apron Star 42 WS) à 3 g/kg.",
+          "Semer sur sol bien ressuyé (éviter semis dans les 3 jours après forte pluie).",
+          "ROTATION stricte : pas de niébé 2 années consécutives sur même parcelle.",
+          "Apport matière organique compostée 3–5 t/ha (stimule microflore antagoniste Macrophomina).",
+          "Symptômes présents : arracher et éliminer plants atteints, ne pas composter."
+        ],
+        "costFcfaPerHa": 4000,
+        "delayBeforeHarvestDays": 0,
+        "ppeRequired": true,
+        "followupDays": 14
+      },
+      "sources": [
+        "ISRA-fiche-niebe-2022",
+        "IITA-cowpea-diseases",
+        "FAO-IPM-cowpea"
+      ]
+    },
+    {
+      "id": "TOM-FLO-MILDIOU",
+      "crop": "tomate",
+      "stages": [
+        "flowering",
+        "fruiting",
+        "ripening"
+      ],
+      "symptom": "spots",
+      "season": "contreSaison",
+      "regions": [
+        "dakar",
+        "thies",
+        "saint_louis"
+      ],
+      "severityMin": 0.2,
+      "scientificContext": "Phytophthora infestans (Mont.) de Bary (Oomycète). Atelier CERAAS/USAID 2022 : réactualisation fiches CDH — variétés tolérantes pour les Niayes. Métalaxyl-M + mancozèbe homologué CSP pour tomate (liste CSP juillet 2023).",
+      "diagnosis": "Mildiou tomate (P. infestans) — taches brunes huileuses reflets violacés, feutrage blanc-grisâtre revers feuilles, pourrissement tiges, odeur terre mouillée.",
+      "recommendation": {
+        "title": "Programme fongicide préventif-curatif alterné + pratiques culturales",
+        "actions": [
+          "PRÉVENTIF (rosée matinale persistante) : oxychlorure de cuivre 50% WP à 2 kg/ha tous les 7 jours.",
+          "CURATIF (premiers symptômes) : métalaxyl-M + mancozèbe (Ridomil Gold MZ ou équivalent CSP homologué) à 2,5 kg/ha. Action systémique. Alterner avec cuivre (résistance métalaxyl documentée). DAR 14 jours.",
+          "PRATIQUES : tuteurage serré, suppression feuilles basses (0–30 cm), aucun arrosage foliaire après 16h.",
+          "VARIÉTÉS TOLÉRANTES (atelier CERAAS-USAID 2022) : Mara F1, Ndiambour (ISRA-CDH), Padma F1.",
+          "DAR métalaxyl-M + mancozèbe : 14 jours. Respecter strictement."
+        ],
+        "costFcfaPerHa": 22000,
+        "delayBeforeHarvestDays": 14,
+        "ppeRequired": true,
+        "followupDays": 5
+      },
+      "sources": [
+        "CDH-Niayes-2021",
+        "ISRA-USAID-atelier-CERAAS-fiches-maraichères-2022 (isra.sn)",
+        "Liste-CSP-juillet-2023 (métalaxyl-M + mancozèbe homologué tomate)"
+      ]
+    },
+    {
+      "id": "TOM-VEG-TYLCV",
+      "crop": "tomate",
+      "stages": [
+        "vegetative",
+        "flowering"
+      ],
+      "symptom": "yellow_leaves",
+      "season": "contreSaison",
+      "regions": [
+        "dakar",
+        "thies",
+        "saint_louis",
+        "louga"
+      ],
+      "severityMin": 0.4,
+      "scientificContext": "TYLCV (Begomovirus) transmis par Bemisia tabaci biotype B. Spiromésifène homologué CSP contre mouche blanche tomate (liste CSP juil 2023, réf. 0924-A1/In/05-22/APV-SAHEL — ACUXASR 36 EC, expire mai 2025). Acétamipride + lambda-cyhalothrine homologué contre B. tabaci sur tomate (réf. 0936/ACERO 83 EC — expire nov 2023 : VÉRIFIER RENOUVELLEMENT CSP).",
+      "diagnosis": "TYLCV — feuilles terminales enroulées en cuillère vers le haut, chlorose internervaire, nanisme, absence fructification. Distinguer de carence magnésium.",
+      "recommendation": {
+        "title": "Gestion vecteur + arrachage foyers + variétés résistantes Ty",
+        "actions": [
+          "Arracher et détruire IMMÉDIATEMENT plants fortement atteints (> 50% feuilles enroulées).",
+          "Traitement B. tabaci (plants voisins) : spiromésifène 240 SC à 400 mL/ha (CSP homologué, vérifier expiration) OU acétamipride 20% SP à 100 g/ha. Alterner.",
+          "Plaques jaunes engluées à 40/ha pour monitoring vols B. tabaci.",
+          "Filets anti-insectes 50 mesh en pépinière (stade le plus vulnérable : 0–30 JAS).",
+          "VARIÉTÉS TY-RÉSISTANTES (gènes Ty-1/Ty-3) : Mongal F1, Lindo F1, Tanya F1. Disponibles distributeurs semences Dakar/Saint-Louis."
+        ],
+        "costFcfaPerHa": 18000,
+        "delayBeforeHarvestDays": 14,
+        "ppeRequired": true,
+        "followupDays": 7
+      },
+      "sources": [
+        "CDH-ISRA-TYLCV-2020",
+        "ISRA-USAID-2022",
+        "Liste-CSP-juillet-2023 (spiromésifène ACUXASR 36 EC réf. 0924, acétamipride ACERO 83 EC réf. 0936)"
+      ]
+    },
+    {
+      "id": "TOM-FRU-PESTS-HELICOVERPA",
+      "crop": "tomate",
+      "stages": [
+        "flowering",
+        "fruiting"
+      ],
+      "symptom": "pests",
+      "season": "contreSaison",
+      "regions": [
+        "dakar",
+        "thies",
+        "saint_louis"
+      ],
+      "severityMin": 0.3,
+      "scientificContext": "Helicoverpa armigera (Hübner) — polyphage, forte capacité résistance insecticides. Abamectine + émamectine benzoate homologuée CSP juillet 2023 (ALATK 23 EC réf. 1029-A1/In.Ac/11-22/APV-SAHEL, expire nov 2025) contre Helicoverpa armigera carpophages sur cotonnier (usage proche). Indoxacarbe homologué CSP (AG-VANTAGE 150 DC réf. 0909, expire déc 2026) contre larves carpophages.",
+      "diagnosis": "Noctuelle de la tomate (H. armigera) — trou circulaire sur fruits verts, excréments brun-verdâtres. Larve à tête brune, corps variable.",
+      "recommendation": {
+        "title": "IPM Helicoverpa — pièges phéromone + biocontrôle + chimique rotation",
+        "actions": [
+          "SURVEILLANCE : pièges à phéromone héliure à 5/ha dès floraison. Seuil : > 5 captures/piège/nuit.",
+          "BT kurstaki 1 kg/ha dès premières pontes (écailles blanc-nacré sur feuilles). EN SOIRÉE.",
+          "CHIMIQUE (L3-L4 présentes) : émamectine benzoate 1,9% EC à 250 mL/ha. Alterner avec indoxacarbe (AG-VANTAGE 150 DC, CSP homologué réf. 0909, expire déc 2026). Éviter pyréthrinoïdes seuls.",
+          "Ramasser et enterrer (> 30 cm) tous fruits tombés quotidiennement."
+        ],
+        "costFcfaPerHa": 13000,
+        "delayBeforeHarvestDays": 7,
+        "ppeRequired": true,
+        "followupDays": 5
+      },
+      "sources": [
+        "DPV-tomate-2022",
+        "Liste-CSP-juillet-2023 (ALATK réf. 1029 — abamectine + émamectine benzoate ; AG-VANTAGE réf. 0909 indoxacarbe)",
+        "CABI-Helicoverpa-armigera-Africa"
+      ]
+    },
+    {
+      "id": "TOM-FRU-DROUGHT-BER",
+      "crop": "tomate",
+      "stages": [
+        "fruiting",
+        "ripening"
+      ],
+      "symptom": "drought",
+      "season": "contreSaison",
+      "regions": [
+        "dakar",
+        "thies",
+        "saint_louis",
+        "matam"
+      ],
+      "severityMin": 0.3,
+      "scientificContext": "Nécrose apicale (Blossom End Rot) — désordre physiologique, déficience locale Ca²⁺ dans fruits. Cause : irrégularité irrigation perturbant flux xylémien Ca. Aggravé pH > 7,5, excès K+ ou NH4+.",
+      "diagnosis": "Nécrose apicale (BER) — tache brune-noire sur apex des fruits, liège sèche enfoncée. PAS une maladie infectieuse.",
+      "recommendation": {
+        "title": "Régularisation irrigation + calcium foliaire + pH",
+        "actions": [
+          "IRRIGATION RÉGULIÈRE, dose faible et fréquente (jamais de cycles stress / sur-irrigation).",
+          "Paillage plastique ou organique pour lisser humidité sol.",
+          "Pulvérisation foliaire CaCl₂ à 0,4–0,6% (4–6 g/L), tous les 5–7 jours matin ou soir.",
+          "Vérifier pH sol : si > 7,5 → apport soufre élémentaire 20 kg/ha pour acidifier.",
+          "Éviter excès urée ou sulfate d'ammoniaque (antagonisme Ca disponible)."
+        ],
+        "costFcfaPerHa": 4000,
+        "delayBeforeHarvestDays": 0,
+        "ppeRequired": false,
+        "followupDays": 7
+      },
+      "sources": [
+        "CDH-Niayes-nutrition",
+        "ISRA-USAID-fiches-maraichères-2022"
+      ]
+    },
+    {
+      "id": "OIG-BULB-THRIPS",
+      "crop": "oignon",
+      "stages": [
+        "vegetative",
+        "bulb_formation"
+      ],
+      "symptom": "pests",
+      "season": "contreSaison",
+      "regions": [
+        "saint_louis",
+        "thies",
+        "louga",
+        "dakar"
+      ],
+      "severityMin": 0.3,
+      "scientificContext": "Thrips tabaci Lindeman — seuil économique 10–30 thrips/plante. Spinosad homologué CSP (liste juillet 2023). Explosions de populations sous harmattan (air sec + T° > 30°C). Résistances aux pyréthrinoïdes et organophosphorés documentées.",
+      "diagnosis": "Thrips de l'oignon (T. tabaci) — stries argentées longitudinales, pointes brûlées brun-bronze. Observer à la base des feuilles avec loupe.",
+      "recommendation": {
+        "title": "Spinosad en priorité + alternance matières actives",
+        "actions": [
+          "Seuil intervention : 10 thrips/plante (compter 10 plantes/parcelle).",
+          "1er traitement : spinosad 480 SC à 100 mL/ha (pulvérisation fine, haute pression, viser base feuilles). DAR 7 jours. Homologué CSP.",
+          "2ème traitement à J+7 : abamectine 18 EC à 500 mL/ha (CSP homologué, réf. 0858 ABALONE 18 EC, expire oct 2027). Rotation obligatoire.",
+          "IRRIGATION RÉGULIÈRE : populations thrips s'effondrent sous humidité élevée.",
+          "Pièges bleus (T. tabaci préfère le bleu) à 30/ha pour monitoring."
+        ],
+        "costFcfaPerHa": 14000,
+        "delayBeforeHarvestDays": 7,
+        "ppeRequired": true,
+        "followupDays": 7
+      },
+      "sources": [
+        "CDH-thrips-oignon-2021",
+        "ISRA-USAID-2022",
+        "Liste-CSP-juillet-2023 (abamectine ABALONE réf. 0858 expire oct 2027 ; spinosad)"
+      ]
+    },
+    {
+      "id": "OIG-VEG-MILDIOU",
+      "crop": "oignon",
+      "stages": [
+        "vegetative",
+        "bulb_formation"
+      ],
+      "symptom": "spots",
+      "season": "contreSaison",
+      "regions": [
+        "saint_louis",
+        "louga",
+        "thies"
+      ],
+      "severityMin": 0.3,
+      "scientificContext": "Peronospora destructor (Berk.) Casp. (Oomycète). Sporulation violacée sous brumes matinales Saint-Louis (janvier–mars). Cycle épidémique : 5–7 jours/génération.",
+      "diagnosis": "Mildiou de l'oignon (P. destructor) — feuilles s'affaissant, feutrage violacé-grisâtre visible à l'aube. Distinguer de brûlure botrytis.",
+      "recommendation": {
+        "title": "Programme fongicide alterné préventif",
+        "actions": [
+          "PRÉVENTIF : mancozèbe 80% WP à 2 kg/ha tous les 10–14 jours dès brumes matinales fréquentes.",
+          "CURATIF : métalaxyl-M + mancozèbe à 2,5 kg/ha (systémique). NE PAS utiliser métalaxyl seul (résistances).",
+          "Alterner familles chimiques : phénylamides / multi-sites / carbamates.",
+          "Écartement minimum 15 cm entre bulbes, arrosage matinal uniquement.",
+          "DAR mancozèbe : 21 jours ; métalaxyl-M + mancozèbe : 21 jours."
+        ],
+        "costFcfaPerHa": 16000,
+        "delayBeforeHarvestDays": 21,
+        "ppeRequired": true,
+        "followupDays": 7
+      },
+      "sources": [
+        "CDH-fiche-oignon-2020",
+        "ISRA-USAID-2022"
+      ]
+    },
+    {
+      "id": "OIG-BULB-WEEDS",
+      "crop": "oignon",
+      "stages": [
+        "vegetative",
+        "bulb_formation"
+      ],
+      "symptom": "weeds",
+      "season": "contreSaison",
+      "regions": [
+        "saint_louis",
+        "thies",
+        "louga",
+        "dakar",
+        "matam"
+      ],
+      "severityMin": 0.3,
+      "scientificContext": "Système racinaire oignon fasciculé superficiel < 30 cm — mauvais compétiteur adventices. Fenêtre critique : 40 premiers jours post-transplantation. Pendiméthaline 400 g/L homologuée CSP (réf. 1102-A1/He/05-22/APV-SAHEL, expire mai 2025 — VÉRIFIER RENOUVELLEMENT) sur cotonnier ; usage similaire cultures maraîchères.",
+      "diagnosis": "Enherbement sévère en cours de bulbaison — végétation adventice dépassant la hauteur de l'oignon.",
+      "recommendation": {
+        "title": "Sarclage urgent + herbicide pré-émergence programme suivant",
+        "actions": [
+          "Sarclage manuel DANS LES 48H — précautionneux au niveau bulbes en formation.",
+          "Paillage léger après sarclage pour limiter repousse.",
+          "PROCHAIN CYCLE : pendiméthaline 330 EC à 3 L/ha appliqué sur sol nu après transplantation avant levée adventices (vérifier homologation CSP active).",
+          "Option : oxyfluorfène 24 EC à 500 mL/ha en post-levée précoce adventices (attention phytotoxicité si mauvais dosage).",
+          "Rotation annuelle sans oignon réduit stock semencier espèces spécialisées."
+        ],
+        "costFcfaPerHa": 5000,
+        "delayBeforeHarvestDays": 0,
+        "ppeRequired": false,
+        "followupDays": 14
+      },
+      "sources": [
+        "ANCAR-fiche-oignon",
+        "CDH-Niayes-désherbage",
+        "Liste-CSP-juillet-2023 (pendiméthaline réf. 1102 expire mai 2025)"
+      ]
+    },
+    {
+      "id": "CHOU-POMM-CHENILLE",
+      "crop": "chou",
+      "stages": [
+        "vegetative",
+        "head_formation"
+      ],
+      "symptom": "pests",
+      "season": "contreSaison",
+      "regions": [
+        "dakar",
+        "thies",
+        "saint_louis"
+      ],
+      "severityMin": 0.3,
+      "scientificContext": "Plutella xylostella L. (Ypsolophidae) — lépidoptère ravageur avec le plus grand nombre de résistances insecticides documentées au monde (> 100 selon CABI). Cotesia plutellae — parasitoïde naturel à préserver. Spinosad homologué CSP.",
+      "diagnosis": "Chenilles défoliatrices — P. xylostella : trous 'fenêtres' (larve consomme limbe en laissant épiderme abaxial), excréments verts fins. Spodoptera : défoliation large.",
+      "recommendation": {
+        "title": "Bt + spinosad selon identification — rotation stricte OBLIGATOIRE",
+        "actions": [
+          "IDENTIFIER avant traitement : P. xylostella (larve vert clair, 'P. xylostella dance') vs Spodoptera (larve grande, rayures latérales).",
+          "Contre P. xylostella : Bt kurstaki 0,75–1 kg/ha EN SOIRÉE, tous les 5 jours. Efficace uniquement L1-L3.",
+          "Contre Spodoptera : spinosad 480 SC à 120 mL/ha. Alterner avec chlorantraniliprole.",
+          "Préserver Cotesia plutellae — ÉVITER pyréthrinoïdes.",
+          "ROTATION OBLIGATOIRE dès 2ème traitement (P. xylostella résistances en 2–3 générations).",
+          "Filets anti-insectes 50 mesh sur jeunes cultures en pépinière."
+        ],
+        "costFcfaPerHa": 11000,
+        "delayBeforeHarvestDays": 7,
+        "ppeRequired": true,
+        "followupDays": 5
+      },
+      "sources": [
+        "CDH-chou-2021",
+        "ISRA-USAID-2022",
+        "CABI-Plutella-xylostella (> 100 résistances insecticides documentées)"
+      ]
+    },
+    {
+      "id": "PIM-FLO-MOUCHE-BLANCHE",
+      "crop": "piment",
+      "stages": [
+        "vegetative",
+        "flowering",
+        "fruiting"
+      ],
+      "symptom": "pests",
+      "season": "contreSaison",
+      "regions": [
+        "dakar",
+        "thies",
+        "saint_louis"
+      ],
+      "severityMin": 0.3,
+      "scientificContext": "Bemisia tabaci biotype B (tabacotype) — vectrice TYLCV + Pepper Mild Mottle Virus. Spiromésifène (inhibiteur biosynthèse lipides) + pyriproxyfène (IGR) en alternance : stratégie recommandée CDH/ISRA. Résistances imidaclopride chez B. tabaci biotype B documentées Afrique de l'Ouest.",
+      "diagnosis": "Mouche blanche (B. tabaci) — adultes blancs volant en nuage, nymphes plates face inférieure feuilles, fumagine noire, chute fleurs, avortement fruits.",
+      "recommendation": {
+        "title": "Alternance spiromésifène / pyriproxyfène + monitoring",
+        "actions": [
+          "MONITORING : plaques jaunes engluées à 40–50/ha. Seuil : > 10 adultes/plante ou > 2 plaques/ha saturées/semaine.",
+          "Traitement A (semaines paires) : spiromésifène 240 SC à 400 mL/ha (CSP homologué ACUXASR réf. 0924).",
+          "Traitement B (semaines impaires) : pyriproxyfène 100 EC à 500 mL/ha (IGR, action sur nymphes).",
+          "Éviter imidaclopride seul en répété (résistances B. tabaci biotype B en AOC).",
+          "Filets anti-insectes 50 mesh en pépinière.",
+          "Lutter contre mauvaises herbes hôtes (Solanum nigrum, Physalis spp.) en bordure parcelle."
+        ],
+        "costFcfaPerHa": 17000,
+        "delayBeforeHarvestDays": 7,
+        "ppeRequired": true,
+        "followupDays": 7
+      },
+      "sources": [
+        "CDH-piment-mouche-blanche",
+        "ISRA-USAID-2022",
+        "Liste-CSP-juillet-2023 (spiromésifène ACUXASR réf. 0924)"
+      ]
+    },
+    {
+      "id": "GOMBO-FLO-PESTS-JASSIDES",
+      "crop": "gombo",
+      "stages": [
+        "vegetative",
+        "flowering",
+        "fruiting"
+      ],
+      "symptom": "pests",
+      "season": "hivernage",
+      "regions": [
+        "dakar",
+        "thies",
+        "kaolack",
+        "ziguinchor",
+        "kolda",
+        "sedhiou"
+      ],
+      "severityMin": 0.3,
+      "scientificContext": "Amrasca biguttula (Ishida) (Cicadellidae) — jasside du gombo. Lésions 'hopper burn'. Imidaclopride et thiamétoxame (néonicotinoïdes) : matières actives les plus efficaces en champ Afrique de l'Ouest (DPV-gombo). Variétés pileuses réduisent l'attractivité.",
+      "diagnosis": "Jassides (A. biguttula) — feuilles s'enroulant et jaunissant depuis les bords, brunissement marges, insectes adultes vert-jaune 2–3 mm sautant à l'effleurement.",
+      "recommendation": {
+        "title": "Néonicotinoïde ciblé + variétés pileuses + irrigation",
+        "actions": [
+          "Seuil intervention : > 2 jassides/feuille sur 10 feuilles/parcelle.",
+          "Traitement : imidaclopride 700 WG à 70 g/ha OU thiamétoxame 25 WG à 125 g/ha. Alterner pour éviter résistances.",
+          "IRRIGATION RÉGULIÈRE (jassides préfèrent cultures en stress hydrique).",
+          "VARIÉTÉS RÉSISTANTES (long terme) : Volta F1, Hire F1 (trichomes — gênent ponte et alimentation jassides).",
+          "Éviter traitements en pleine floraison (impact pollinisateurs)."
+        ],
+        "costFcfaPerHa": 9000,
+        "delayBeforeHarvestDays": 7,
+        "ppeRequired": true,
+        "followupDays": 7
+      },
+      "sources": [
+        "DPV-gombo",
+        "CABI-Amrasca-biguttula"
+      ]
+    },
+    {
+      "id": "MANGUE-FRU-MOUCHE-FRUITS",
+      "crop": "mangue",
+      "stages": [
+        "fruiting",
+        "ripening"
+      ],
+      "symptom": "pests",
+      "season": "hivernage",
+      "regions": [
+        "ziguinchor",
+        "sedhiou",
+        "kolda",
+        "tambacounda",
+        "kedougou",
+        "thies"
+      ],
+      "severityMin": 0.3,
+      "scientificContext": "Bactrocera dorsalis (Hendel) — invasive Afrique de l'Ouest début années 2000. Pertes 30–70% selon variété et zone (COLEACP-CIRAD 2009). Étude IRD/ISRA (Caumette et al. 2021, Niayes) : réinfestations depuis foyers résidentiels inter-vergers. Appât protéique GF-120 (spinosad) validé STDF/CIRAD sur 8 vergers pilotes AOC. Pièges méthyl-eugénol : attractif mâles uniquement.",
+      "diagnosis": "Mouche des fruits (B. dorsalis) — piqûres ponte sur fruits, pourrissement interne, chute prématurée fruits verts. Dégâts invisibles extérieur jusqu'à stade avancé.",
+      "recommendation": {
+        "title": "Programme SIT/IPM mouche des fruits — coordination inter-vergers",
+        "actions": [
+          "PIÈGES MÉTHYL-EUGÉNOL : 10–15/ha (mâles uniquement), renouveler attractif tous les 2 mois. Référence de suivi populationnel.",
+          "APPÂT PROTÉIQUE GF-120 (spinosad + protéines hydrolysées, validé STDF/CIRAD sur 8 vergers pilotes AOC) : 0,8–1 L/ha en spot-treatment sur faces inférieures feuilles, tous les 7 jours avant véraison.",
+          "HYGIÈNE (mesure la plus efficace, IRD/ISRA Caumette 2021) : ramasser QUOTIDIENNEMENT fruits tombés, enterrer à > 50 cm OU immerger eau + insecticide. Réinfestations proviennent des foyers au sol.",
+          "TAILLE ÉCLAIRCISSANTE avant floraison (aération canopée, meilleure pénétration traitements).",
+          "COORDINATION INTER-VERGERS : lutte individuelle insuffisante — contacter DPV pour programme collectif de zone.",
+          "Sachets protection individuelle des fruits sur variétés export (technique COLEACP)."
+        ],
+        "costFcfaPerHa": 25000,
+        "delayBeforeHarvestDays": 5,
+        "ppeRequired": true,
+        "followupDays": 7
+      },
+      "sources": [
+        "COLEACP-DPV-mouche-fruits-2022",
+        "STDF-initiative-régionale-mouche-fruits-AOC (8 vergers pilotes GF-120)",
+        "IRD-ISRA-Caumette-et-al-2021 (Niayes — facteurs réinfestation B. dorsalis)",
+        "Andermatt-COLEACP-CIRAD-2009 (pertes 30–70% données Bénin)",
+        "biorxiv-2023-11 (écologie réinfestation saisonnière B. dorsalis Sénégal)"
+      ]
+    },
+    {
+      "id": "RIZ-TAL-YELLOW",
+      "crop": "riz",
+      "stages": [
+        "vegetative"
+      ],
+      "symptom": "yellow_leaves",
+      "season": "hivernage",
+      "regions": [
+        "saint_louis",
+        "matam",
+        "ziguinchor"
+      ],
+      "severityMin": 0.3,
+      "scientificContext": "Carence N (feuilles basses jaunes) vs carence Zn (chlorose internervaire jeunes feuilles — fréquente rizières alcalines Vallée Fleuve Sénégal, pH > 7). Étude Academia.edu sur fertilisation riz Sénégal : fractionnement urée en 2 apports réduit pertes dénitrification en rizière irriguée.",
+      "diagnosis": "Carence azotée (feuilles basses jaunes, progression basipète) ou zinc (taches internervaires jaune-brun sur jeunes feuilles). Localisation des symptômes sur le rang foliaire est diagnostique.",
+      "recommendation": {
+        "title": "Diagnostic azote vs zinc — intervention ciblée",
+        "actions": [
+          "Jaunissement FEUILLES BASSES → carence N : urée 46% à 50 kg/ha, fractionner en 2 apports (rizière irriguée — réduction pertes dénitrification, Academia.edu-Sénégal).",
+          "Chlorose internervaire JEUNES FEUILLES du sommet → carence Zn : ZnSO4·7H2O 25 kg/ha en incorporation au repiquage OU pulvérisation foliaire ZnSO4 0,5% à J+15.",
+          "TEST VALIDATION : amélioration en 5–7 jours après urée → était carence N.",
+          "Éviter urée à la volée en eau profonde (pertes volatilisation + dénitrification > 50%)."
+        ],
+        "costFcfaPerHa": 16000,
+        "delayBeforeHarvestDays": 0,
+        "ppeRequired": false,
+        "followupDays": 7
+      },
+      "sources": [
+        "SAED-nutrition-riz",
+        "Academia.edu-fertilisation-riz-Sénégal (effet fertilisation minérale VFS)"
+      ]
+    },
+    {
+      "id": "GENERIC-DROUGHT-SEVERE",
+      "crop": "*",
+      "stages": [
+        "*"
+      ],
+      "symptom": "drought",
+      "season": "*",
+      "regions": [
+        "*"
+      ],
+      "severityMin": 0.7,
+      "scientificContext": "Règle fallback tous types de cultures — stress hydrique sévère (normalized severity > 0.7). Ne s'applique que si aucune règle culture-spécifique ne matche.",
+      "diagnosis": "Stress hydrique sévère — enroulement foliaire persistant même le matin, feuilles grisâtres, apex desséchés.",
+      "recommendation": {
+        "title": "Irrigation de sauvetage — protocole général",
+        "actions": [
+          "Apport immédiat 20–30 mm si irrigation disponible (aspersion soirée ou tôt le matin).",
+          "INTERDIT sous stress sévère : tout traitement phytosanitaire folaire (phytotoxicité).",
+          "Paillage avec matériaux disponibles pour limiter évapotranspiration.",
+          "Visite de suivi à 3 jours pour réévaluer la reprise."
+        ],
+        "costFcfaPerHa": 5000,
+        "delayBeforeHarvestDays": 0,
+        "ppeRequired": false,
+        "followupDays": 3
+      },
+      "sources": [
+        "Règle générique fallback — stress hydrique sévère"
+      ]
+    },
+    {
+      "id": "GENERIC-WEEDS",
+      "crop": "*",
+      "stages": [
+        "germination",
+        "vegetative"
+      ],
+      "symptom": "weeds",
+      "season": "*",
+      "regions": [
+        "*"
+      ],
+      "severityMin": 0.3,
+      "scientificContext": "Règle fallback. Les 40 premiers jours post-levée sont critiques pour compétition adventices/culture en zones sahéliennes (UCAD-FST thèse adventices mil-arachide).",
+      "diagnosis": "Enherbement significatif en début de cycle — compétition 10–40 JAS peut réduire rendement de 30–60%.",
+      "recommendation": {
+        "title": "Sarclage mécanique dans les 48h",
+        "actions": [
+          "Sarclage inter-rangs dans les 48h.",
+          "Second passage 14–21 jours après selon repousse.",
+          "Campagne suivante : herbicide pré-émergence adapté à la culture et aux adventices dominantes."
+        ],
+        "costFcfaPerHa": 4500,
+        "delayBeforeHarvestDays": 0,
+        "ppeRequired": false,
+        "followupDays": 14
+      },
+      "sources": [
+        "Règle générique",
+        "UCAD-FST-thèse-adventices (dynamique concurrence adventices Sahel)"
+      ]
+    },
+    {
+      "id": "GENERIC-PESTS-SEVERE",
+      "crop": "*",
+      "stages": [
+        "*"
+      ],
+      "symptom": "pests",
+      "season": "*",
+      "regions": [
+        "*"
+      ],
+      "severityMin": 0.6,
+      "scientificContext": "Règle fallback — infestation sévère non identifiée par règles culture-spécifiques. Ne doit remonter que si aucune règle spécifique n'a matché.",
+      "diagnosis": "Infestation sévère non spécifiquement identifiée — identifier le ravageur avant tout traitement chimique.",
+      "recommendation": {
+        "title": "Identification d'abord — traitement bio en première intention",
+        "actions": [
+          "IDENTIFIER le ravageur : photographier, contacter technicien DPV ou ANCAR si uncertain.",
+          "Bio de 1ère intention : azadirachtine (neem) 3,2 g/L à 2,5 L/ha en soirée — large spectre, peu de résistances.",
+          "Si chenilles identifiées et pression forte : lambda-cyhalothrine 25 EC à 500 mL/ha. Respecter DAR.",
+          "Piégeage lumineux nocturne pour identification adultes lépidoptères.",
+          "Suivi à J+3 pour évaluer efficacité."
+        ],
+        "costFcfaPerHa": 18000,
+        "delayBeforeHarvestDays": 14,
+        "ppeRequired": true,
+        "followupDays": 3
+      },
+      "sources": [
+        "DPV-Sénégal-protocole-lutte-intégrée-2023"
+      ]
+    },
+    {
+      "id": "GENERIC-HEALTHY",
+      "crop": "*",
+      "stages": [
+        "*"
+      ],
+      "symptom": "healthy",
+      "season": "*",
+      "regions": [
+        "*"
+      ],
+      "severityMin": 0.0,
+      "scientificContext": "Règle de fermeture — aucun symptôme phytosanitaire détecté.",
+      "diagnosis": "Parcelle en bonne santé — aucun symptôme majeur détecté lors de la visite.",
+      "recommendation": {
+        "title": "Maintenir le suivi régulier",
+        "actions": [
+          "Prochaine visite selon calendrier agronomique (J+7).",
+          "Continuer irrigation et fertilisation conformes au plan de campagne.",
+          "Observer bords de parcelle et zones basses — foyers de maladies démarrent souvent là.",
+          "Consulter calendrier phytosanitaire DPV/ANCAR pour traitements préventifs de la période.",
+          "Suivre bulletins agrométéorologiques ANACIM pour anticiper les risques climatiques."
+        ],
+        "costFcfaPerHa": 0,
+        "delayBeforeHarvestDays": 0,
+        "ppeRequired": false,
+        "followupDays": 7
+      },
+      "sources": [
+        "Règle générique — suivi agronomique préventif"
+      ]
+    }
+  ]
+}

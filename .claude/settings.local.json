@@ -4,7 +4,20 @@
       "WebFetch(domain:fmtc.jaffaketchup.dev)",
       "WebSearch",
       "WebFetch(domain:pub.dev)",
-      "Bash(dart analyze:*)"
+      "Bash(dart analyze:*)",
+      "Bash(grep -vE \"^[0-9]+:.*\\(import|key:|//|//\\)\")",
+      "Bash(flutter gen-l10n *)",
+      "Bash(xargs grep *)",
+      "Bash(flutter analyze *)",
+      "Bash(python *)",
+      "Bash(npx ng *)",
+      "PowerShell(Start-Process -FilePath \"cmd.exe\" -ArgumentList \"/c\", \"cd C:\\\\Developement\\\\petaliacropassist\\\\apps\\\\admin && npx ng serve --port 4200\" -WindowStyle Normal)",
+      "PowerShell(Get-Content *)",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(timeout 90 bash *)",
+      "PowerShell(Get-Process *)",
+      "PowerShell(netstat *)",
+      "Bash(docker compose *)"
     ]
   }
 }

@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Stop-Process *)",
+      "Bash(flutter run *)",
+      "Bash(docker compose *)"
+    ]
+  }
+}

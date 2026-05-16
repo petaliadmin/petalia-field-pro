@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  database:
+    image: postgis/postgis:15-3.3
+    container_name: petalia_db_prod
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: petalia_db
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d petalia_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: petalia_redis_prod
+    restart: always
+
+  backend:
+    image: ${DOCKERHUB_USERNAME}/petalia-backend:latest
+    container_name: petalia_backend_prod
+    restart: always
+    environment:
+      DATABASE_URL: postgres://${DB_USER}:${DB_PASSWORD}@database:5432/petalia_db
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: ${JWT_SECRET}
+    ports:
+      - "3000:3000"
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+volumes:
+  postgres_data_prod:

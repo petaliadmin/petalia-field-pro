@@ -1,0 +1,176 @@
+{
+  "version": 1,
+  "description": "Catalog of field symptoms for observation. Localized FR/EN/WO/FF. Material icon names from `Icons.*`.",
+  "symptoms": [
+    {
+      "id": "yellow_leaves",
+      "icon": "eco_rounded",
+      "labels": {
+        "fr": "Feuilles jaunes",
+        "en": "Yellow leaves",
+        "wo": "Xob yu mbokh",
+        "ff": "Haako jaalde"
+      }
+    },
+    {
+      "id": "pests",
+      "icon": "bug_report_rounded",
+      "labels": {
+        "fr": "Nuisibles",
+        "en": "Pests",
+        "wo": "Mbaam yi",
+        "ff": "Belɗe"
+      }
+    },
+    {
+      "id": "drought",
+      "icon": "wb_sunny_rounded",
+      "labels": {
+        "fr": "Sécheresse",
+        "en": "Drought",
+        "wo": "Naaj wi",
+        "ff": "Yoor-yoorɗo"
+      }
+    },
+    {
+      "id": "weeds",
+      "icon": "grass_rounded",
+      "labels": {
+        "fr": "Mauvaises herbes",
+        "en": "Weeds",
+        "wo": "Ñax bu bon",
+        "ff": "Huɗo bonɗo"
+      }
+    },
+    {
+      "id": "spots",
+      "icon": "blur_on_rounded",
+      "labels": {
+        "fr": "Taches de maladie",
+        "en": "Disease spots",
+        "wo": "Tukki feebar",
+        "ff": "Tofe ñaw"
+      }
+    },
+    {
+      "id": "taches_brunes",
+      "icon": "circle_rounded",
+      "labels": {
+        "fr": "Taches brunes",
+        "en": "Brown spots",
+        "wo": "Tukki yu xonk-melax",
+        "ff": "Tofe boɗeeje"
+      }
+    },
+    {
+      "id": "taches_noires",
+      "icon": "circle_outlined",
+      "labels": {
+        "fr": "Taches noires",
+        "en": "Black spots",
+        "wo": "Tukki yu ñuul",
+        "ff": "Tofe ɓaleeje"
+      }
+    },
+    {
+      "id": "defoliation",
+      "icon": "grass_rounded",
+      "labels": {
+        "fr": "Feuilles mangées",
+        "en": "Eaten leaves",
+        "wo": "Xob lekk",
+        "ff": "Haako ñaamaaɗo"
+      }
+    },
+    {
+      "id": "feuille_blanche",
+      "icon": "colorize_rounded",
+      "labels": {
+        "fr": "Feuille blanche anormale",
+        "en": "Abnormal white leaf",
+        "wo": "Xob bu weex bu rafet",
+        "ff": "Haako rawnudo"
+      }
+    },
+    {
+      "id": "mosaique",
+      "icon": "palette_rounded",
+      "labels": {
+        "fr": "Mosaïque jaune",
+        "en": "Yellow mosaic",
+        "wo": "Mosayig bu mboot",
+        "ff": "Mosayiku oolo"
+      }
+    },
+    {
+      "id": "nanisme",
+      "icon": "height_rounded",
+      "labels": {
+        "fr": "Plante trop petite",
+        "en": "Stunted plant",
+        "wo": "Garab gu ndaw lool",
+        "ff": "Puɗɗi famɗuɗo"
+      }
+    },
+    {
+      "id": "fletrissement",
+      "icon": "water_drop_outlined",
+      "labels": {
+        "fr": "Flétrissement",
+        "en": "Wilting",
+        "wo": "Garab gu wow",
+        "ff": "Puɗɗi yoorɗo"
+      }
+    },
+    {
+      "id": "galles",
+      "icon": "bubble_chart_rounded",
+      "labels": {
+        "fr": "Galles / Bosses",
+        "en": "Galls / Bumps",
+        "wo": "Bopp yu jeex",
+        "ff": "Bumpiraagal"
+      }
+    },
+    {
+      "id": "miellat",
+      "icon": "water_rounded",
+      "labels": {
+        "fr": "Liquide collant (miellat)",
+        "en": "Sticky liquid (honeydew)",
+        "wo": "Ndox mu tef",
+        "ff": "Ndiyam takkiɗo"
+      }
+    },
+    {
+      "id": "mauvaise_levee",
+      "icon": "warning_rounded",
+      "labels": {
+        "fr": "Mauvaise levée",
+        "en": "Poor germination",
+        "wo": "Saxal bu bon",
+        "ff": "Fuɗɗannde bonnde"
+      }
+    },
+    {
+      "id": "pas_grain",
+      "icon": "sell_rounded",
+      "labels": {
+        "fr": "Épi / Gousse vide",
+        "en": "Empty ear / pod",
+        "wo": "Mbatt mu amul",
+        "ff": "Caaboru meere"
+      }
+    },
+    {
+      "id": "fruit_pourri",
+      "icon": "sick_rounded",
+      "labels": {
+        "fr": "Fruit pourri",
+        "en": "Rotten fruit",
+        "wo": "Doom bu yàqu",
+        "ff": "Ɓiɓɓe yi̇ggii"
+      }
+    }
+  ]
+}
