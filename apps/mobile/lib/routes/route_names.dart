@@ -31,4 +31,5 @@ class Routes {
   static const walletQr = '/wallet/qr';
   static const producers = '/producers';
   static const diagnosticHistory = '/diagnostics';
+  static const expertRequests = '/expert-requests';
 }

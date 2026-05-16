@@ -58,4 +58,19 @@ class ExpertRequest {
     'answer': answer,
     'answeredAt': answeredAt?.toIso8601String(),
   };
+
+  factory ExpertRequest.fromJson(Map<String, dynamic> json) => ExpertRequest(
+    id: json['id'] as String,
+    parcelId: json['parcelId'] as String,
+    photoPaths: json['photoPaths'] as String?,
+    context: json['context'] as String,
+    createdAt: DateTime.parse(json['createdAt'] as String),
+    remoteId: json['remoteId'] as String?,
+    status: ExpertRequestStatus.values.firstWhere(
+      (e) => e.name == json['status'],
+      orElse: () => ExpertRequestStatus.queued,
+    ),
+    answer: json['answer'] as String?,
+    answeredAt: json['answeredAt'] != null ? DateTime.parse(json['answeredAt'] as String) : null,
+  );
 }

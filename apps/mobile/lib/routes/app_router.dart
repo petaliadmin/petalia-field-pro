@@ -27,6 +27,7 @@ import '../features/observation/presentation/diagnostic_history_screen.dart';
 import '../features/producers/presentation/producers_list_screen.dart';
 import '../features/producers/presentation/producer_detail_screen.dart';
 import '../features/recommendations/presentation/recommendations_screen.dart';
+import '../features/recommendations/presentation/expert_requests_screen.dart';
 import '../features/reports/presentation/report_preview_screen.dart';
 import '../features/reports/presentation/reports_screen.dart';
 import '../features/route_planner/presentation/route_planner_screen.dart';
@@ -168,6 +169,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.diagnosticHistory,
         builder: (_, __) => const DiagnosticHistoryScreen(),
+      ),
+      GoRoute(
+        path: Routes.expertRequests,
+        builder: (_, __) => const ExpertRequestsScreen(),
       ),
     ],
   );

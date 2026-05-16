@@ -139,6 +139,14 @@ class _AppDrawer extends ConsumerWidget {
             },
           ),
           ListTile(
+            leading: const Icon(Icons.support_agent_rounded),
+            title: const Text('Demandes d\'Avis Expert'),
+            onTap: () {
+              Navigator.pop(context);
+              context.push(Routes.expertRequests);
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.description_rounded),
             title: const Text('Mes Rapports'),
             onTap: () {
