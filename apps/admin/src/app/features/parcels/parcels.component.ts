@@ -95,7 +95,7 @@ import { environment } from '../../../environments/environment';
           <table class="w-full text-left border-collapse">
             <thead>
               <tr class="bg-gray-50/75 border-b border-gray-100 text-[11px] font-black text-slate-400 uppercase tracking-wider">
-                <th class="py-4 px-6">ID / Statut</th>
+                <th class="py-4 px-6">Statut</th>
                 <th class="py-4 px-6">Producteur</th>
                 <th class="py-4 px-6">Contact</th>
                 <th class="py-4 px-6">Localisation & GPS</th>
@@ -107,7 +107,7 @@ import { environment } from '../../../environments/environment';
             <tbody class="divide-y divide-gray-100 text-sm font-medium text-slate-600">
               <tr *ngFor="let parcel of filteredParcels" class="hover:bg-primary/5 transition-colors group">
                 <td class="py-4 px-6">
-                  <div class="flex items-center gap-2 mb-1.5">
+                  <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full shrink-0"
                           [ngClass]="{
                             'bg-emerald-500': parcel.status === 'healthy',
@@ -115,7 +115,7 @@ import { environment } from '../../../environments/environment';
                             'bg-red-500': parcel.status === 'infection',
                             'bg-slate-300': parcel.status === 'unknown'
                           }"></span>
-                    <span class="text-xs font-black px-2.5 py-0.5 rounded-lg"
+                    <span class="text-xs font-black px-2.5 py-1 rounded-lg"
                           [ngClass]="{
                             'bg-emerald-100 text-emerald-700': parcel.status === 'healthy',
                             'bg-amber-100 text-amber-700': parcel.status === 'water_stress',
@@ -125,9 +125,6 @@ import { environment } from '../../../environments/environment';
                       {{ statusLabel(parcel.status) }}
                     </span>
                   </div>
-                  <span class="text-[11px] font-mono font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100 select-all" title="Cliquez pour sélectionner l'ID">
-                    #{{ parcel.id }}
-                  </span>
                 </td>
 
                 <td class="py-4 px-6">

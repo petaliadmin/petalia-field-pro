@@ -22,7 +22,21 @@ export class ParcelService {
 
   getAll(): Observable<Parcel[]> {
     return this.http.get<any>(this.apiUrl).pipe(
-      map(res => Array.isArray(res) ? res : (res?.data || []))
+      map(res => {
+        const list = Array.isArray(res) ? res : (res?.data || []);
+        return list.map((item: any) => ({
+          ...item,
+          id: item.id,
+          ownerId: item.ownerId || item.id,
+          ownerName: item.ownerName || item.owner || item.name || 'Producteur inconnu',
+          ownerPhone: item.ownerPhone || item.phone || '',
+          area: item.area || item.estimatedYield || 1.5,
+          location: item.location || { lat: 16.033, lng: -16.483, region: item.village || 'Saint-Louis' },
+          status: item.status || (item.healthScore >= 80 ? 'healthy' : item.healthScore >= 50 ? 'water_stress' : 'infection'),
+          cropType: item.cropType || item.crop || 'Non spécifié',
+          createdAt: item.createdAt || new Date().toISOString()
+        }));
+      })
     );
   }
 
