@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 export interface DiagnosticRequest {
   id: string;
@@ -16,7 +17,7 @@ export interface DiagnosticRequest {
 @Injectable({ providedIn: 'root' })
 export class DiagnosticService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:3000/diagnostics';
+  private apiUrl = `${environment.apiUrl}/diagnostics`;
 
   getAll(): Observable<DiagnosticRequest[]> {
     return this.http.get<DiagnosticRequest[]>(this.apiUrl);

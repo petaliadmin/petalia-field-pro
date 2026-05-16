@@ -25,7 +25,7 @@ class AppConstants {
   // ---------------------------------------------------------------------------
   static const String remoteBaseUrl = String.fromEnvironment(
     'PETALIA_REMOTE_BASE_URL',
-    defaultValue: '',
+    defaultValue: 'http://52.73.53.182:3000',
   );
   static bool get remoteApiEnabled => remoteBaseUrl.isNotEmpty;
 

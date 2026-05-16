@@ -6,9 +6,9 @@ import '../services/auth_service.dart';
 final dioProvider = Provider<Dio>((ref) {
   final dio = Dio(BaseOptions(
     // En debug, on pointe vers le backend local (localhost pour le Web, 10.0.2.2 pour l'émulateur Android)
-    baseUrl: kDebugMode 
-        ? (kIsWeb ? 'http://localhost:3000' : (defaultTargetPlatform == TargetPlatform.android ? 'http://10.0.2.2:3000' : 'http://localhost:3000'))
-        : 'https://api.petalia-agro.com/v1', 
+    baseUrl: kDebugMode
+        ? 'http://52.73.53.182:3000'
+        : 'https://api.petalia-agro.com/v1',
     connectTimeout: const Duration(seconds: 15),
     receiveTimeout: const Duration(seconds: 15),
   ));

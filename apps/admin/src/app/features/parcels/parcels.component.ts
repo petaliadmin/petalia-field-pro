@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { ParcelService, Parcel } from '../../core/services/parcel.service';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-parcels',
@@ -183,6 +184,6 @@ export class ParcelsComponent implements OnInit {
   }
 
   openPassport(id: string) {
-    window.open('http://localhost:3000/parcels/passport/' + id, '_blank');
+    window.open(`${environment.apiUrl}/parcels/passport/` + id, '_blank');
   }
 }
