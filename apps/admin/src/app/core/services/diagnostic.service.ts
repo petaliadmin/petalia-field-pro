@@ -8,7 +8,7 @@ export interface DiagnosticRequest {
   parcelId: string;
   ownerName: string;
   ownerPhone: string;
-  photoUrl: string;
+  photoUrl: string | null;
   status: 'pending' | 'analyzed' | 'validated' | 'rejected';
   createdAt: string;
   aiResult?: any;
@@ -23,7 +23,9 @@ export class DiagnosticService {
     return this.http.get<DiagnosticRequest[]>(this.apiUrl).pipe(
       map(requests => requests.map(req => ({
         ...req,
-        photoUrl: req.photoUrl?.startsWith('http') ? req.photoUrl : `${environment.apiUrl}/${req.photoUrl}`
+        photoUrl: req.photoUrl
+          ? (req.photoUrl.startsWith('http') ? req.photoUrl : `${environment.apiUrl}/${req.photoUrl}`)
+          : null
       })))
     );
   }
