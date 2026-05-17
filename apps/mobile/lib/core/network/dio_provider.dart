@@ -8,7 +8,7 @@ final dioProvider = Provider<Dio>((ref) {
     // En debug, on pointe vers le backend local (localhost pour le Web, 10.0.2.2 pour l'émulateur Android)
     baseUrl: kDebugMode
         ? 'http://52.73.53.182:3000'
-        : 'https://api.petalia-agro.com/v1',
+        : 'http://52.73.53.182:3000',
     connectTimeout: const Duration(seconds: 15),
     receiveTimeout: const Duration(seconds: 15),
   ));
