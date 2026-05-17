@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DiagnosticRequest, DiagnosticStatus } from './entities/diagnostic-request.entity';
@@ -9,6 +14,8 @@ import { Parcel } from '../parcels/entities/parcel.entity';
 import { User, UserRole, UserStatus } from '../users/entities/user.entity';
 import { PushNotificationService } from '../notifications/push-notification.service';
 import { ImageAnalysisService, ImageBiometrics } from './image-analysis.service';
+import { WalletService } from '../wallet/wallet.service';
+import { DIAGNOSTIC_FEE_XOF } from '../common/constants/billing';
 
 @Injectable()
 export class DiagnosticsService {
@@ -24,18 +31,51 @@ export class DiagnosticsService {
     private readonly pushService: PushNotificationService,
     private readonly configService: ConfigService,
     private readonly imageAnalysisService: ImageAnalysisService,
+    private readonly walletService: WalletService,
   ) {}
 
-  async create(createDto: CreateDiagnosticDto, photoUrl: string | null): Promise<DiagnosticRequest> {
+  async create(
+    createDto: CreateDiagnosticDto,
+    photoUrl: string | null,
+    userId: string,
+  ): Promise<DiagnosticRequest> {
+    if (!userId) {
+      throw new BadRequestException(
+        "Identifiant utilisateur requis pour facturer le diagnostic",
+      );
+    }
+
+    // 1. Pré-créer la demande en PENDING pour obtenir un id stable
+    //    qu'on inscrira dans la référence de transaction wallet.
     const request = this.repository.create({
       ...createDto,
       photoUrl,
       status: DiagnosticStatus.PENDING,
+      userId,
+      feeAmount: DIAGNOSTIC_FEE_XOF,
     });
-
     const saved = await this.repository.save(request);
-    
-    // Déclencher l'analyse Claude en arrière-plan
+
+    // 2. Débit réel du solde du technicien. Si solde insuffisant,
+    //    useCredits lève BadRequestException et on supprime la demande
+    //    fantôme pour ne rien laisser en base.
+    const reference = `DIAG_${saved.id}`;
+    try {
+      await this.walletService.useCredits(
+        userId,
+        DIAGNOSTIC_FEE_XOF,
+        `Diagnostic IA #${saved.id}`,
+        reference,
+      );
+    } catch (err) {
+      await this.repository.delete(saved.id);
+      throw err;
+    }
+
+    saved.feeReference = reference;
+    await this.repository.save(saved);
+
+    // 3. Déclencher l'analyse Claude en arrière-plan.
     this.analyzeWithClaude(saved.id);
 
     return saved;
@@ -113,11 +153,38 @@ export class DiagnosticsService {
     const request = await this.repository.findOneBy({ id });
     if (!request) throw new NotFoundException('Diagnostic introuvable');
 
+    const wasAlreadyClosed =
+      request.status === DiagnosticStatus.REJECTED ||
+      request.status === DiagnosticStatus.VALIDATED;
+
     request.status = validateDto.approve === false ? DiagnosticStatus.REJECTED : DiagnosticStatus.VALIDATED;
     request.adminComment = validateDto.adminComment ?? validateDto.comment ?? '';
     request.validatedAt = new Date();
 
     const saved = await this.repository.save(request);
+
+    // Remboursement automatique du wallet quand un diagnostic est rejeté
+    // par l'expert/admin (et qu'il n'avait pas déjà été clôturé).
+    if (
+      saved.status === DiagnosticStatus.REJECTED &&
+      !wasAlreadyClosed &&
+      saved.userId &&
+      saved.feeAmount &&
+      saved.feeAmount > 0
+    ) {
+      try {
+        await this.walletService.addCredits(
+          saved.userId,
+          saved.feeAmount,
+          `Remboursement diagnostic rejeté #${saved.id}`,
+          `REFUND_${saved.feeReference || saved.id}`,
+        );
+      } catch (err: any) {
+        this.logger.error(
+          `Échec du remboursement wallet pour le diagnostic ${saved.id}: ${err?.message ?? err}`,
+        );
+      }
+    }
 
     // Envoyer les notifications multicanales
     await this.notifyFarmer(saved);

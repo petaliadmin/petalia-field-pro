@@ -5,6 +5,7 @@ import {
   Body,
   Param,
   Patch,
+  Request,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
@@ -26,9 +27,10 @@ export class ExpertsController {
   @Post('request')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: "Créer une demande d'assistance d'un expert" })
-  async createRequest(@Body() dto: CreateExpertRequestDto) {
-    return this.expertsService.createRequest(dto);
+  @ApiOperation({ summary: "Créer une demande d'assistance d'un expert (débit wallet immédiat)" })
+  async createRequest(@Request() req, @Body() dto: CreateExpertRequestDto) {
+    const userId = req.user?.userId || req.user?.id;
+    return this.expertsService.createRequest(dto, userId);
   }
 
   @Patch('request/:id/pay')

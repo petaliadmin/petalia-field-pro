@@ -45,6 +45,17 @@ export class DiagnosticRequest {
   @Column({ nullable: true })
   validatedAt: Date;
 
+  // Traçabilité de la facturation wallet — utilisée pour rembourser
+  // automatiquement en cas de rejet du diagnostic.
+  @Column({ type: 'uuid', nullable: true })
+  userId: string;
+
+  @Column({ type: 'int', nullable: true })
+  feeAmount: number;
+
+  @Column({ nullable: true })
+  feeReference: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

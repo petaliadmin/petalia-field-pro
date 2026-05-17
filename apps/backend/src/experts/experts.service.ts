@@ -11,6 +11,8 @@ import { CreateExpertRequestDto } from './dto/create-expert-request.dto';
 import { PaymentService } from './payment.service';
 import { User, UserRole, UserStatus } from '../users/entities/user.entity';
 import { PushNotificationService } from '../notifications/push-notification.service';
+import { WalletService } from '../wallet/wallet.service';
+import { EXPERT_REQUEST_DEFAULT_FEE_XOF } from '../common/constants/billing';
 
 @Injectable()
 export class ExpertsService {
@@ -25,26 +27,63 @@ export class ExpertsService {
     private userRepo: Repository<User>,
     private paymentService: PaymentService,
     private pushService: PushNotificationService,
+    private walletService: WalletService,
   ) {}
 
   async findAll() {
     return this.expertRepo.find();
   }
 
-  async createRequest(dto: CreateExpertRequestDto) {
+  async createRequest(dto: CreateExpertRequestDto, userId: string) {
+    if (!userId) {
+      throw new BadRequestException(
+        "Identifiant utilisateur requis pour facturer la demande d'avis expert",
+      );
+    }
+
     const expert = dto.expertId
       ? await this.expertRepo.findOneBy({ id: dto.expertId })
       : null;
 
     if (dto.expertId && !expert) throw new NotFoundException('Expert non trouvé');
 
+    // Le tarif réel = consultationFee de l'expert si choisi, sinon repli constant.
+    const feeAmount = expert?.consultationFee
+      ? Math.round(Number(expert.consultationFee))
+      : EXPERT_REQUEST_DEFAULT_FEE_XOF;
+
+    // 1. Créer la demande en pending pour disposer d'un id stable.
     const request = this.requestRepo.create({
       parcel: { id: dto.parcelId },
       ...(expert ? { expert } : {}),
       context: dto.context,
       status: 'pending',
+      userId,
+      feeAmount,
     });
-    return this.requestRepo.save(request);
+    const saved = await this.requestRepo.save(request);
+
+    // 2. Débit réel du wallet du technicien. Si solde insuffisant
+    //    on supprime la demande pour rester cohérent.
+    const reference = `EXPERT_REQ_${saved.id}`;
+    try {
+      await this.walletService.useCredits(
+        userId,
+        feeAmount,
+        `Demande avis expert${expert ? ` (${expert.name})` : ''} #${saved.id}`,
+        reference,
+      );
+    } catch (err) {
+      await this.requestRepo.delete(saved.id);
+      throw err;
+    }
+
+    // 3. Le paiement étant effectué via wallet, la demande passe directement
+    //    en `paid` — plus besoin d'un /pay externe.
+    saved.status = 'paid';
+    saved.paymentReference = reference;
+    saved.feeReference = reference;
+    return this.requestRepo.save(saved);
   }
 
   async confirmPayment(id: string, reference: string) {
@@ -83,9 +122,34 @@ export class ExpertsService {
     });
     if (!request) throw new NotFoundException('Demande non trouvée');
 
+    const wasAlreadyClosed =
+      request.status === 'cancelled' || request.status === 'completed';
+
     request.expertAdvice = expertAdvice;
     request.status = status;
     const saved = await this.requestRepo.save(request);
+
+    // Remboursement automatique sur annulation.
+    if (
+      saved.status === 'cancelled' &&
+      !wasAlreadyClosed &&
+      saved.userId &&
+      saved.feeAmount &&
+      saved.feeAmount > 0
+    ) {
+      try {
+        await this.walletService.addCredits(
+          saved.userId,
+          saved.feeAmount,
+          `Remboursement demande expert annulée #${saved.id}`,
+          `REFUND_${saved.feeReference || saved.id}`,
+        );
+      } catch (err: any) {
+        this.logger.error(
+          `Échec du remboursement wallet pour la demande expert ${saved.id}: ${err?.message ?? err}`,
+        );
+      }
+    }
 
     if (saved.status === 'completed') {
       await this.notifyTechnicianExpertResponded(saved);

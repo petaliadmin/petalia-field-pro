@@ -10,10 +10,12 @@ import { DiagnosticRequest } from './entities/diagnostic-request.entity';
 import { Parcel } from '../parcels/entities/parcel.entity';
 import { User } from '../users/entities/user.entity';
 import { ImageAnalysisService } from './image-analysis.service';
+import { WalletModule } from '../wallet/wallet.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([DiagnosticRequest, Parcel, User]),
+    WalletModule,
     MulterModule.register({
       storage: diskStorage({
         destination: join(process.cwd(), 'uploads'),

@@ -45,6 +45,17 @@ export class ExpertRequest {
   @Column({ type: 'text', nullable: true })
   expertAdvice: string;
 
+  // Traçabilité de la facturation wallet — utilisée pour rembourser
+  // automatiquement en cas d'annulation de la demande.
+  @Column({ type: 'uuid', nullable: true })
+  userId: string;
+
+  @Column({ type: 'int', nullable: true })
+  feeAmount: number;
+
+  @Column({ nullable: true })
+  feeReference: string;
+
   @CreateDateColumn()
   createdAt: Date;
 }
