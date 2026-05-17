@@ -47,4 +47,49 @@ export class PushNotificationService {
       this.logger.error(`[Push Notification] Échec de l'envoi au technicien ${user.name} (Token: ${user.fcmToken}): ${error.message}`);
     }
   }
+
+  async sendPushToDevice(fcmToken: string, title: string, body: string, data: any = {}): Promise<void> {
+    this.logger.log(`[Push Notification] Préparation de l'envoi individuel au token ${fcmToken}`);
+    const payload = {
+      token: fcmToken,
+      notification: { title, body },
+      data: {
+        ...data,
+        click_action: 'FLUTTER_NOTIFICATION_CLICK',
+        sound: 'default',
+      },
+    };
+
+    try {
+      const response = await admin.messaging().send(payload);
+      this.logger.log(`[Push Notification] Envoyée avec succès (FCM Message ID: ${response})`);
+    } catch (error) {
+      this.logger.error(`[Push Notification] Échec de l'envoi au token ${fcmToken}: ${error.message}`);
+    }
+  }
+
+  async sendPushMulticast(fcmTokens: string[], title: string, body: string, data: any = {}): Promise<void> {
+    if (!fcmTokens || fcmTokens.length === 0) {
+      this.logger.warn(`[Push Notification Multicast] Aucun token fourni. Envoi ignoré.`);
+      return;
+    }
+    this.logger.log(`[Push Notification Multicast] Préparation de l'envoi collectif à ${fcmTokens.length} appareils`);
+
+    const message = {
+      tokens: fcmTokens,
+      notification: { title, body },
+      data: {
+        ...data,
+        click_action: 'FLUTTER_NOTIFICATION_CLICK',
+        sound: 'default',
+      },
+    };
+
+    try {
+      const response = await admin.messaging().sendEachForMulticast(message);
+      this.logger.log(`[Push Notification Multicast] Envoi collectif terminé. Succès: ${response.successCount}, Échecs: ${response.failureCount}`);
+    } catch (error) {
+      this.logger.error(`[Push Notification Multicast] Échec de l'envoi collectif: ${error.message}`);
+    }
+  }
 }
