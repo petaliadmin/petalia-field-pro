@@ -36,6 +36,7 @@ import '../features/wallet/presentation/credit_purchase_screen.dart';
 import '../features/wallet/presentation/wallet_screen.dart';
 import '../features/wallet/presentation/transfer_screen.dart';
 import '../features/wallet/presentation/qr_code_screen.dart';
+import '../features/catalog/presentation/catalog_screen.dart';
 import '../shared/widgets/app_shell.dart';
 import 'route_names.dart';
 
@@ -173,6 +174,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.expertRequests,
         builder: (_, __) => const ExpertRequestsScreen(),
+      ),
+      GoRoute(
+        path: Routes.catalog,
+        pageBuilder: _slideUp(const CatalogScreen()),
       ),
     ],
   );

@@ -32,4 +32,5 @@ class Routes {
   static const producers = '/producers';
   static const diagnosticHistory = '/diagnostics';
   static const expertRequests = '/expert-requests';
+  static const catalog = '/catalog';
 }

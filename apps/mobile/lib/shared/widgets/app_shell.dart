@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/network/connectivity_service.dart';
 import '../../core/services/alert_engine.dart';
 import '../../core/services/sync_service.dart';
+import '../../core/services/catalog_service.dart';
 import '../../core/utils/haptics.dart';
 import '../../features/auth/presentation/auth_providers.dart';
 import '../../features/parcels/presentation/parcels_providers.dart';
@@ -59,6 +60,7 @@ class _AppShellState extends ConsumerState<AppShell> {
       drawer: const _AppDrawer(),
       body: Column(
         children: [
+          const _HydrationBanner(),
           const _SyncBanner(),
           const _TourBanner(),
           Expanded(child: widget.child),
@@ -152,6 +154,14 @@ class _AppDrawer extends ConsumerWidget {
             onTap: () {
               Navigator.pop(context);
               context.push(Routes.wallet);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.menu_book_rounded),
+            title: const Text('Catalogue Agronomique'),
+            onTap: () {
+              Navigator.pop(context);
+              context.push(Routes.catalog);
             },
           ),
           const Divider(),
@@ -483,6 +493,102 @@ class _TourBanner extends ConsumerWidget {
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _HydrationBanner extends ConsumerStatefulWidget {
+  const _HydrationBanner();
+
+  @override
+  ConsumerState<_HydrationBanner> createState() => _HydrationBannerState();
+}
+
+class _HydrationBannerState extends ConsumerState<_HydrationBanner> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final notifier = ref.read(catalogServiceProvider.notifier);
+      final syncNotifier = ref.read(syncServiceProvider.notifier);
+      notifier.hydrate();
+      syncNotifier.reconcileAll();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(catalogServiceProvider);
+
+    if (state.isCompleted || !state.isHydrating) {
+      return const SizedBox.shrink();
+    }
+
+    return Material(
+      color: AppColors.primary,
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Text(
+                      '1ère connexion : Téléchargement des données hors-ligne...',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '${(state.progress * 100).toInt()}%',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: state.progress,
+                  backgroundColor: Colors.white.withValues(alpha: 0.2),
+                  valueColor: const AlwaysStoppedAnimation<Color>(AppColors.accent),
+                  minHeight: 6,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                state.statusText,
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.8),
+                  fontSize: 11,
+                  fontStyle: FontStyle.italic,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ),
         ),
       ),
