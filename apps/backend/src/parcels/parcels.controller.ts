@@ -47,19 +47,6 @@ export class ParcelsController {
     return this.parcelsService.findAll(Number(page), Number(limit));
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.parcelsService.findOne(id);
-  }
-
-  // --- Option B : Point d'accès public pour le "Passeport Parcelle" ---
-  @Get('passport/:id')
-  @Header('Content-Type', 'text/html')
-  async getPassport(@Param('id') id: string) {
-    const parcel = await this.parcelsService.findOne(id);
-    return this.documentService.generateParcelPassport(parcel);
-  }
-
   @Get('sync')
   async syncDeltas(@Query('last_sync') lastSync?: string) {
     const targetDate = lastSync && lastSync !== '1970-01-01' ? lastSync : '1970-01-01T00:00:00.000Z';
@@ -74,6 +61,19 @@ export class ParcelsController {
       results.push(res);
     }
     return { success: true, processed: results.length, parcels: results };
+  }
+
+  // --- Option B : Point d'accès public pour le "Passeport Parcelle" ---
+  @Get('passport/:id')
+  @Header('Content-Type', 'text/html')
+  async getPassport(@Param('id') id: string) {
+    const parcel = await this.parcelsService.findOne(id);
+    return this.documentService.generateParcelPassport(parcel);
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.parcelsService.findOne(id);
   }
 
   @Patch(':id')
