@@ -2,21 +2,29 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Expert, ExpertRequest } from './entities/expert.entity';
 import { CreateExpertRequestDto } from './dto/create-expert-request.dto';
 import { PaymentService } from './payment.service';
+import { User, UserRole, UserStatus } from '../users/entities/user.entity';
+import { PushNotificationService } from '../notifications/push-notification.service';
 
 @Injectable()
 export class ExpertsService {
+  private readonly logger = new Logger(ExpertsService.name);
+
   constructor(
     @InjectRepository(Expert)
     private expertRepo: Repository<Expert>,
     @InjectRepository(ExpertRequest)
     private requestRepo: Repository<ExpertRequest>,
+    @InjectRepository(User)
+    private userRepo: Repository<User>,
     private paymentService: PaymentService,
+    private pushService: PushNotificationService,
   ) {}
 
   async findAll() {
@@ -77,6 +85,45 @@ export class ExpertsService {
 
     request.expertAdvice = expertAdvice;
     request.status = status;
-    return this.requestRepo.save(request);
+    const saved = await this.requestRepo.save(request);
+
+    if (saved.status === 'completed') {
+      await this.notifyTechnicianExpertResponded(saved);
+    }
+
+    return saved;
+  }
+
+  async notifyTechnicianExpertResponded(request: ExpertRequest): Promise<void> {
+    try {
+      this.logger.log(`[Push Notification] Recherche du technicien pour la demande expert complétée ${request.id}`);
+      const parcel = request.parcel;
+      let technicianUser: User | null = null;
+
+      if (parcel && parcel.technician) {
+        technicianUser = await this.userRepo.findOneBy({ name: parcel.technician });
+      }
+
+      if (!technicianUser) {
+        technicianUser = await this.userRepo.findOne({
+          where: { role: UserRole.TECHNICIAN, status: UserStatus.ACTIVE },
+          order: { createdAt: 'ASC' },
+        });
+      }
+
+      if (technicianUser) {
+        const title = `Avis d'expert disponible 👨‍🌾`;
+        const body = `L'expert a répondu à votre demande pour la parcelle ${parcel?.name || request.id}. Consultez l'avis dès maintenant.`;
+        await this.pushService.sendPushToTechnician(technicianUser, title, body, {
+          expertRequestId: request.id,
+          parcelId: parcel?.id,
+          type: 'EXPERT_ADVICE_RESPONDED',
+        });
+      } else {
+        this.logger.warn(`Aucun technicien trouvé pour notifier la réponse expert ${request.id}`);
+      }
+    } catch (error) {
+      this.logger.error(`Erreur lors de la notification push au technicien pour la demande expert ${request.id}: ${error.message}`);
+    }
   }
 }

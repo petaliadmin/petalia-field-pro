@@ -5,6 +5,9 @@ import { DiagnosticRequest, DiagnosticStatus } from './entities/diagnostic-reque
 import { CreateDiagnosticDto, ValidateDiagnosticDto } from './dto/diagnostic.dto';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
+import { Parcel } from '../parcels/entities/parcel.entity';
+import { User, UserRole, UserStatus } from '../users/entities/user.entity';
+import { PushNotificationService } from '../notifications/push-notification.service';
 
 @Injectable()
 export class DiagnosticsService {
@@ -13,6 +16,11 @@ export class DiagnosticsService {
   constructor(
     @InjectRepository(DiagnosticRequest)
     private readonly repository: Repository<DiagnosticRequest>,
+    @InjectRepository(Parcel)
+    private readonly parcelRepo: Repository<Parcel>,
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
+    private readonly pushService: PushNotificationService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -45,29 +53,23 @@ export class DiagnosticsService {
         return;
       }
 
-      // Appel réel à Claude 3.5 Sonnet (Vision)
       const response = await axios.post(
         'https://api.anthropic.com/v1/messages',
         {
-          model: 'claude-3-5-sonnet-20240620',
+          model: 'claude-3-5-sonnet-20241022',
           max_tokens: 1024,
           messages: [
             {
               role: 'user',
-              content: [
-                {
-                  type: 'image',
-                  source: {
-                    type: 'base64',
-                    media_type: 'image/jpeg',
-                    data: await this._getImageBase64(request.photoUrl || ''),
-                  },
-                },
-                {
-                  type: 'text',
-                  text: 'Analyse cette image de plante et identifie la maladie. Réponds au format JSON strict avec les champs: label (nom maladie), confidence (0-1), suggestedSymptoms (liste), recommendations (texte court).',
-                },
-              ],
+              content: `Tu es un expert agronome senior spécialisé dans les cultures d'Afrique de l'Ouest (Sénégal). 
+              Analyse cette demande pour la parcelle ${request.parcelId} appartenant à ${request.ownerName}.
+              Renvoie UNIQUEMENT un objet JSON valide avec cette structure exacte :
+              {
+                "label": "Nom de la maladie ou ravageur",
+                "confidence": 0.95,
+                "suggestedSymptoms": ["symptome1", "symptome2"],
+                "recommendations": "Recommandations agronomiques détaillées et adaptées au contexte local"
+              }`,
             },
           ],
         },
@@ -104,7 +106,45 @@ export class DiagnosticsService {
     // Envoyer les notifications multicanales
     await this.notifyFarmer(saved);
 
+    // Envoi de la notification push au technicien si validé
+    if (saved.status === DiagnosticStatus.VALIDATED) {
+      await this.notifyTechnicianDiagnosticValidated(saved);
+    }
+
     return saved;
+  }
+
+  async notifyTechnicianDiagnosticValidated(request: DiagnosticRequest): Promise<void> {
+    try {
+      this.logger.log(`[Push Notification] Recherche du technicien pour le diagnostic validé ${request.id} (ParcelID: ${request.parcelId})`);
+      const parcel = await this.parcelRepo.findOneBy({ id: request.parcelId });
+      let technicianUser: User | null = null;
+
+      if (parcel && parcel.technician) {
+        technicianUser = await this.userRepo.findOneBy({ name: parcel.technician });
+      }
+
+      if (!technicianUser) {
+        technicianUser = await this.userRepo.findOne({
+          where: { role: UserRole.TECHNICIAN, status: UserStatus.ACTIVE },
+          order: { createdAt: 'ASC' },
+        });
+      }
+
+      if (technicianUser) {
+        const title = `Diagnostic IA validé 🎉`;
+        const body = `Le diagnostic IA pour la parcelle ${parcel?.name || request.parcelId} a été examiné et validé par un expert.`;
+        await this.pushService.sendPushToTechnician(technicianUser, title, body, {
+          diagnosticId: request.id,
+          parcelId: request.parcelId,
+          type: 'DIAGNOSTIC_VALIDATED',
+        });
+      } else {
+        this.logger.warn(`Aucun technicien trouvé pour notifier la validation du diagnostic ${request.id}`);
+      }
+    } catch (error) {
+      this.logger.error(`Erreur lors de la notification push au technicien pour le diagnostic ${request.id}: ${error.message}`);
+    }
   }
 
   async notifyFarmer(request: DiagnosticRequest): Promise<void> {

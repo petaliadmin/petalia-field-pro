@@ -4,6 +4,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../network/dio_provider.dart';
+import './auth_service.dart';
 
 /// Top-level background message handler.
 /// This must be a top-level function to run in a separate isolate when the app is closed.
@@ -16,8 +18,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 class PushNotificationService {
   final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
+  final Ref _ref;
 
-  PushNotificationService(Ref ref);
+  PushNotificationService(this._ref);
 
   Future<void> init() async {
     // 0. Check if Firebase is initialized
@@ -59,6 +62,19 @@ class PushNotificationService {
       // 5. Get and log FCM Token
       final token = await FirebaseMessaging.instance.getToken();
       debugPrint('FCM Token: $token');
+
+      if (token != null) {
+        final authState = _ref.read(authServiceProvider);
+        if (authState.user != null && authState.user!['id'] != null) {
+          try {
+            final dio = _ref.read(dioProvider);
+            await dio.patch('/users/${authState.user!['id']}', data: {'fcmToken': token});
+            debugPrint('FCM Token successfully registered on backend for user ${authState.user!['id']}');
+          } catch (e) {
+            debugPrint('Failed to register FCM token on backend: $e');
+          }
+        }
+      }
     } catch (e) {
       debugPrint('PushNotificationService.init failed: $e');
     }

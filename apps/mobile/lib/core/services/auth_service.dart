@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import '../constants/app_constants.dart';
 import '../storage/hive_service.dart';
 import '../network/dio_provider.dart';
@@ -94,6 +96,16 @@ class AuthService extends StateNotifier<AuthState> {
       final token = response.data['access_token'];
       final userData = response.data['user'];
       await HiveService.box(AppConstants.boxAuth).put(_tokenKey, token);
+
+      if (Firebase.apps.isNotEmpty) {
+        try {
+          final fcmToken = await FirebaseMessaging.instance.getToken();
+          if (fcmToken != null && userData != null && userData['id'] != null) {
+            await dio.patch('/users/${userData['id']}', data: {'fcmToken': fcmToken});
+          }
+        } catch (_) {}
+      }
+
       state = state.copyWith(token: token, user: userData, isLoading: false);
       return true;
     } catch (e) {
@@ -114,6 +126,16 @@ class AuthService extends StateNotifier<AuthState> {
       final token = response.data['access_token'];
       final userData = response.data['user'];
       await HiveService.box(AppConstants.boxAuth).put(_tokenKey, token);
+
+      if (Firebase.apps.isNotEmpty) {
+        try {
+          final fcmToken = await FirebaseMessaging.instance.getToken();
+          if (fcmToken != null && userData != null && userData['id'] != null) {
+            await dio.patch('/users/${userData['id']}', data: {'fcmToken': fcmToken});
+          }
+        } catch (_) {}
+      }
+
       state = state.copyWith(token: token, user: userData, isLoading: false);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: 'Identifiants invalides');

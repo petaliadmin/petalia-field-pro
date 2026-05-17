@@ -5,9 +5,10 @@ import { Expert, ExpertRequest } from './entities/expert.entity';
 import { LedgerEntry } from './entities/ledger.entity';
 import { ExpertsService } from './experts.service';
 import { PaymentService } from './payment.service';
+import { User } from '../users/entities/user.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Expert, ExpertRequest, LedgerEntry])],
+  imports: [TypeOrmModule.forFeature([Expert, ExpertRequest, LedgerEntry, User])],
   controllers: [ExpertsController],
   providers: [ExpertsService, PaymentService],
   exports: [ExpertsService, PaymentService],

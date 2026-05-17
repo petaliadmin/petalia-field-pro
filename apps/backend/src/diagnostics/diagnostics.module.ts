@@ -7,10 +7,12 @@ import { randomUUID } from 'crypto';
 import { DiagnosticsService } from './diagnostics.service';
 import { DiagnosticsController } from './diagnostics.controller';
 import { DiagnosticRequest } from './entities/diagnostic-request.entity';
+import { Parcel } from '../parcels/entities/parcel.entity';
+import { User } from '../users/entities/user.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([DiagnosticRequest]),
+    TypeOrmModule.forFeature([DiagnosticRequest, Parcel, User]),
     MulterModule.register({
       storage: diskStorage({
         destination: join(process.cwd(), 'uploads'),

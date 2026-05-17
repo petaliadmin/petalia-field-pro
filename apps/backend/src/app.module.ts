@@ -12,6 +12,7 @@ import { DiagnosticsModule } from './diagnostics/diagnostics.module';
 import { UsersModule } from './users/users.module';
 import { PaymentModule } from './payment/payment.module';
 import { UssdModule } from './ussd/ussd.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { TerminusModule } from '@nestjs/terminus';
@@ -72,6 +73,7 @@ import * as winston from 'winston';
     }),
     RedisModule,
     SystemModule,
+    NotificationsModule,
     ParcelsModule,
     ExpertsModule,
     AuthModule,

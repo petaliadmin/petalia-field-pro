@@ -42,6 +42,9 @@ export class User {
   @Column({ nullable: true })
   phone: string;
 
+  @Column({ nullable: true })
+  fcmToken: string;
+
   @CreateDateColumn()
   createdAt: Date;
 
