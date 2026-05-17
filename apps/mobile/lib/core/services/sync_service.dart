@@ -39,32 +39,33 @@ class SyncService extends StateNotifier<SyncStatus> {
   late final StreamSubscription _sub;
 
   Box get _queue => Hive.box(AppConstants.boxSyncQueue);
+  Box get _queueMedia => Hive.box(AppConstants.boxSyncQueueMedia);
 
   Future<void> enqueue(Map<String, dynamic> action) async {
     final op = action['op'] as String?;
     final id = action['id'] as String?;
+    final isMedia = op == 'create_observation';
+    final targetQueue = isMedia ? _queueMedia : _queue;
 
     // Last Write Wins (Client-side optimization):
-    // Si une opération identique sur le même ID est déjà dans la file,
-    // on la remplace pour éviter d'envoyer des états obsolètes.
     if (op != null && id != null) {
-      final existingKey = _findExistingActionKey(op, id);
+      final existingKey = _findExistingActionKey(targetQueue, op, id);
       if (existingKey != null) {
-        await _queue.put(existingKey, action);
+        await targetQueue.put(existingKey, action);
         _recalc();
         await flush();
         return;
       }
     }
 
-    await _queue.add(action);
+    await targetQueue.add(action);
     _recalc();
     await flush();
   }
 
-  dynamic _findExistingActionKey(String op, String id) {
-    for (final key in _queue.keys) {
-      final val = _queue.get(key);
+  dynamic _findExistingActionKey(Box q, String op, String id) {
+    for (final key in q.keys) {
+      final val = q.get(key);
       if (val is Map && val['op'] == op && val['id'] == id) {
         return key;
       }
@@ -75,42 +76,44 @@ class SyncService extends StateNotifier<SyncStatus> {
   Future<void> flush() async {
     final online = _ref.read(connectivityServiceProvider).status ==
         NetworkStatus.online;
-    if (!online || _queue.isEmpty) return;
+    if (!online || (_queue.isEmpty && _queueMedia.isEmpty)) return;
     if (state.state == SyncState.syncing) return;
     
     state = state.copyWith(state: SyncState.syncing);
     final dio = _ref.read(dioProvider);
     
     try {
-      final keys = _queue.keys.toList();
+      // 1. Flush Data Queue (Priority)
+      final dataKeys = _queue.keys.toList();
+      for (final k in dataKeys) {
+        final action = _queue.get(k) as Map;
+        await _pushItem(dio, action);
+        await _queue.delete(k);
+      }
+
+      // 2. Flush Media Queue (Secondary)
       final isDataSaver = Hive.box(AppConstants.boxSettings)
           .get(AppConstants.kDataSaverMode, defaultValue: false) as bool;
       final isWifi = _ref.read(connectivityServiceProvider).isWifi;
 
-      for (final k in keys) {
-        final action = _queue.get(k) as Map;
-        
-        // Optimisation Lite : Si mode économie data actif et pas Wi-Fi, 
-        // on saute les uploads d'observations (images/audios)
-        if (isDataSaver && !isWifi && action['op'] == 'create_observation') {
-          continue;
+      final mediaKeys = _queueMedia.keys.toList();
+      for (final k in mediaKeys) {
+        final action = _queueMedia.get(k) as Map;
+        if (isDataSaver && !isWifi) {
+          continue; // Skip media upload if Data Saver is ON and no WiFi
         }
-
-        // Tentative d'envoi réel
         await _pushItem(dio, action);
-        
-        // Succès -> on supprime de la file locale
-        await _queue.delete(k);
+        await _queueMedia.delete(k);
       }
       
+      _recalc();
       state = SyncStatus(
         state: SyncState.idle,
-        pending: 0,
+        pending: _queue.length + _queueMedia.length,
         lastSync: DateTime.now(),
       );
     } catch (e, st) {
       debugPrint('SyncService.flush failed: $e\n$st');
-      // On passe en erreur mais on garde les éléments dans la file pour le prochain flush
       state = state.copyWith(state: SyncState.error);
     }
   }
@@ -119,7 +122,6 @@ class SyncService extends StateNotifier<SyncStatus> {
     final op = action['op'] as String;
     final id = action['id'] as String;
     
-    // Mapping opération -> endpoint
     switch (op) {
       case 'upsert_parcel':
         final rawParcel = action['parcel'] as Map<String, dynamic>?;
@@ -129,10 +131,7 @@ class SyncService extends StateNotifier<SyncStatus> {
         }
         final boundary = (rawParcel['boundary'] as List?) ?? [];
         
-        // Conversion LatLng (lat, lon) -> GeoJSON (lon, lat)
         final coords = boundary.map((p) => [p[1], p[0]]).toList();
-        
-        // Fermer l'anneau du polygone si nécessaire
         if (coords.isNotEmpty && (coords.first[0] != coords.last[0] || coords.first[1] != coords.last[1])) {
           coords.add(coords.first);
         }
@@ -162,6 +161,13 @@ class SyncService extends StateNotifier<SyncStatus> {
           'id': action['id'],
           'parcelId': action['parcelId'],
           'context': action['context'],
+        });
+        break;
+      case 'wallet_tx':
+        await dio.post('/wallet/sync_tx', data: {
+          'id': action['id'],
+          'amount': action['amount'],
+          'description': action['description'],
         });
         break;
       case 'create_observation':
@@ -213,7 +219,7 @@ class SyncService extends StateNotifier<SyncStatus> {
   }
 
   void _recalc() {
-    state = state.copyWith(pending: _queue.length);
+    state = state.copyWith(pending: _queue.length + _queueMedia.length);
   }
 
   @override

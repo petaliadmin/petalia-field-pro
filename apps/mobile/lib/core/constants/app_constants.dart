@@ -11,6 +11,7 @@ class AppConstants {
   static const String boxReports = 'box_reports';
   static const String boxAlerts = 'box_alerts';
   static const String boxSyncQueue = 'box_sync_queue';
+  static const String boxSyncQueueMedia = 'box_sync_queue_media';
   static const String boxSettings = 'box_settings';
   static const String boxExpertRequests = 'box_expert_requests';
   static const String boxAgroRulesCache = 'box_agro_rules_cache';
@@ -42,6 +43,7 @@ class AppConstants {
   static const String kBiometricEnabled = 'biometric_enabled';
   static const String kOnboardingCompleted = 'onboarding_completed';
   static const String kDataSaverMode = 'data_saver_mode';
+  static const String kLastParcelSyncTime = 'last_parcel_sync_time';
   static const String kBatterySaverMode = 'battery_saver_mode';
 
   // Tile cache

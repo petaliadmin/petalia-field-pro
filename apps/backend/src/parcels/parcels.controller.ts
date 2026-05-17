@@ -60,6 +60,22 @@ export class ParcelsController {
     return this.documentService.generateParcelPassport(parcel);
   }
 
+  @Get('sync')
+  async syncDeltas(@Query('last_sync') lastSync?: string) {
+    const targetDate = lastSync && lastSync !== '1970-01-01' ? lastSync : '1970-01-01T00:00:00.000Z';
+    return this.parcelsService.findSyncDeltas(targetDate);
+  }
+
+  @Post('sync/batch')
+  async batchUpsert(@Body() body: { parcels: any[] }) {
+    const results = [];
+    for (const p of body.parcels || []) {
+      const res = await this.parcelsService.upsertSync(p);
+      results.push(res);
+    }
+    return { success: true, processed: results.length, parcels: results };
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateData: any) {
     return this.parcelsService.update(id, updateData);

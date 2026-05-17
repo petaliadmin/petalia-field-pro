@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:hive/hive.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -23,14 +24,17 @@ class ParcelsController extends StateNotifier<List<Parcel>> {
     state = _ref.read(parcelRepositoryProvider).all();
   }
 
-  Future<void> fetchRemoteParcels() async {
+  Future<void> fetchRemoteParcels({bool forceFull = false}) async {
     if (!AppConstants.remoteApiEnabled) return;
     try {
       final dio = _ref.read(dioProvider);
-      final res = await dio.get('/parcels', queryParameters: {'limit': 1000});
+      final settings = Hive.box(AppConstants.boxSettings);
+      final lastSync = forceFull ? '1970-01-01' : (settings.get(AppConstants.kLastParcelSyncTime) as String? ?? '1970-01-01');
+
+      final res = await dio.get('/parcels/sync', queryParameters: {'last_sync': lastSync});
       final data = res.data;
-      if (data != null && data['data'] is List) {
-        final list = data['data'] as List;
+      if (data != null && data['parcels'] is List) {
+        final list = data['parcels'] as List;
         final repo = _ref.read(parcelRepositoryProvider);
         for (final item in list) {
           try {
@@ -40,6 +44,7 @@ class ParcelsController extends StateNotifier<List<Parcel>> {
             debugPrint('Erreur parsing parcelle distante: $e');
           }
         }
+        await settings.put(AppConstants.kLastParcelSyncTime, DateTime.now().toIso8601String());
         refresh();
       }
     } catch (e) {

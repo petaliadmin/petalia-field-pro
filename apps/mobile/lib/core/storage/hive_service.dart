@@ -32,6 +32,7 @@ class HiveService {
     AppConstants.boxReports,
     AppConstants.boxAlerts,
     AppConstants.boxSyncQueue,
+    AppConstants.boxSyncQueueMedia,
     AppConstants.boxExpertRequests,
   };
 

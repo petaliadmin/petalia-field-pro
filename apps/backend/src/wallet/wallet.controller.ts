@@ -54,5 +54,19 @@ export class WalletController {
     const newBalance = await this.walletService.getBalance(userId);
     return { ...result, newBalance };
   }
+
+  @Post('sync_tx')
+  @UseInterceptors(IdempotencyInterceptor)
+  @ApiOperation({ summary: 'Synchroniser une transaction effectuée en mode offline' })
+  async syncOfflineTx(@Request() req, @Body() body: { id: string; amount: number; description: string }) {
+    const userId = req.user?.userId || req.user?.id || '1b8dc7ab-7282-4a29-9abe-dddb0228d882';
+    try {
+      const transaction = await this.walletService.useCredits(userId, body.amount, body.description);
+      const newBalance = await this.walletService.getBalance(userId);
+      return { success: true, transaction, newBalance };
+    } catch (e) {
+      return { success: false, error: e.message, reversalNeeded: true };
+    }
+  }
 }
 

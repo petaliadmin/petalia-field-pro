@@ -179,8 +179,8 @@ class _ParcelsListScreenState extends ConsumerState<ParcelsListScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.cloud_download_rounded),
-            onPressed: () => ref.read(parcelsProvider.notifier).fetchRemoteParcels(),
-            tooltip: 'Synchroniser avec le serveur',
+            onPressed: () => ref.read(parcelsProvider.notifier).fetchRemoteParcels(forceFull: true),
+            tooltip: 'Forcer la synchronisation complète',
           ),
           IconButton(
             icon: const Icon(Icons.share_rounded),
