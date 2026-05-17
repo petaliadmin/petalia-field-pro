@@ -34,6 +34,7 @@ class HiveService {
     AppConstants.boxSyncQueue,
     AppConstants.boxSyncQueueMedia,
     AppConstants.boxExpertRequests,
+    AppConstants.boxChecklists,
   };
 
   static Future<void> init() async {
@@ -54,6 +55,8 @@ class HiveService {
     await Hive.openBox(AppConstants.boxWeather);
     // Cache NDVI non chiffré — données satellites Petalia Hub.
     await Hive.openBox(AppConstants.boxNdvi);
+    // Cache règles agronomiques & catalogue non chiffré — données publiques.
+    await Hive.openBox(AppConstants.boxAgroRulesCache);
   }
 
   static Future<void> _openEncryptedSafely(
