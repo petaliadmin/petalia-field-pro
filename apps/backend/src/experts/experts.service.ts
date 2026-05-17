@@ -24,12 +24,16 @@ export class ExpertsService {
   }
 
   async createRequest(dto: CreateExpertRequestDto) {
-    const expert = await this.expertRepo.findOneBy({ id: dto.expertId });
-    if (!expert) throw new NotFoundException('Expert non trouvé');
+    const expert = dto.expertId
+      ? await this.expertRepo.findOneBy({ id: dto.expertId })
+      : null;
+
+    if (dto.expertId && !expert) throw new NotFoundException('Expert non trouvé');
 
     const request = this.requestRepo.create({
-      expert,
       parcel: { id: dto.parcelId },
+      ...(expert ? { expert } : {}),
+      context: dto.context,
       status: 'pending',
     });
     return this.requestRepo.save(request);

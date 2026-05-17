@@ -7,8 +7,18 @@ export class CreateExpertRequestDto {
   @IsNotEmpty()
   parcelId: string;
 
-  @ApiProperty({ description: "ID de l'expert sollicité" })
+  @ApiProperty({ description: "ID de l'expert sollicité (optionnel, assigné par l'admin)" })
   @IsUUID()
-  @IsNotEmpty()
-  expertId: string;
+  @IsOptional()
+  expertId?: string;
+
+  @ApiProperty({ description: 'Contexte de la visite (stade, symptômes, notes)', required: false })
+  @IsString()
+  @IsOptional()
+  context?: string;
+
+  @ApiProperty({ description: 'ID local généré par le mobile (ignoré, conservé pour idempotence)', required: false })
+  @IsUUID()
+  @IsOptional()
+  id?: string;
 }

@@ -40,6 +40,9 @@ export class ExpertRequest {
   paymentReference: string;
 
   @Column({ type: 'text', nullable: true })
+  context: string;
+
+  @Column({ type: 'text', nullable: true })
   expertAdvice: string;
 
   @CreateDateColumn()
