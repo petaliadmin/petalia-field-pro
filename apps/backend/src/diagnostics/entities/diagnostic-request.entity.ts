@@ -21,7 +21,7 @@ export class DiagnosticRequest {
   @Column()
   ownerPhone: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   photoUrl: string | null;
 
   @Column({
