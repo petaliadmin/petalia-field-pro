@@ -107,14 +107,6 @@ class _AppDrawer extends ConsumerWidget {
             decoration: const BoxDecoration(color: AppColors.primary),
           ),
           ListTile(
-            leading: const Icon(Icons.home_rounded),
-            title: const Text('Accueil'),
-            onTap: () {
-              Navigator.pop(context);
-              context.go(Routes.dashboard);
-            },
-          ),
-          ListTile(
             leading: const Icon(Icons.alt_route_rounded),
             title: const Text('Planificateur de tournée'),
             onTap: () {
@@ -163,14 +155,6 @@ class _AppDrawer extends ConsumerWidget {
             },
           ),
           const Divider(),
-          ListTile(
-            leading: const Icon(Icons.map_rounded),
-            title: const Text('Cartes Hors-ligne'),
-            onTap: () {
-              Navigator.pop(context);
-              context.go(Routes.settings); // Managed in settings
-            },
-          ),
           ListTile(
             leading: const Icon(Icons.settings_rounded),
             title: const Text('Paramètres'),
