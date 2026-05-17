@@ -56,4 +56,23 @@ export class ExpertsService {
       order: { createdAt: 'DESC' },
     });
   }
+
+  async findAllRequests() {
+    return this.requestRepo.find({
+      relations: ['expert', 'parcel'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async updateRequestStatus(id: string, expertAdvice: string, status: 'completed' | 'cancelled') {
+    const request = await this.requestRepo.findOne({
+      where: { id },
+      relations: ['parcel', 'expert'],
+    });
+    if (!request) throw new NotFoundException('Demande non trouvée');
+
+    request.expertAdvice = expertAdvice;
+    request.status = status;
+    return this.requestRepo.save(request);
+  }
 }

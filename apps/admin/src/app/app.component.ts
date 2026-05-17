@@ -66,7 +66,11 @@ import { AlertConfirmComponent } from './shared/components/alert-confirm/alert-c
           </a>
           <a routerLink="/diagnostics" routerLinkActive="bg-primary/10 text-primary" class="flex items-center gap-4 px-4 py-3.5 rounded-2xl font-bold text-slate-500 hover:bg-slate-50 transition-all group">
             <lucide-icon name="microscope" class="w-5 h-5"></lucide-icon>
-            Diagnostics Experts
+            Diagnostics IA Claude
+          </a>
+          <a routerLink="/expert-requests" routerLinkActive="bg-primary/10 text-primary" class="flex items-center gap-4 px-4 py-3.5 rounded-2xl font-bold text-slate-500 hover:bg-slate-50 transition-all group">
+            <lucide-icon name="message-square-text" class="w-5 h-5"></lucide-icon>
+            Demandes Avis Experts
           </a>
           <a routerLink="/parcels" routerLinkActive="bg-primary/10 text-primary" class="flex items-center gap-4 px-4 py-3.5 rounded-2xl font-bold text-slate-500 hover:bg-slate-50 transition-all group">
             <lucide-icon name="map" class="w-5 h-5"></lucide-icon>

@@ -21,5 +21,9 @@ export const routes: Routes = [
   {
     path: 'users',
     loadComponent: () => import('./features/users/users.component').then(c => c.UsersComponent)
+  },
+  {
+    path: 'expert-requests',
+    loadComponent: () => import('./features/expert-requests/expert-requests.component').then(c => c.ExpertRequestsComponent)
   }
 ];

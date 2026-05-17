@@ -49,4 +49,19 @@ export class ExpertsController {
   async getMyRequests(@Param('parcelId') parcelId: string) {
     return this.expertsService.findByParcel(parcelId);
   }
+
+  @Get('all-requests')
+  @ApiOperation({ summary: 'Liste toutes les demandes d\'avis expert pour l\'administration' })
+  async getAllRequests() {
+    return this.expertsService.findAllRequests();
+  }
+
+  @Patch('request/:id/respond')
+  @ApiOperation({ summary: 'Répondre à une demande d\'avis expert depuis l\'admin' })
+  async respondToRequest(
+    @Param('id') id: string,
+    @Body() body: { expertAdvice: string; status?: 'completed' | 'cancelled' },
+  ) {
+    return this.expertsService.updateRequestStatus(id, body.expertAdvice, body.status || 'completed');
+  }
 }
