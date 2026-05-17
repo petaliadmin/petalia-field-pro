@@ -55,12 +55,25 @@ export class ParcelsController {
 
   @Post('sync/batch')
   async batchUpsert(@Body() body: { parcels: any[] }) {
+    // Synchronisation tolérante : un payload mal formé d'une parcelle ne doit
+    // pas bloquer la remontée du reste du lot depuis un client hors-ligne.
     const results: any[] = [];
+    const failures: Array<{ id?: string; error: string }> = [];
     for (const p of body.parcels || []) {
-      const res = await this.parcelsService.upsertSync(p);
-      results.push(res);
+      try {
+        const res = await this.parcelsService.upsertSync(p);
+        results.push(res);
+      } catch (err: any) {
+        failures.push({ id: p?.id, error: err?.message ?? String(err) });
+      }
     }
-    return { success: true, processed: results.length, parcels: results };
+    return {
+      success: failures.length === 0,
+      processed: results.length,
+      failed: failures.length,
+      parcels: results,
+      failures,
+    };
   }
 
   // --- Option B : Point d'accès public pour le "Passeport Parcelle" ---
