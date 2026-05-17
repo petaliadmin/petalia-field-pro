@@ -40,4 +40,8 @@ export class DiagnosticService {
   getStats(): Observable<any> {
     return this.http.get(`${this.apiUrl}/stats`);
   }
+
+  getBiometrics(id: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/${id}/biometrics`);
+  }
 }

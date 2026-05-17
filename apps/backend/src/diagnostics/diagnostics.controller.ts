@@ -22,6 +22,11 @@ export class DiagnosticsController {
     return this.diagnosticsService.findAll();
   }
 
+  @Get(':id/biometrics')
+  async getBiometrics(@Param('id') id: string) {
+    return this.diagnosticsService.getBiometrics(id);
+  }
+
   @Patch(':id/validate')
   async validate(
     @Param('id') id: string,

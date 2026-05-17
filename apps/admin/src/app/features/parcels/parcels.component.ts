@@ -5,11 +5,12 @@ import { LucideAngularModule } from 'lucide-angular';
 import { ParcelService, Parcel } from '../../core/services/parcel.service';
 import { AlertConfirmService } from '../../core/services/alert-confirm.service';
 import { environment } from '../../../environments/environment';
+import { AdvancedImageAnalyzerComponent } from '../../components/advanced-image-analyzer/advanced-image-analyzer.component';
 
 @Component({
   selector: 'app-parcels',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule, AdvancedImageAnalyzerComponent],
   template: `
     <div class="space-y-6">
       <div class="flex justify-between items-center">
@@ -320,6 +321,20 @@ import { environment } from '../../../environments/environment';
               <span class="text-xs font-bold text-primary">Date de création</span>
               <span class="text-xs font-black text-primary">{{ selectedParcelDetails.createdAt | date:'medium' }}</span>
             </div>
+
+            <div class="mt-6 p-4 bg-slate-900 text-white rounded-2xl flex items-center justify-between shadow-xl">
+              <div class="flex items-center gap-3">
+                <lucide-icon name="microscope" class="w-6 h-6 text-primary"></lucide-icon>
+                <div>
+                  <h5 class="text-sm font-black">Rayon X Agronomique</h5>
+                  <p class="text-[10px] text-slate-400 font-medium">Examen WebGL des filtres et analyse biométrique foliaire</p>
+                </div>
+              </div>
+              <button (click)="showAnalyzer = true" class="px-4 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold text-xs transition-all shadow-lg shadow-primary/20 flex items-center gap-1.5">
+                <lucide-icon name="zoom-in" class="w-4 h-4"></lucide-icon>
+                Ouvrir le Studio
+              </button>
+            </div>
           </div>
 
           <button (click)="selectedParcelDetails = null" class="w-full py-4 bg-gray-100 text-slate-700 rounded-2xl font-black text-sm hover:bg-gray-200 transition-all shrink-0">
@@ -359,6 +374,14 @@ import { environment } from '../../../environments/environment';
           </div>
         </div>
       </div>
+
+      <app-advanced-image-analyzer 
+        *ngIf="showAnalyzer && selectedParcelDetails"
+        [photoUrl]="$any(selectedParcelDetails).photoUrl || 'https://images.unsplash.com/photo-1592417817098-8f3d6fe22581?auto=format&fit=crop&q=80&w=600'"
+        [diagnosticId]="selectedParcelDetails.id"
+        title="Rayon X Agronomique — Parcelle #{{ selectedParcelDetails.id.split('-')[0] }}"
+        (close)="showAnalyzer = false">
+      </app-advanced-image-analyzer>
     </div>
   `,
   styles: [`:host { display: block; }`]
@@ -368,6 +391,7 @@ export class ParcelsComponent implements OnInit {
   loading = true;
   searchQuery = '';
   statusFilter = '';
+  showAnalyzer = false;
 
   showParcelModal = false;
   isEditing = false;

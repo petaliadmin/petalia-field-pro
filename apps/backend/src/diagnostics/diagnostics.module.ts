@@ -9,6 +9,7 @@ import { DiagnosticsController } from './diagnostics.controller';
 import { DiagnosticRequest } from './entities/diagnostic-request.entity';
 import { Parcel } from '../parcels/entities/parcel.entity';
 import { User } from '../users/entities/user.entity';
+import { ImageAnalysisService } from './image-analysis.service';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { User } from '../users/entities/user.entity';
     }),
   ],
   controllers: [DiagnosticsController],
-  providers: [DiagnosticsService],
-  exports: [DiagnosticsService],
+  providers: [DiagnosticsService, ImageAnalysisService],
+  exports: [DiagnosticsService, ImageAnalysisService],
 })
 export class DiagnosticsModule {}

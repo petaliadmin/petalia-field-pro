@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { DiagnosticService, DiagnosticRequest } from '../../core/services/diagnostic.service';
 import { AlertConfirmService } from '../../core/services/alert-confirm.service';
+import { AdvancedImageAnalyzerComponent } from '../../components/advanced-image-analyzer/advanced-image-analyzer.component';
 
 @Component({
   selector: 'app-diagnostics',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, FormsModule],
+  imports: [CommonModule, LucideAngularModule, FormsModule, AdvancedImageAnalyzerComponent],
   template: `
     <div class="space-y-6">
       <div class="flex justify-between items-end">
@@ -132,6 +133,20 @@ import { AlertConfirmService } from '../../core/services/alert-confirm.service';
                           placeholder="Ajoutez vos remarques ou ajustez les conseils..." 
                           class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all min-h-[100px]"></textarea>
               </div>
+
+              <div class="mt-6 p-4 bg-slate-900 text-white rounded-2xl flex items-center justify-between shadow-xl">
+                <div class="flex items-center gap-3">
+                  <lucide-icon name="microscope" class="w-6 h-6 text-primary"></lucide-icon>
+                  <div>
+                    <h5 class="text-sm font-black">Rayon X Agronomique</h5>
+                    <p class="text-[10px] text-slate-400 font-medium">Examen WebGL des filtres et analyse biométrique foliaire</p>
+                  </div>
+                </div>
+                <button (click)="showAnalyzer = true" class="px-4 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold text-xs transition-all shadow-lg shadow-primary/20 flex items-center gap-1.5">
+                  <lucide-icon name="zoom-in" class="w-4 h-4"></lucide-icon>
+                  Ouvrir le Studio
+                </button>
+              </div>
             </div>
 
             <div class="mt-8 grid grid-cols-3 gap-3">
@@ -158,6 +173,14 @@ import { AlertConfirmService } from '../../core/services/alert-confirm.service';
           </ng-template>
         </div>
       </div>
+
+      <app-advanced-image-analyzer 
+        *ngIf="showAnalyzer && selectedRequest"
+        [photoUrl]="selectedRequest.photoUrl || ''"
+        [diagnosticId]="selectedRequest.id"
+        title="Rayon X Agronomique — {{ selectedRequest.ownerName }}"
+        (close)="showAnalyzer = false">
+      </app-advanced-image-analyzer>
     </div>
   `,
   styles: [`
@@ -170,6 +193,7 @@ export class DiagnosticsComponent implements OnInit {
   adminComment: string = '';
   searchQuery = '';
   statusFilter = '';
+  showAnalyzer = false;
 
   private diagnosticService = inject(DiagnosticService);
   private alertService = inject(AlertConfirmService);

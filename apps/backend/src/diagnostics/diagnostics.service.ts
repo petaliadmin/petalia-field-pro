@@ -8,6 +8,7 @@ import axios from 'axios';
 import { Parcel } from '../parcels/entities/parcel.entity';
 import { User, UserRole, UserStatus } from '../users/entities/user.entity';
 import { PushNotificationService } from '../notifications/push-notification.service';
+import { ImageAnalysisService, ImageBiometrics } from './image-analysis.service';
 
 @Injectable()
 export class DiagnosticsService {
@@ -22,6 +23,7 @@ export class DiagnosticsService {
     private readonly userRepo: Repository<User>,
     private readonly pushService: PushNotificationService,
     private readonly configService: ConfigService,
+    private readonly imageAnalysisService: ImageAnalysisService,
   ) {}
 
   async create(createDto: CreateDiagnosticDto, photoUrl: string | null): Promise<DiagnosticRequest> {
@@ -39,6 +41,12 @@ export class DiagnosticsService {
     return saved;
   }
 
+  async getBiometrics(id: string): Promise<ImageBiometrics> {
+    const request = await this.repository.findOneBy({ id });
+    if (!request) throw new NotFoundException('Diagnostic introuvable');
+    return this.imageAnalysisService.analyzeImage(request.photoUrl, request.id);
+  }
+
   async analyzeWithClaude(id: string): Promise<void> {
     const request = await this.repository.findOneBy({ id });
     if (!request) return;
@@ -53,6 +61,8 @@ export class DiagnosticsService {
         return;
       }
 
+      const biometrics = await this.imageAnalysisService.analyzeImage(request.photoUrl, request.id);
+
       const response = await axios.post(
         'https://api.anthropic.com/v1/messages',
         {
@@ -63,6 +73,12 @@ export class DiagnosticsService {
               role: 'user',
               content: `Tu es un expert agronome senior spécialisé dans les cultures d'Afrique de l'Ouest (Sénégal). 
               Analyse cette demande pour la parcelle ${request.parcelId} appartenant à ${request.ownerName}.
+              Voici les métriques biométriques foliaires exactes extraites de l'image par notre moteur d'analyse :
+              - Score de netteté (Blur Score) : ${biometrics.blurScore} (0=flou, 1=net)
+              - Taux de chlorose (jaunissement) : ${biometrics.chlorosisRatio * 100}% de la surface
+              - Taux de nécrose (brunissement/taches) : ${biometrics.necrosisRatio * 100}% de la surface
+              
+              Prends en compte ces données biométriques pour affiner ton diagnostic.
               Renvoie UNIQUEMENT un objet JSON valide avec cette structure exacte :
               {
                 "label": "Nom de la maladie ou ravageur",
