@@ -75,6 +75,24 @@ class Parcel {
     return now.difference(semisDate!).inDays;
   }
 
+  static List<LatLng> _parseBoundary(dynamic raw) {
+    if (raw == null) return [];
+    if (raw is Map) {
+      final coords = raw['coordinates'] as List?;
+      if (coords != null && coords.isNotEmpty) {
+        final ring = coords.first as List?;
+        if (ring != null) {
+          return ring.map((p) => LatLng((p[1] as num).toDouble(), (p[0] as num).toDouble())).toList();
+        }
+      }
+      return [];
+    }
+    if (raw is List) {
+      return raw.map((p) => LatLng((p[0] as num).toDouble(), (p[1] as num).toDouble())).toList();
+    }
+    return [];
+  }
+
   factory Parcel.fromJson(Map json) => Parcel(
         id: json['id'] as String,
         name: json['name'] as String,
@@ -86,9 +104,7 @@ class Parcel {
         healthScore: (json['healthScore'] as num).toDouble(),
         lastVisit: DateTime.parse(json['lastVisit'] as String),
         estimatedYield: (json['estimatedYield'] as num?)?.toDouble() ?? 0.0,
-        boundary: (json['boundary'] as List)
-            .map((p) => LatLng((p[0] as num).toDouble(), (p[1] as num).toDouble()))
-            .toList(),
+        boundary: _parseBoundary(json['boundary']),
         phone: json['phone'] as String?,
         technician: json['technician'] as String?,
         variety: json['variety'] as String?,

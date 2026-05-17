@@ -1,6 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/constants/app_constants.dart';
+import '../../../core/network/dio_provider.dart';
 import '../../../core/services/location_service.dart';
 import '../../../core/services/sync_service.dart';
 import '../../auth/presentation/auth_providers.dart';
@@ -12,11 +15,36 @@ final parcelRepositoryProvider = Provider<ParcelRepository>((_) => ParcelReposit
 class ParcelsController extends StateNotifier<List<Parcel>> {
   ParcelsController(this._ref) : super([]) {
     refresh();
+    fetchRemoteParcels();
   }
   final Ref _ref;
 
   void refresh() {
     state = _ref.read(parcelRepositoryProvider).all();
+  }
+
+  Future<void> fetchRemoteParcels() async {
+    if (!AppConstants.remoteApiEnabled) return;
+    try {
+      final dio = _ref.read(dioProvider);
+      final res = await dio.get('/parcels', queryParameters: {'limit': 1000});
+      final data = res.data;
+      if (data != null && data['data'] is List) {
+        final list = data['data'] as List;
+        final repo = _ref.read(parcelRepositoryProvider);
+        for (final item in list) {
+          try {
+            final p = Parcel.fromJson(item as Map);
+            await repo.upsert(p);
+          } catch (e) {
+            debugPrint('Erreur parsing parcelle distante: $e');
+          }
+        }
+        refresh();
+      }
+    } catch (e) {
+      debugPrint('Erreur fetchRemoteParcels: $e');
+    }
   }
 
   Future<void> upsert(Parcel p) async {

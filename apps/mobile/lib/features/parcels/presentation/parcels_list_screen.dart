@@ -178,6 +178,11 @@ class _ParcelsListScreenState extends ConsumerState<ParcelsListScreen> {
             },
           ),
           IconButton(
+            icon: const Icon(Icons.cloud_download_rounded),
+            onPressed: () => ref.read(parcelsProvider.notifier).fetchRemoteParcels(),
+            tooltip: 'Synchroniser avec le serveur',
+          ),
+          IconButton(
             icon: const Icon(Icons.share_rounded),
             onPressed: () => _showExportOptions(context, parcels, l10n),
             tooltip: l10n.exportTitle,
@@ -485,120 +490,123 @@ class _ParcelsListScreenState extends ConsumerState<ParcelsListScreen> {
   // ---------------------------------------------------------------------------
 
   Widget _buildListView(List<Parcel> parcels) {
-    return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-      itemCount: parcels.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 10),
-      itemBuilder: (context, i) {
-        final p = parcels[i];
-        final area = GeoUtils.polygonAreaHa(p.boundary);
-        
-        return Consumer(
-          builder: (context, ref, _) {
-            final ndviAsync = ref.watch(ndviProvider(p.id));
-            final score = ndviAsync.maybeWhen(
-              data: (n) => n.value,
-              orElse: () => p.healthScore,
-            );
-            
-            final userLoc = ref.watch(userLocationProvider).valueOrNull;
-            String? distanceStr;
-            if (userLoc != null && p.boundary.isNotEmpty) {
-              final d = const Distance().as(LengthUnit.Meter, userLoc, p.boundary.first);
-              distanceStr = d > 1000 
-                  ? '${(d / 1000).toStringAsFixed(1)} km' 
-                  : '${d.round()} m';
-            }
+    return RefreshIndicator(
+      onRefresh: () => ref.read(parcelsProvider.notifier).fetchRemoteParcels(),
+      child: ListView.separated(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+        itemCount: parcels.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 10),
+        itemBuilder: (context, i) {
+          final p = parcels[i];
+          final area = GeoUtils.polygonAreaHa(p.boundary);
+          
+          return Consumer(
+            builder: (context, ref, _) {
+              final ndviAsync = ref.watch(ndviProvider(p.id));
+              final score = ndviAsync.maybeWhen(
+                data: (n) => n.value,
+                orElse: () => p.healthScore,
+              );
+              
+              final userLoc = ref.watch(userLocationProvider).valueOrNull;
+              String? distanceStr;
+              if (userLoc != null && p.boundary.isNotEmpty) {
+                final d = const Distance().as(LengthUnit.Meter, userLoc, p.boundary.first);
+                distanceStr = d > 1000 
+                    ? '${(d / 1000).toStringAsFixed(1)} km' 
+                    : '${d.round()} m';
+              }
 
-            return GlassCard(
-              onTap: () => context.push('${Routes.parcelDetails}/${p.id}'),
-              child: Row(
-                children: [
-                  Container(
-                    height: 52,
-                    width: 52,
-                    decoration: BoxDecoration(
-                      color: AppColors.healthFor(score).withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(14),
+              return GlassCard(
+                onTap: () => context.push('${Routes.parcelDetails}/${p.id}'),
+                child: Row(
+                  children: [
+                    Container(
+                      height: 52,
+                      width: 52,
+                      decoration: BoxDecoration(
+                        color: AppColors.healthFor(score).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Icon(
+                        AppColors.healthIconFor(score),
+                        color: AppColors.healthFor(score),
+                        size: 26,
+                      ),
                     ),
-                    child: Icon(
-                      AppColors.healthIconFor(score),
-                      color: AppColors.healthFor(score),
-                      size: 26,
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                p.name,
-                                style: Theme.of(context).textTheme.titleMedium,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            if (distanceStr != null) ...[
-                              const SizedBox(width: 8),
-                              Text(
-                                distanceStr,
-                                style: TextStyle(
-                                  color: AppColors.primary,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 12,
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  p.name,
+                                  style: Theme.of(context).textTheme.titleMedium,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
+                              if (distanceStr != null) ...[
+                                const SizedBox(width: 8),
+                                Text(
+                                  distanceStr,
+                                  style: TextStyle(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
                             ],
-                          ],
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          '${p.owner} · ${p.village}',
-                          style: TextStyle(
-                            color: AppColors.textSecondaryOf(context),
-                            fontSize: 14,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '${p.owner} · ${p.village}',
+                            style: TextStyle(
+                              color: AppColors.textSecondaryOf(context),
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              _Pill(text: p.crop, icon: Icons.grass_rounded),
+                              const SizedBox(width: 6),
+                              _Pill(
+                                text: Fmt.hectares(area),
+                                icon: Icons.straighten_rounded,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Hero(
+                          tag: 'parcel-${p.id}-health-list',
+                          child: Material(
+                            type: MaterialType.transparency,
+                            child: HealthBadge(score: score, compact: true),
                           ),
                         ),
                         const SizedBox(height: 6),
-                        Row(
-                          children: [
-                            _Pill(text: p.crop, icon: Icons.grass_rounded),
-                            const SizedBox(width: 6),
-                            _Pill(
-                              text: Fmt.hectares(area),
-                              icon: Icons.straighten_rounded,
-                            ),
-                          ],
-                        ),
+                        HealthSparkline(parcelId: p.id),
                       ],
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Hero(
-                        tag: 'parcel-${p.id}-health-list',
-                        child: Material(
-                          type: MaterialType.transparency,
-                          child: HealthBadge(score: score, compact: true),
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      HealthSparkline(parcelId: p.id),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 
