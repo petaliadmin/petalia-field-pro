@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DeepPartial } from 'typeorm';
 import { Parcel } from './entities/parcel.entity';
 import { SyncOutbox } from './entities/sync-outbox.entity';
 import { AgroService } from './agro.service';
@@ -53,7 +53,7 @@ export class ParcelsService {
     const parcel = this.parcelsRepository.create({
       ...parcelData,
       healthScore,
-    });
+    } as DeepPartial<Parcel>);
     const saved = await this.parcelsRepository.save(parcel);
     await this.outboxRepository.save(
       this.outboxRepository.create({
@@ -70,7 +70,7 @@ export class ParcelsService {
     const existing = await this.parcelsRepository.findOne({ where: { id: clientParcel.id } });
     if (!existing) {
       const healthScore = clientParcel.healthScore ?? this.agroService.calculateHealthScore(new Date());
-      const created = this.parcelsRepository.create({ ...clientParcel, healthScore });
+      const created = this.parcelsRepository.create({ ...clientParcel, healthScore } as DeepPartial<Parcel>);
       const saved = await this.parcelsRepository.save(created);
       await this.outboxRepository.save(
         this.outboxRepository.create({

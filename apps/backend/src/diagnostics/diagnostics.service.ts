@@ -60,7 +60,7 @@ export class DiagnosticsService {
                   source: {
                     type: 'base64',
                     media_type: 'image/jpeg',
-                    data: await this._getImageBase64(request.photoUrl),
+                    data: await this._getImageBase64(request.photoUrl || ''),
                   },
                 },
                 {

@@ -68,7 +68,7 @@ export class ParcelsController {
 
   @Post('sync/batch')
   async batchUpsert(@Body() body: { parcels: any[] }) {
-    const results = [];
+    const results: any[] = [];
     for (const p of body.parcels || []) {
       const res = await this.parcelsService.upsertSync(p);
       results.push(res);
