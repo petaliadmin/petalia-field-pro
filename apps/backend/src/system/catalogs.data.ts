@@ -798,32 +798,265 @@ export const DEFAULT_AGRO_RULES = {
 };
 
 export const DEFAULT_CROPS = {
-  version: 1,
-  updatedAt: "2026-05-07",
+  version: 2,
+  updatedAt: "2026-05-17",
   crops: [
-    { id: "mais", labelFr: "Maïs", labelWo: "Mboq", season: "hivernage" },
-    { id: "mil", labelFr: "Mil", labelWo: "Dugub", season: "hivernage" },
-    { id: "sorgho", labelFr: "Sorgho", labelWo: "Basi", season: "hivernage" },
-    { id: "riz", labelFr: "Riz", labelWo: "Ceeb", season: "hivernage" },
-    { id: "arachide", labelFr: "Arachide", labelWo: "Gerte", season: "hivernage" },
-    { id: "niebe", labelFr: "Niébé", labelWo: "Niebe", season: "hivernage" },
-    { id: "haricot_vert", labelFr: "Haricot vert", labelWo: "Ñebbe bu wert", season: "contreSaison" },
-    { id: "tomate", labelFr: "Tomate", labelWo: "Tamaate", season: "contreSaison" },
-    { id: "oignon", labelFr: "Oignon", labelWo: "Soble", season: "contreSaison" },
-    { id: "chou", labelFr: "Chou", labelWo: "Suu", season: "contreSaison" },
-    { id: "piment", labelFr: "Piment", labelWo: "Kaani", season: "contreSaison" },
-    { id: "gombo", labelFr: "Gombo", labelWo: "Kañja", season: "hivernage" },
-    { id: "aubergine", labelFr: "Aubergine", labelWo: "Jaxatu", season: "contreSaison" },
-    { id: "carotte", labelFr: "Carotte", labelWo: "Karot", season: "contreSaison" },
-    { id: "laitue", labelFr: "Laitue", labelWo: "Salaat", season: "contreSaison" },
-    { id: "pasteque", labelFr: "Pastèque", labelWo: "Xaal", season: "contreSaison" },
-    { id: "patate_douce", labelFr: "Patate douce", labelWo: "Patasa", season: "contreSaison" },
-    { id: "pomme_de_terre", labelFr: "Pomme de terre", labelWo: "Pompiteer", season: "contreSaison" },
-    { id: "manioc", labelFr: "Manioc", labelWo: "Ñambi", season: "permanent" },
-    { id: "mangue", labelFr: "Mangue", labelWo: "Mango", season: "permanent" },
-    { id: "anacarde", labelFr: "Anacarde", labelWo: "Darkase", season: "permanent" },
-    { id: "banane", labelFr: "Banane", labelWo: "Banaana", season: "permanent" },
-    { id: "canne_a_sucre", labelFr: "Canne à sucre", labelWo: "Kan", season: "permanent" },
-    { id: "moringa", labelFr: "Moringa", labelWo: "Nébédaay", season: "permanent" }
+    {
+      id: "mais",
+      labelFr: "Maïs",
+      labelWo: "Mboq",
+      season: "hivernage",
+      scientificName: "Zea mays L.",
+      cycle: "90 à 120 jours selon variété",
+      zones: ["Thies", "Fatick", "Kaolack", "Kaffrine", "Tambacounda", "Kolda", "Sedhiou", "Ziguinchor"],
+      diseases: ["Chenille légionnaire (FAW)", "Carence Azote/Zinc", "Maize Streak Virus"],
+      stresses: ["Sécheresse en floraison", "Chaleur extrême > 35°C"],
+      symptoms: ["Trous dans le cornet", "Feuilles jaunes en V", "Soies desséchées"],
+      causes: ["Spodoptera frugiperda", "Volatilisation urée", "Déficit hydrique"],
+      recommendations: ["Appliquer Bt kurstaki en soirée", "Fractionner l'urée 46%", "Irrigation de sauvetage 25mm"],
+      goodPractices: "Semis précoce, paillage avec résidus, utilisation de variétés à haute vigueur juvénile (Noor 96, Obatampa)."
+    },
+    {
+      id: "mil",
+      labelFr: "Mil",
+      labelWo: "Dugub",
+      season: "hivernage",
+      scientificName: "Pennisetum glaucum (L.) R. Br.",
+      cycle: "75 à 90 jours (Souna 3, Thialack 2)",
+      zones: ["Diourbel", "Louga", "Kaffrine", "Thies", "Fatick"],
+      diseases: ["Striga hermonthica", "Mineuse de l'épi (Heliocheilus albipunctella)", "Mildiou du mil"],
+      stresses: ["Sols pauvres dégradés", "Irrégularité des pluies"],
+      symptoms: ["Pieds chétifs parasités", "Perforations sur épis", "Feutrage blanc sur feuilles"],
+      causes: ["Graines de Striga en dormance", "Larves de noctuelles", "Sclerospora graminicola"],
+      recommendations: ["Arrachage manuel avant floraison", "Lâchers de parasitoïdes Habrobracon hebetor", "Traitement semences Apron Star"],
+      goodPractices: "Rotation stricte avec niébé ou arachide, apport de fumier composté (3 t/ha) pour réduire l'exsudation de strigolactones."
+    },
+    {
+      id: "sorgho",
+      labelFr: "Sorgho",
+      labelWo: "Basi",
+      season: "hivernage",
+      scientificName: "Sorghum bicolor (L.) Moench",
+      cycle: "105 à 120 jours (Faourou, Nguinthe)",
+      zones: ["Tambacounda", "Kaffrine", "Kolda", "Sedhiou"],
+      diseases: ["Striga hermonthica", "Charbon du sorgho", "Cécidomyie"],
+      stresses: ["Stress hydrique tardif", "Sols argileux lourds"],
+      symptoms: ["Nanisme", "Épis transformés en poudre noire", "Grains vides"],
+      causes: ["Parasitisme racinaire", "Sporisorium sorghi", "Contarinia sorghicola"],
+      recommendations: ["Rotation légumineuses", "Traitement de semences au thirame", "Pulvérisation d'azadirachtine (Neem)"],
+      goodPractices: "Utilisation des variétés homologuées ISRA 2024 (Darou, Faourou), semis en lignes perpendiculaires à la pente."
+    },
+    {
+      id: "riz",
+      labelFr: "Riz",
+      labelWo: "Ceeb",
+      season: "hivernage",
+      scientificName: "Oryza sativa L.",
+      cycle: "110 à 130 jours (Sahel 108, NERICA)",
+      zones: ["Saint-Louis", "Matam", "Ziguinchor", "Sedhiou"],
+      diseases: ["Pyriculariose (Magnaporthe oryzae)", "Foreurs de tige (Chilo zacconius)", "Toxicité ferreuse"],
+      stresses: ["Salinisation des sols", "Nuits fraîches en floraison"],
+      symptoms: ["Lésions losangiques", "Cœur mort / Panicules blanches", "Feuilles bronzées"],
+      causes: ["Excès d'azote et humidité", "Larves endophytes", "Excès de fer soluble (bas-fonds)"],
+      recommendations: ["Fongicide tricyclazole 75% WP", "Lâchers de Trichogramma chilonis", "Drainage et apport de potasse"],
+      goodPractices: "Respect du calendrier cultural SAED, nettoyage strict des diguettes et brûlage des chaumes après récolte."
+    },
+    {
+      id: "arachide",
+      labelFr: "Arachide",
+      labelWo: "Gerte",
+      season: "hivernage",
+      scientificName: "Arachis hypogaea L.",
+      cycle: "90 à 110 jours (55-437, Fleur 11)",
+      zones: ["Thies", "Diourbel", "Fatick", "Kaolack", "Kaffrine", "Louga", "Kolda"],
+      diseases: ["Rosette virale", "Cercosporiose (précoce/tardive)", "Contamination Aflatoxine"],
+      stresses: ["Déficit pluviométrique en formation de gousses", "Sols lessivés acides"],
+      symptoms: ["Plantes rabougries en bouquet", "Taches brunes avec halo jaune", "Gousses noircies/moisies"],
+      causes: ["Pucerons Aphis craccivora", "Cercospora arachidicola", "Champignon Aspergillus flavus"],
+      recommendations: ["Semis précoce avant le 15 juillet", "Fongicide cuivre ou chlorothalonil", "Application biofongicide AFLASAFE SN 01"],
+      goodPractices: "Séchage sur table 'gousses en l'air' (recommandation HAL-INRAE 2025), vérification de la nodulation racinaire."
+    },
+    {
+      id: "niebe",
+      labelFr: "Niébé",
+      labelWo: "Niebe",
+      season: "hivernage",
+      scientificName: "Vigna unguiculata (L.) Walp.",
+      cycle: "60 à 75 jours (Pakau, Lisard, Léona)",
+      zones: ["Louga", "Diourbel", "Thies", "Kaffrine", "Tambacounda"],
+      diseases: ["Perceur de gousses (Maruca vitrata)", "Thrips floraux", "Pourriture charbonneuse"],
+      stresses: ["Attaques d'insectes au stade floral", "Stress hydrique de début de cycle"],
+      symptoms: ["Fleurs perforées tombées", "Déformation des gousses", "Collet noir et flétrissement"],
+      causes: ["Larves de Maruca vitrata", "Megalurothrips sjostedti", "Macrophomina phaseolina"],
+      recommendations: ["Application d'émamectine en soirée", "Biocontrôle MaviNPV", "Traitement semences Apron Star"],
+      goodPractices: "Culture en association ou rotation avec le mil/sorgho, respect d'un programme de 2 à 3 pulvérisations ciblées à la floraison."
+    },
+    {
+      id: "tomate",
+      labelFr: "Tomate",
+      labelWo: "Tamaate",
+      season: "contreSaison",
+      scientificName: "Solanum lycopersicum L.",
+      cycle: "110 à 130 jours (Mara F1, Mongal F1)",
+      zones: ["Dakar", "Thies", "Saint-Louis"],
+      diseases: ["TYLCV (Mouche blanche)", "Mildiou (Phytophthora infestans)", "Nématodes à galles"],
+      stresses: ["Chaleur excessive provoquant la coulure des fleurs", "Sols fatigués des Niayes"],
+      symptoms: ["Feuilles en cuillère", "Taches d'huile violacées", "Galles sur racines"],
+      causes: ["Bemisia tabaci biotype B", "Humidité matinale persistante", "Meloidogyne spp."],
+      recommendations: ["Spiromésifène ou filets 50 mesh", "Ridomil Gold MZ (Métalaxyl)", "Rotation avec cultures nématicides (Crotalaire)"],
+      goodPractices: "Tuteurage systématique, effeuillage basal pour aérer le collet, irrigation goutte-à-goutte stricte."
+    },
+    { id: "haricot_vert", labelFr: "Haricot vert", labelWo: "Ñebbe bu wert", season: "contreSaison", scientificName: "Phaseolus vulgaris L.", cycle: "60 jours", zones: ["Niayes"] },
+    { id: "oignon", labelFr: "Oignon", labelWo: "Soble", season: "contreSaison", scientificName: "Allium cepa L.", cycle: "110 jours", zones: ["Vallée du Fleuve", "Niayes"] },
+    { id: "chou", labelFr: "Chou", labelWo: "Suu", season: "contreSaison", scientificName: "Brassica oleracea L.", cycle: "90 jours", zones: ["Niayes"] },
+    { id: "piment", labelFr: "Piment", labelWo: "Kaani", season: "contreSaison", scientificName: "Capsicum frutescens L.", cycle: "120 jours", zones: ["Niayes", "Casamance"] },
+    { id: "gombo", labelFr: "Gombo", labelWo: "Kañja", season: "hivernage", scientificName: "Abelmoschus esculentus L.", cycle: "70 jours", zones: ["Toutes zones"] },
+    { id: "aubergine", labelFr: "Aubergine", labelWo: "Jaxatu", season: "contreSaison", scientificName: "Solanum aethiopicum L.", cycle: "90 jours", zones: ["Niayes"] },
+    { id: "carotte", labelFr: "Carotte", labelWo: "Karot", season: "contreSaison", scientificName: "Daucus carota L.", cycle: "90 jours", zones: ["Niayes"] },
+    { id: "laitue", labelFr: "Laitue", labelWo: "Salaat", season: "contreSaison", scientificName: "Lactuca sativa L.", cycle: "45 jours", zones: ["Niayes"] },
+    { id: "pasteque", labelFr: "Pastèque", labelWo: "Xaal", season: "contreSaison", scientificName: "Citrullus lanatus", cycle: "85 jours", zones: ["Bassin Arachidier"] },
+    { id: "patate_douce", labelFr: "Patate douce", labelWo: "Patasa", season: "contreSaison", scientificName: "Ipomoea batatas", cycle: "120 jours", zones: ["Niayes"] },
+    { id: "pomme_de_terre", labelFr: "Pomme de terre", labelWo: "Pompiteer", season: "contreSaison", scientificName: "Solanum tuberosum", cycle: "90 jours", zones: ["Niayes"] },
+    { id: "manioc", labelFr: "Manioc", labelWo: "Ñambi", season: "permanent", scientificName: "Manihot esculenta", cycle: "12 mois", zones: ["Toutes zones"] },
+    { id: "mangue", labelFr: "Mangue", labelWo: "Mango", season: "permanent", scientificName: "Mangifera indica", cycle: "Annuel", zones: ["Casamance", "Niayes"] },
+    { id: "anacarde", labelFr: "Anacarde", labelWo: "Darkase", season: "permanent", scientificName: "Anacardium occidentale", cycle: "Annuel", zones: ["Casamance", "Fatick"] },
+    { id: "banane", labelFr: "Banane", labelWo: "Banaana", season: "permanent", scientificName: "Musa spp.", cycle: "Annuel", zones: ["Tambacounda", "Casamance"] },
+    { id: "canne_a_sucre", labelFr: "Canne à sucre", labelWo: "Kan", season: "permanent", scientificName: "Saccharum officinarum", cycle: "Annuel", zones: ["Richard Toll"] },
+    { id: "moringa", labelFr: "Moringa", labelWo: "Nébédaay", season: "permanent", scientificName: "Moringa oleifera", cycle: "Permanent", zones: ["Toutes zones"] }
   ]
 };
+
+export const DEFAULT_SUPPLIERS = [
+  {
+    id: "sup-1",
+    name: "SEN-AGRO DISTRIBUTION",
+    type: "Intrants & Semences",
+    zone: "Niayes / Dakar",
+    phone: "+221 77 123 45 67",
+    address: "Km 11 Route de Rufisque, Dakar",
+    lat: 14.7333,
+    lng: -17.3333,
+    products: ["Semences maraîchères certifiées", "Engrais NPK 10-10-20", "Produits phytosanitaires CSP"]
+  },
+  {
+    id: "sup-2",
+    name: "COPEOL SÉNÉGAL",
+    type: "Intrants Oléagineux",
+    zone: "Bassin Arachidier (Kaolack/Fatick)",
+    phone: "+221 77 234 56 78",
+    address: "Quartier Escale, Kaolack",
+    lat: 14.1500,
+    lng: -16.2500,
+    products: ["Semences arachide 55-437", "Fongicides traitement de semence", "Engrais 6-20-10"]
+  },
+  {
+    id: "sup-3",
+    name: "CASAMANCE AGRO-TECH",
+    type: "Matériel & Intrants",
+    zone: "Casamance (Ziguinchor/Kolda)",
+    phone: "+221 77 345 67 89",
+    address: "Boulevard 54, Ziguinchor",
+    lat: 12.5833,
+    lng: -16.2667,
+    products: ["Kits d'irrigation goutte-à-goutte", "Semences riz NERICA", "Bio-pesticides Neem"]
+  },
+  {
+    id: "sup-4",
+    name: "SAED INTRANTS VALLÉE",
+    type: "Semences Riz & Engrais",
+    zone: "Vallée du Fleuve (Saint-Louis/Matam)",
+    phone: "+221 77 456 78 90",
+    address: "Route de Khor, Saint-Louis",
+    lat: 16.0333,
+    lng: -16.4833,
+    products: ["Semences riz Sahel 108", "Urée 46%", "Tricyclazole 75% WP"]
+  }
+];
+
+export const DEFAULT_EQUIPMENTS = [
+  {
+    id: "eq-1",
+    name: "Kit d'irrigation goutte-à-goutte (500m²)",
+    category: "Irrigation",
+    zone: "Toutes zones",
+    supplier: "SEN-AGRO DISTRIBUTION",
+    priceFcfa: 150000,
+    rentalAvailable: false,
+    description: "Kit complet avec gaines, goutteurs intégrés, filtre et raccords. Optimisation hydrique sous stress sahélien."
+  },
+  {
+    id: "eq-2",
+    name: "Motoculteur 12 CV avec fraise",
+    category: "Mécanisation",
+    zone: "Vallée du Fleuve / Niayes",
+    supplier: "SAED INTRANTS VALLÉE",
+    priceFcfa: 1200000,
+    rentalAvailable: true,
+    rentalPriceFcfaPerDay: 25000,
+    description: "Idéal pour la préparation des sols lourds et rizières. Faible consommation de carburant."
+  },
+  {
+    id: "eq-3",
+    name: "Pompe solaire immergée 500W",
+    category: "Pompage Solaire",
+    zone: "Bassin Arachidier / Tambacounda",
+    supplier: "CASAMANCE AGRO-TECH",
+    priceFcfa: 350000,
+    rentalAvailable: false,
+    description: "Pompe hybride solaire/secteur pour puits ou forage jusqu'à 30m. Débit 3m³/h."
+  },
+  {
+    id: "eq-4",
+    name: "Semoir manuel de précision mono-rang",
+    category: "Semis",
+    zone: "Bassin Arachidier",
+    supplier: "COPEOL SÉNÉGAL",
+    priceFcfa: 45000,
+    rentalAvailable: true,
+    rentalPriceFcfaPerDay: 5000,
+    description: "Permet un semis régulier du mil, sorgho et maïs, avec trémie de fertilisation couplée."
+  }
+];
+
+export const DEFAULT_INSTITUTIONS = [
+  {
+    id: "inst-1",
+    name: "ISRA (Institut Sénégalais de Recherches Agricoles)",
+    role: "Recherche & Semences homologuées",
+    contactPerson: "Dr. Diop (CNRA Bambey)",
+    phone: "+221 33 859 17 00",
+    email: "contact@isra.sn",
+    zone: "National / Bambey / Saint-Louis",
+    description: "Développement de variétés à cycle court et tolérantes à la sécheresse (arachide, mil, riz, sorgho, niébé)."
+  },
+  {
+    id: "inst-2",
+    name: "DPV (Direction de la Protection des Végétaux)",
+    role: "Homologation CSP & Surveillance phytosanitaire",
+    contactPerson: "Division Biocontrôle",
+    phone: "+221 33 836 13 14",
+    email: "dpv@agriculture.gouv.sn",
+    zone: "National / Dakar",
+    description: "Surveillance des ravageurs de quarantaine (FAW, mouches des fruits), lâchers de parasitoïdes (Habrobracon hebetor)."
+  },
+  {
+    id: "inst-3",
+    name: "ANCAR (Agence Nationale de Conseil Agricole et Rural)",
+    role: "Vulgarisation & Encadrement paysan",
+    contactPerson: "Coordination Bassin Arachidier",
+    phone: "+221 33 827 50 10",
+    email: "ancar@ancar.sn",
+    zone: "Toutes régions",
+    description: "Mise en relation des smallholders avec les technologies agricoles et diffusion des bonnes pratiques."
+  },
+  {
+    id: "inst-4",
+    name: "SAED",
+    role: "Aménagement & Développement Vallée du Fleuve",
+    contactPerson: "Direction Technique Saint-Louis",
+    phone: "+221 33 961 10 70",
+    email: "saed@saed.sn",
+    zone: "Vallée du Fleuve Sénégal",
+    description: "Gestion des périmètres irrigués, encadrement de la filière rizicole et distribution d'intrants."
+  }
+];
