@@ -94,15 +94,17 @@ class Parcel {
   }
 
   factory Parcel.fromJson(Map json) => Parcel(
-        id: json['id'] as String,
-        name: json['name'] as String,
-        owner: json['owner'] as String,
+        id: json['id'] as String? ?? '',
+        name: json['name'] as String? ?? 'Parcelle sans nom',
+        owner: json['owner'] as String? ?? 'Inconnu',
         village: json['village'] as String? ?? '',
-        crop: json['crop'] as String,
+        crop: json['crop'] as String? ?? 'mil',
         growthStage: json['growthStage'] as String? ?? 'vegetative',
         irrigation: json['irrigation'] as String? ?? 'Rainfed',
-        healthScore: (json['healthScore'] as num).toDouble(),
-        lastVisit: DateTime.parse(json['lastVisit'] as String),
+        healthScore: (json['healthScore'] as num?)?.toDouble() ?? 0.75,
+        lastVisit: json['lastVisit'] != null
+            ? DateTime.tryParse(json['lastVisit'].toString()) ?? DateTime.now()
+            : (json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt'].toString()) ?? DateTime.now() : DateTime.now()),
         estimatedYield: (json['estimatedYield'] as num?)?.toDouble() ?? 0.0,
         boundary: _parseBoundary(json['boundary']),
         phone: json['phone'] as String?,
@@ -110,7 +112,7 @@ class Parcel {
         variety: json['variety'] as String?,
         semisDate: json['semisDate'] == null
             ? null
-            : DateTime.parse(json['semisDate'] as String),
+            : DateTime.tryParse(json['semisDate'].toString()),
         region: json['region'] as String?,
         soilType: json['soilType'] as String?,
         previousCrop: json['previousCrop'] as String?,

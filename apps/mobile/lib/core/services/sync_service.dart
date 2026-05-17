@@ -10,6 +10,10 @@ import 'package:hive/hive.dart';
 import '../constants/app_constants.dart';
 import '../network/connectivity_service.dart';
 import '../network/dio_provider.dart';
+import '../../features/parcels/presentation/parcels_providers.dart';
+import '../../features/wallet/presentation/wallet_providers.dart';
+import './credit_service.dart';
+import '../../features/auth/presentation/auth_providers.dart';
 
 enum SyncState { idle, syncing, error }
 
@@ -31,12 +35,37 @@ class SyncService extends StateNotifier<SyncStatus> {
   SyncService(this._ref) : super(const SyncStatus()) {
     _recalc();
     _sub = _ref.read(connectivityServiceProvider).stream.listen((status) {
-      if (status == NetworkStatus.online) flush();
+      if (status == NetworkStatus.online) {
+        flush();
+        reconcileAll();
+      }
     });
   }
 
   final Ref _ref;
   late final StreamSubscription _sub;
+
+  Future<void> reconcileAll() async {
+    final online = _ref.read(connectivityServiceProvider).status == NetworkStatus.online;
+    if (!online || !AppConstants.remoteApiEnabled) return;
+
+    final authState = _ref.read(authStateProvider).value;
+    if (authState == null || !authState.isAuthenticated) return;
+
+    debugPrint('[SYNC] Lancement de la réconciliation systématique des données depuis l\'API...');
+    try {
+      // 1. Réconciliation des Parcelles
+      await _ref.read(parcelsProvider.notifier).fetchRemoteParcels(forceFull: true);
+
+      // 2. Réconciliation du Solde et de l'historique Wallet
+      await _ref.read(creditServiceProvider.notifier).refreshBalance();
+      _ref.invalidate(walletTransactionsProvider);
+
+      debugPrint('[SYNC] Réconciliation systématique terminée avec succès.');
+    } catch (e, st) {
+      debugPrint('[SYNC] Erreur lors de la réconciliation systématique: $e\n$st');
+    }
+  }
 
   Box get _queue => Hive.box(AppConstants.boxSyncQueue);
   Box get _queueMedia => Hive.box(AppConstants.boxSyncQueueMedia);

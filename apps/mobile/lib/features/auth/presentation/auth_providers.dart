@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/services/auth_service.dart' show authServiceProvider;
+import '../../../core/services/sync_service.dart' show syncServiceProvider;
 import '../data/auth_repository.dart';
 import '../domain/user.dart';
 
@@ -35,6 +36,9 @@ class AuthController extends AsyncNotifier<AuthState> {
   Future<AuthState> build() async {
     final repo = ref.read(authRepositoryProvider);
     final user = repo.currentUser();
+    if (user != null) {
+      Future.microtask(() => ref.read(syncServiceProvider.notifier).reconcileAll());
+    }
     return AuthState(isAuthenticated: user != null, user: user);
   }
 
@@ -61,6 +65,7 @@ class AuthController extends AsyncNotifier<AuthState> {
       await ref.read(authRepositoryProvider).saveUserLocally(user, pin);
       
       state = AsyncData(AuthState(isAuthenticated: true, user: user));
+      Future.microtask(() => ref.read(syncServiceProvider.notifier).reconcileAll());
     } catch (e, st) {
       state = AsyncError(e, st);
     }
@@ -97,6 +102,7 @@ class AuthController extends AsyncNotifier<AuthState> {
       await ref.read(authRepositoryProvider).saveUserLocally(user, pin);
 
       state = AsyncData(AuthState(isAuthenticated: true, user: user));
+      Future.microtask(() => ref.read(syncServiceProvider.notifier).reconcileAll());
     } catch (e, st) {
       state = AsyncError(e, st);
     }
