@@ -5,8 +5,8 @@ import { environment } from '../../../environments/environment';
 
 export interface ExpertRequestItem {
   id: string;
-  parcel: { id: string; name: string; owner: string; phone: string; village: string };
-  expert: { id: string; name: string; specialization: string };
+  parcel?: { id: string; name: string; owner: string; phone: string; village: string };
+  expert?: { id: string; name: string; specialization: string };
   status: 'pending' | 'paid' | 'completed' | 'cancelled';
   paymentReference?: string;
   expertAdvice?: string;
