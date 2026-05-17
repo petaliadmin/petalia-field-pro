@@ -61,7 +61,7 @@ export class WalletController {
   async syncOfflineTx(@Request() req, @Body() body: { id: string; amount: number; description: string }) {
     const userId = req.user?.userId || req.user?.id || '1b8dc7ab-7282-4a29-9abe-dddb0228d882';
     try {
-      const transaction = await this.walletService.useCredits(userId, body.amount, body.description);
+      const transaction = await this.walletService.useCredits(userId, body.amount, body.description, body.id);
       const newBalance = await this.walletService.getBalance(userId);
       return { success: true, transaction, newBalance };
     } catch (e) {

@@ -164,11 +164,15 @@ class SyncService extends StateNotifier<SyncStatus> {
         });
         break;
       case 'wallet_tx':
-        await dio.post('/wallet/sync_tx', data: {
-          'id': action['id'],
-          'amount': action['amount'],
-          'description': action['description'],
-        });
+        await dio.post(
+          '/wallet/sync_tx',
+          data: {
+            'id': action['id'],
+            'amount': action['amount'],
+            'description': action['description'],
+          },
+          options: Options(headers: {'x-idempotency-key': action['id']}),
+        );
         break;
       case 'create_observation':
         final obsId = action['id'] as String;

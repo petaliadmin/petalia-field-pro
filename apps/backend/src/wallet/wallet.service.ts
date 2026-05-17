@@ -103,7 +103,7 @@ export class WalletService {
     return this.transactionRepository.save(transaction);
   }
 
-  async useCredits(userId: string, amount: number, description: string) {
+  async useCredits(userId: string, amount: number, description: string, reference?: string) {
     if (amount <= 0) {
       throw new BadRequestException('Le montant doit être supérieur à zéro');
     }
@@ -118,6 +118,7 @@ export class WalletService {
         userId,
         amount,
         description,
+        reference: reference || `USE_${Date.now()}`,
         type: TransactionType.DEBIT,
         operationType: WalletOperationType.TOPUP,
       });

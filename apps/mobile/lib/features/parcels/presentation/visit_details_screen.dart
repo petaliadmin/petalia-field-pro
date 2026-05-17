@@ -55,7 +55,10 @@ class _VisitDetailsScreenState extends ConsumerState<VisitDetailsScreen> {
 
     setState(() => _isAnalyzing = true);
     try {
-      await creditService.useCredits(CreditService.costAiDiagnostic);
+      await creditService.useCredits(
+        CreditService.costAiDiagnostic,
+        description: 'Diagnostic IA (Claude) pour la parcelle ${parcel.name}',
+      );
       final ai = ref.read(aiDiagnosticServiceProvider);
 
       Uint8List? pBytes;
@@ -94,7 +97,10 @@ class _VisitDetailsScreenState extends ConsumerState<VisitDetailsScreen> {
 
     setState(() => _isAskingExpert = true);
     try {
-      await creditService.useCredits(CreditService.costExpertOpinion);
+      await creditService.useCredits(
+        CreditService.costExpertOpinion,
+        description: 'Avis Agronome Senior pour la parcelle ${parcel.name}',
+      );
       final id = const Uuid().v4();
       final contextText = 'Visite: ${widget.visitId}\n'
           'Parcelle: ${parcel.name}\n'
