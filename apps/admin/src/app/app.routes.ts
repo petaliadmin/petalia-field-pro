@@ -1,33 +1,66 @@
 import { Routes } from '@angular/router';
+import { authGuard, guestGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
     path: '',
     redirectTo: 'dashboard',
-    pathMatch: 'full'
+    pathMatch: 'full',
+  },
+  {
+    path: 'login',
+    canActivate: [guestGuard],
+    loadComponent: () =>
+      import('./features/login/login.component').then((c) => c.LoginComponent),
   },
   {
     path: 'dashboard',
-    loadComponent: () => import('./features/dashboard/dashboard.component').then(c => c.DashboardComponent)
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/dashboard/dashboard.component').then(
+        (c) => c.DashboardComponent,
+      ),
   },
   {
     path: 'diagnostics',
-    loadComponent: () => import('./features/diagnostics/diagnostics.component').then(c => c.DiagnosticsComponent)
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/diagnostics/diagnostics.component').then(
+        (c) => c.DiagnosticsComponent,
+      ),
   },
   {
     path: 'parcels',
-    loadComponent: () => import('./features/parcels/parcels.component').then(c => c.ParcelsComponent)
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/parcels/parcels.component').then(
+        (c) => c.ParcelsComponent,
+      ),
   },
   {
     path: 'users',
-    loadComponent: () => import('./features/users/users.component').then(c => c.UsersComponent)
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/users/users.component').then((c) => c.UsersComponent),
   },
   {
     path: 'expert-requests',
-    loadComponent: () => import('./features/expert-requests/expert-requests.component').then(c => c.ExpertRequestsComponent)
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/expert-requests/expert-requests.component').then(
+        (c) => c.ExpertRequestsComponent,
+      ),
   },
   {
     path: 'notifications',
-    loadComponent: () => import('./features/notifications/notifications.component').then(c => c.NotificationsComponent)
-  }
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/notifications/notifications.component').then(
+        (c) => c.NotificationsComponent,
+      ),
+  },
+  {
+    path: '**',
+    redirectTo: 'dashboard',
+  },
 ];

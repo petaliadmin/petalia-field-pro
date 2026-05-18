@@ -2,7 +2,7 @@ import { bootstrapApplication } from '@angular/platform-browser';
 import { AppComponent } from './app/app.component';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { routes } from './app/app.routes';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
   LUCIDE_ICONS,
   LucideIconProvider,
@@ -44,13 +44,17 @@ import {
   ArrowUpCircle,
   Scale,
   Sliders,
-  Trash2
+  Trash2,
+  Send,
+  MessageSquareText,
 } from 'lucide-angular';
+import { authInterceptor } from './app/core/interceptors/auth.interceptor';
+import { errorInterceptor } from './app/core/interceptors/error.interceptor';
 
 bootstrapApplication(AppComponent, {
   providers: [
     provideRouter(routes, withComponentInputBinding()),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
     {
       provide: LUCIDE_ICONS,
       multi: true,
@@ -93,8 +97,26 @@ bootstrapApplication(AppComponent, {
         ArrowUpCircle,
         Scale,
         Sliders,
-        Trash2
-      })
-    }
-  ]
-}).catch(err => console.error(err));
+        Trash2,
+        Send,
+        MessageSquareText,
+      }),
+    },
+  ],
+}).catch((err) => {
+  // Évite console.error en prod : on émet une alerte visuelle minimaliste.
+  // L'errorInterceptor + ErrorHandler gèrent le runtime ; ce catch couvre le bootstrap.
+  const root = document.body;
+  if (root) {
+    const banner = document.createElement('div');
+    banner.style.cssText =
+      'position:fixed;top:0;left:0;right:0;padding:16px;background:#dc2626;color:#fff;font-family:sans-serif;z-index:9999';
+    banner.textContent = "Erreur d'initialisation Petalia Admin. Rechargez la page.";
+    root.prepend(banner);
+  }
+  // En dev seulement
+  if (!(window as any).__PROD__) {
+    // eslint-disable-next-line no-console
+    console.error('[Bootstrap]', err);
+  }
+});
