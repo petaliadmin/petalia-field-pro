@@ -11,11 +11,11 @@ import { AlertConfirmService } from '../../core/services/alert-confirm.service';
   standalone: true,
   imports: [CommonModule, FormsModule, LucideAngularModule],
   template: `
-    <div class="max-w-6xl mx-auto space-y-8 animate-fade-in">
+    <div class="max-w-7xl mx-auto space-y-8 animate-fade-in p-4 md:p-8">
       <!-- Header -->
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-8 rounded-[32px] shadow-sm border border-slate-100">
         <div class="flex items-center gap-4">
-          <div class="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+          <div class="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary shrink-0">
             <lucide-icon name="send" class="w-8 h-8"></lucide-icon>
           </div>
           <div>
@@ -29,10 +29,10 @@ import { AlertConfirmService } from '../../core/services/alert-confirm.service';
         </div>
       </div>
 
-      <!-- Main Layout: Form + Live Mobile Preview -->
+      <!-- Main Layout: Form + Hyper-Realistic Mobile Simulator -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        <!-- Form Area (8 cols) -->
+        <!-- Form Area (7 cols) -->
         <div class="lg:col-span-7 space-y-8">
           
           <!-- Mode de Ciblage -->
@@ -163,58 +163,231 @@ import { AlertConfirmService } from '../../core/services/alert-confirm.service';
 
         </div>
 
-        <!-- Live Mobile Preview Area (5 cols) -->
+        <!-- Hyper-Realistic Mobile Simulator Area (5 cols) -->
         <div class="lg:col-span-5 space-y-6">
           <div class="sticky top-8 bg-slate-900 p-8 rounded-[36px] shadow-2xl border-4 border-slate-800 text-white space-y-6">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
-              <div class="flex items-center gap-2">
-                <lucide-icon name="smartphone" class="w-5 h-5 text-accent"></lucide-icon>
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Aperçu Smartphone (Temps Réel)</span>
+            
+            <!-- Simulator Header & Controls -->
+            <div class="space-y-4 border-b border-slate-800 pb-6">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                  <lucide-icon name="smartphone" class="w-5 h-5 text-accent"></lucide-icon>
+                  <span class="text-xs font-bold uppercase tracking-wider text-slate-300">Simulateur Réaliste (Live Preview)</span>
+                </div>
+                <div class="flex items-center gap-2 bg-slate-800 px-3 py-1 rounded-full border border-slate-700">
+                  <div class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></div>
+                  <span class="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Temps Réel</span>
+                </div>
               </div>
-              <div class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></div>
+
+              <!-- Toggles OS (Android vs iPhone) -->
+              <div class="grid grid-cols-2 gap-2 bg-slate-950 p-1.5 rounded-2xl border border-slate-800">
+                <button 
+                  (click)="previewOS = 'ANDROID'"
+                  [ngClass]="previewOS === 'ANDROID' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-400 hover:text-slate-200'"
+                  class="py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2">
+                  <lucide-icon name="smartphone" class="w-4 h-4"></lucide-icon>
+                  <span>Android (Pixel/UI)</span>
+                </button>
+                <button 
+                  (click)="previewOS = 'IOS'"
+                  [ngClass]="previewOS === 'IOS' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-slate-200'"
+                  class="py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2">
+                  <lucide-icon name="smartphone" class="w-4 h-4"></lucide-icon>
+                  <span>iPhone (iOS 18)</span>
+                </button>
+              </div>
+
+              <!-- Toggles Display Mode (Bannière vs Écran Verrouillé) -->
+              <div class="grid grid-cols-2 gap-2 bg-slate-950 p-1.5 rounded-2xl border border-slate-800">
+                <button 
+                  (click)="previewDisplayMode = 'BANNER'"
+                  [ngClass]="previewDisplayMode === 'BANNER' ? 'bg-slate-800 text-white border border-slate-700' : 'text-slate-400 hover:text-slate-200'"
+                  class="py-2 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-2">
+                  <lucide-icon name="bell" class="w-3.5 h-3.5"></lucide-icon>
+                  <span>Bannière (Déverrouillé)</span>
+                </button>
+                <button 
+                  (click)="previewDisplayMode = 'LOCKSCREEN'"
+                  [ngClass]="previewDisplayMode === 'LOCKSCREEN' ? 'bg-slate-800 text-white border border-slate-700' : 'text-slate-400 hover:text-slate-200'"
+                  class="py-2 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-2">
+                  <lucide-icon name="lock" class="w-3.5 h-3.5"></lucide-icon>
+                  <span>Écran Verrouillé</span>
+                </button>
+              </div>
             </div>
 
-            <!-- Mobile Screen Mockup -->
-            <div class="bg-slate-950 rounded-[28px] p-6 border border-slate-800 min-h-[380px] flex flex-col justify-between shadow-inner relative overflow-hidden">
-              <!-- Wallpaper Gradient simulation -->
-              <div class="absolute inset-0 bg-gradient-to-tr from-primary/10 via-transparent to-accent/10 opacity-50 pointer-events-none"></div>
+            <!-- ------------------------------------------------------------------- -->
+            <!-- MOCKUP ANDROID (PIXEL / ONE UI)                                      -->
+            <!-- ------------------------------------------------------------------- -->
+            <div *ngIf="previewOS === 'ANDROID'" class="bg-slate-950 rounded-[32px] p-6 border-4 border-slate-800 min-h-[440px] flex flex-col justify-between shadow-2xl relative overflow-hidden animate-fade-in">
+              <!-- Wallpaper Simulation Android (Emerald / Dark Teal Mesh) -->
+              <div class="absolute inset-0 bg-gradient-to-tr from-emerald-950 via-slate-950 to-teal-900/40 opacity-70 pointer-events-none"></div>
 
-              <!-- Top Bar Mockup -->
-              <div class="flex items-center justify-between text-[11px] font-bold text-slate-400 mb-6 relative z-10">
+              <!-- Top Status Bar Android -->
+              <div class="flex items-center justify-between text-xs font-black text-slate-300 mb-6 relative z-10 px-1">
                 <span>12:30</span>
                 <div class="flex items-center gap-1.5">
                   <lucide-icon name="wifi" class="w-3.5 h-3.5"></lucide-icon>
-                  <lucide-icon name="battery-charging" class="w-3.5 h-3.5 text-emerald-500"></lucide-icon>
+                  <span class="text-[10px] font-bold">5G</span>
+                  <lucide-icon name="battery-charging" class="w-4 h-4 text-emerald-500"></lucide-icon>
                 </div>
               </div>
 
-              <!-- Notification Banner Mockup -->
-              <div class="bg-slate-900/90 backdrop-blur-md rounded-2xl p-4 border border-slate-700/50 shadow-2xl space-y-3 relative z-10 animate-fade-in">
-                <!-- App Info -->
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <div class="w-6 h-6 rounded-lg bg-primary flex items-center justify-center text-white text-[10px] font-black shadow-md shadow-primary/30">
-                      P
+              <!-- ANDROID: MODE BANNIÈRE (DÉVERROUILLÉ) -->
+              <div *ngIf="previewDisplayMode === 'BANNER'" class="space-y-4 relative z-10 animate-fade-in flex-1">
+                <div class="bg-slate-900 rounded-[28px] p-5 border border-slate-700/80 shadow-2xl space-y-3">
+                  <!-- App Header -->
+                  <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                    <div class="flex items-center gap-2.5">
+                      <div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-white text-[11px] font-black shadow-md shadow-primary/30">
+                        P
+                      </div>
+                      <span class="text-xs font-bold text-slate-300">Petalia Field Pro</span>
+                      <span class="text-slate-600">•</span>
+                      <span class="text-[10px] font-medium text-slate-400">12:30</span>
                     </div>
-                    <span class="text-xs font-black tracking-tight text-slate-200">Petalia Field Pro</span>
+                    <div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
                   </div>
-                  <span class="text-[10px] font-bold text-slate-400">À l'instant</span>
+
+                  <!-- Title & Body -->
+                  <div class="space-y-1.5 pl-1">
+                    <p class="text-xs font-black text-white leading-snug line-clamp-2">
+                      {{ notificationTitle || 'Titre de la notification...' }}
+                    </p>
+                    <p class="text-[11px] text-slate-300 font-medium leading-relaxed line-clamp-4">
+                      {{ notificationBody || 'Corps du message affiché sous forme de notification flottante sur Android...' }}
+                    </p>
+                  </div>
+
+                  <!-- Quick Actions Android -->
+                  <div class="flex items-center gap-2 pt-2 border-t border-slate-800/80 pl-1">
+                    <span class="px-3 py-1.5 bg-primary/20 text-primary rounded-full text-[10px] font-black uppercase tracking-wider cursor-pointer hover:bg-primary/30 transition-colors">
+                      Ouvrir
+                    </span>
+                    <span class="px-3 py-1.5 bg-slate-800 text-slate-400 rounded-full text-[10px] font-bold uppercase tracking-wider cursor-pointer hover:bg-slate-700 transition-colors">
+                      Ignorer
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ANDROID: MODE ÉCRAN VERROUILLÉ -->
+              <div *ngIf="previewDisplayMode === 'LOCKSCREEN'" class="space-y-6 relative z-10 animate-fade-in flex-1 flex flex-col justify-center">
+                <!-- Digital Clock Material You -->
+                <div class="text-center space-y-1 my-4">
+                  <p class="text-5xl font-black text-slate-100 tracking-tighter">12:30</p>
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Lundi, 18 Mai</p>
                 </div>
 
-                <!-- Title & Body -->
-                <div class="space-y-1 pl-1">
-                  <p class="text-xs font-bold text-white line-clamp-1">
+                <!-- Notification Stack Card -->
+                <div class="bg-slate-900/90 backdrop-blur-md rounded-[28px] p-5 border border-slate-700/60 shadow-2xl space-y-2.5">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <div class="w-5 h-5 rounded-full bg-primary flex items-center justify-center text-white text-[10px] font-black">
+                        P
+                      </div>
+                      <span class="text-xs font-bold text-slate-200">Petalia Field Pro</span>
+                    </div>
+                    <span class="text-[10px] font-medium text-slate-400">À l'instant</span>
+                  </div>
+                  <p class="text-xs font-black text-white line-clamp-1 pl-1">
                     {{ notificationTitle || 'Titre de la notification...' }}
                   </p>
-                  <p class="text-[11px] text-slate-300 font-medium leading-relaxed line-clamp-3">
-                    {{ notificationBody || 'Corps du message affiché sur l\'écran de verrouillage ou dans le centre de notifications...' }}
+                  <p class="text-[11px] text-slate-300 font-normal leading-relaxed line-clamp-2 pl-1">
+                    {{ notificationBody || 'Corps du message affiché sur l\'écran de verrouillage Android...' }}
                   </p>
                 </div>
               </div>
 
-              <!-- Bottom Hint -->
-              <div class="text-center text-[10px] font-bold text-slate-500 pt-6 border-t border-slate-900 relative z-10">
-                Glissez vers le haut pour déverrouiller
+              <!-- Bottom Navigation Bar Android Mockup -->
+              <div class="flex justify-center pt-4 relative z-10">
+                <div class="w-24 h-1 bg-slate-700 rounded-full"></div>
+              </div>
+            </div>
+
+            <!-- ------------------------------------------------------------------- -->
+            <!-- MOCKUP IPHONE (IOS 18 & DYNAMIC ISLAND)                              -->
+            <!-- ------------------------------------------------------------------- -->
+            <div *ngIf="previewOS === 'IOS'" class="bg-slate-950 rounded-[38px] p-6 border-4 border-slate-800 min-h-[440px] flex flex-col justify-between shadow-2xl relative overflow-hidden animate-fade-in">
+              <!-- Wallpaper Simulation iOS (Deep Purple / Midnight Blue Mesh) -->
+              <div class="absolute inset-0 bg-gradient-to-tr from-indigo-950 via-slate-950 to-purple-950 opacity-70 pointer-events-none"></div>
+
+              <!-- Top Status Bar iOS & Dynamic Island -->
+              <div class="flex items-center justify-between text-xs font-bold text-slate-300 mb-4 relative z-10 px-2">
+                <span>12:30</span>
+                <!-- Dynamic Island Simulation -->
+                <div class="w-24 h-5 bg-black rounded-full flex items-center justify-end px-2 shadow-md border border-white/5">
+                  <div class="w-2.5 h-2.5 rounded-full bg-slate-800/80 border border-slate-700"></div>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <lucide-icon name="wifi" class="w-3.5 h-3.5"></lucide-icon>
+                  <lucide-icon name="battery-charging" class="w-4 h-4 text-emerald-500"></lucide-icon>
+                </div>
+              </div>
+
+              <!-- IOS: MODE BANNIÈRE (DÉVERROUILLÉ) -->
+              <div *ngIf="previewDisplayMode === 'BANNER'" class="space-y-4 relative z-10 animate-fade-in flex-1 pt-2">
+                <!-- Translucent iOS Lock Banner -->
+                <div class="bg-slate-900/85 backdrop-blur-2xl rounded-[28px] p-4 border border-white/10 shadow-2xl space-y-2.5">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                      <div class="w-7 h-7 rounded-xl bg-primary flex items-center justify-center text-white text-xs font-black shadow-md shadow-primary/30">
+                        P
+                      </div>
+                      <div>
+                        <p class="text-xs font-black tracking-tight text-white uppercase">Petalia Field Pro</p>
+                        <p class="text-[10px] font-bold text-slate-400">NOTIFICATION DE L'APPLICATION</p>
+                      </div>
+                    </div>
+                    <span class="text-[10px] font-medium text-slate-400">maintenant</span>
+                  </div>
+
+                  <div class="space-y-1 pl-1 pt-1">
+                    <p class="text-xs font-black text-white leading-snug line-clamp-2">
+                      {{ notificationTitle || 'Titre de la notification...' }}
+                    </p>
+                    <p class="text-[11px] text-slate-300 font-medium leading-relaxed line-clamp-4">
+                      {{ notificationBody || 'Corps du message affiché sous forme de bannière iOS sous la Dynamic Island...' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- IOS: MODE ÉCRAN VERROUILLÉ -->
+              <div *ngIf="previewDisplayMode === 'LOCKSCREEN'" class="space-y-6 relative z-10 animate-fade-in flex-1 flex flex-col justify-center">
+                <!-- Apple Lock Screen Clock -->
+                <div class="text-center space-y-1 my-2">
+                  <p class="text-xs font-bold text-slate-300 uppercase tracking-widest">Lundi 18 Mai</p>
+                  <p class="text-6xl font-black tracking-tight text-white font-serif">12:30</p>
+                </div>
+
+                <!-- iOS Lock Screen Stacked Card -->
+                <div class="bg-slate-900/70 backdrop-blur-2xl rounded-[24px] p-4 border border-white/10 shadow-2xl space-y-2">
+                  <div class="flex items-center justify-between pb-1 border-b border-white/5">
+                    <div class="flex items-center gap-2">
+                      <div class="w-5 h-5 rounded-lg bg-primary flex items-center justify-center text-white text-[10px] font-black">
+                        P
+                      </div>
+                      <span class="text-xs font-black text-slate-200 tracking-tight uppercase">Petalia Field Pro</span>
+                    </div>
+                    <span class="text-[10px] font-medium text-slate-400">il y a 1 min</span>
+                  </div>
+
+                  <div class="space-y-1 pl-1">
+                    <p class="text-xs font-bold text-white line-clamp-1">
+                      {{ notificationTitle || 'Titre de la notification...' }}
+                    </p>
+                    <p class="text-[11px] text-slate-300 font-normal leading-relaxed line-clamp-3">
+                      {{ notificationBody || 'Corps du message affiché sur l\'écran de verrouillage iOS 18...' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bottom Home Indicator iOS Mockup -->
+              <div class="flex justify-center pt-4 relative z-10">
+                <div class="w-32 h-1 bg-white rounded-full"></div>
               </div>
             </div>
 
@@ -233,6 +406,7 @@ import { AlertConfirmService } from '../../core/services/alert-confirm.service';
                 <span class="font-bold text-emerald-400">Ouverture de l'application</span>
               </div>
             </div>
+
           </div>
         </div>
 
@@ -251,6 +425,10 @@ export class NotificationsComponent implements OnInit {
   customDataJson = '{"click_action": "FLUTTER_NOTIFICATION_CLICK"}';
 
   isSending = false;
+
+  // Simulateur Réaliste
+  previewOS: 'ANDROID' | 'IOS' = 'ANDROID';
+  previewDisplayMode: 'BANNER' | 'LOCKSCREEN' = 'BANNER';
 
   private notificationService = inject(NotificationService);
   private userService = inject(UserService);
