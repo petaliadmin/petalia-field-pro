@@ -6,15 +6,15 @@ services:
     container_name: petalia_db
     restart: always
     environment:
-      POSTGRES_USER: petalia_user
-      POSTGRES_PASSWORD: petalia_password
-      POSTGRES_DB: petalia_db
+      POSTGRES_USER: petalia
+      POSTGRES_PASSWORD: petalia_field_pro
+      POSTGRES_DB: pfp_db
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U petalia_user -d petalia_db"]
+      test: ["CMD-SHELL", "pg_isready -U petalia -d pfp_db"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -33,12 +33,12 @@ services:
       target: development
     container_name: petalia_backend
     restart: always
+    env_file:
+      - ./apps/backend/.env
     environment:
-      DATABASE_URL: postgres://petalia_user:petalia_password@database:5432/petalia_db
-      REDIS_URL: redis://redis:6379
+      DATABASE_URL: postgres://petalia:petalia_field_pro@database:5432/pfp_db
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      JWT_SECRET: ${JWT_SECRET:-super_secret_change_me_in_prod}
       NODE_ENV: development
     command: sh -c "npm run migration:run && npm run start:dev"
     ports:

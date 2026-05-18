@@ -7,5 +7,5 @@
  */
 export const environment = {
   production: true,
-  apiUrl: 'https://api.petalia.ag',
+  apiUrl: 'http://52.73.53.182:3000',
 };

@@ -6,5 +6,5 @@
  */
 export const environment = {
   production: false,
-  apiUrl: 'https://staging.petalia.ag',
+  apiUrl: 'http://52.73.53.182:3000',
 };

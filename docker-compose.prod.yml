@@ -6,13 +6,13 @@ services:
     container_name: petalia_db_prod
     restart: always
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: petalia_db
+      POSTGRES_USER: petalia
+      POSTGRES_PASSWORD: petalia_field_pro
+      POSTGRES_DB: pfp_db
     volumes:
       - postgres_data_prod:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d petalia_db"]
+      test: ["CMD-SHELL", "pg_isready -U petalia -d pfp_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -23,19 +23,24 @@ services:
     restart: always
 
   backend:
-    image: ${DOCKERHUB_USERNAME}/petalia-backend:latest
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile.prod
     container_name: petalia_backend_prod
     restart: always
+    env_file:
+      - ./apps/backend/.env
     environment:
-      DATABASE_URL: postgres://${DB_USER}:${DB_PASSWORD}@database:5432/petalia_db
+      DATABASE_URL: postgres://petalia:petalia_field_pro@database:5432/pfp_db
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      JWT_SECRET: ${JWT_SECRET}
+      NODE_ENV: production
+      APP_URL: http://52.73.53.182:3000
     command: sh -c "node ./node_modules/.bin/typeorm migration:run -d dist/data-source.js && node dist/main"
     ports:
       - "3000:3000"
     volumes:
-      - uploads_data:/usr/src/app/uploads
+      - uploads_data:/app/uploads
     depends_on:
       database:
         condition: service_healthy
