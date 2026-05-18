@@ -3,15 +3,36 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
+export type DiagnosticStatus = 'pending' | 'analyzed' | 'validated' | 'rejected';
+
+export interface DiagnosticAiResult {
+  label: string;
+  confidence: number;
+  suggestedSymptoms: string[];
+  recommendations: string;
+}
+
+export interface DiagnosticBiometrics {
+  blurScore?: number;
+  chlorosisRatio?: number;
+  necrosisRatio?: number;
+  histogram?: { r: number[]; g: number[]; b: number[] };
+  [key: string]: unknown;
+}
+
 export interface DiagnosticRequest {
   id: string;
   parcelId: string;
   ownerName: string;
   ownerPhone: string;
   photoUrl: string | null;
-  status: 'pending' | 'analyzed' | 'validated' | 'rejected';
+  status: DiagnosticStatus;
   createdAt: string;
-  aiResult?: any;
+  aiResult?: DiagnosticAiResult;
+  // Trace de facturation wallet (cf. backend commit e6beb08)
+  userId?: string;
+  feeAmount?: number;
+  feeReference?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -21,27 +42,31 @@ export class DiagnosticService {
 
   getAll(): Observable<DiagnosticRequest[]> {
     return this.http.get<DiagnosticRequest[]>(this.apiUrl).pipe(
-      map(requests => requests.map(req => ({
-        ...req,
-        photoUrl: req.photoUrl
-          ? (req.photoUrl.startsWith('http') ? req.photoUrl : `${environment.apiUrl}/${req.photoUrl}`)
-          : null
-      })))
+      map((requests) =>
+        requests.map((req) => ({
+          ...req,
+          photoUrl: req.photoUrl
+            ? req.photoUrl.startsWith('http')
+              ? req.photoUrl
+              : `${environment.apiUrl}/${req.photoUrl}`
+            : null,
+        })),
+      ),
     );
   }
 
   validate(id: string, approve: boolean, comment: string): Observable<DiagnosticRequest> {
     return this.http.patch<DiagnosticRequest>(`${this.apiUrl}/${id}/validate`, {
       approve,
-      comment
+      comment,
     });
   }
 
-  getStats(): Observable<any> {
+  getStats(): Observable<unknown> {
     return this.http.get(`${this.apiUrl}/stats`);
   }
 
-  getBiometrics(id: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${id}/biometrics`);
+  getBiometrics(id: string): Observable<DiagnosticBiometrics> {
+    return this.http.get<DiagnosticBiometrics>(`${this.apiUrl}/${id}/biometrics`);
   }
 }

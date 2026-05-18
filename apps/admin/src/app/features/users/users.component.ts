@@ -279,9 +279,10 @@ export class UsersComponent implements OnInit {
   }
 
   loadUsers() {
+    // L'errorInterceptor signale les erreurs HTTP ; on garde un fallback silencieux.
     this.userService.getUsersWithBalance().subscribe({
-      next: (data) => this.users = data,
-      error: (err) => console.error('Erreur chargement utilisateurs:', err)
+      next: (data) => (this.users = data),
+      error: () => (this.users = []),
     });
   }
 

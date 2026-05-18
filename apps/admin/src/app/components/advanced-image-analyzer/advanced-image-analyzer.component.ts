@@ -318,10 +318,10 @@ export class AdvancedImageAnalyzerComponent implements OnInit, AfterViewInit {
           this.maxHistValue = Math.max(...allVals, 1);
         }
       },
-      error: (err) => {
-        console.error('Erreur chargement biométrie:', err);
+      error: () => {
+        // L'errorInterceptor a déjà signalé le problème côté UI.
         this.isLoadingBiometrics = false;
-      }
+      },
     });
   }
 

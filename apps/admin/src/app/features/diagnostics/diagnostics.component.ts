@@ -127,6 +127,18 @@ import { AdvancedImageAnalyzerComponent } from '../../components/advanced-image-
                 <p class="text-sm text-primary/80 leading-relaxed font-medium italic">"{{ selectedRequest.aiResult.recommendations }}"</p>
               </div>
 
+              <!-- Billing trail : montant débité côté wallet du technicien -->
+              <div *ngIf="selectedRequest.feeAmount" class="p-3 bg-amber-50 border border-amber-100 rounded-2xl flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <lucide-icon name="coins" class="w-4 h-4 text-amber-600" aria-hidden="true"></lucide-icon>
+                  <span class="text-[10px] font-black text-amber-700 uppercase tracking-widest">Débit Wallet</span>
+                </div>
+                <span class="text-sm font-black text-amber-700">{{ selectedRequest.feeAmount }} XOF</span>
+              </div>
+              <p *ngIf="selectedRequest.status === 'rejected' && selectedRequest.feeAmount" class="text-[11px] font-bold text-emerald-700 px-1">
+                ✓ {{ selectedRequest.feeAmount }} XOF remboursés au technicien (rejet)
+              </p>
+
               <div class="space-y-3">
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block ml-1">Commentaire de l'Expert</label>
                 <textarea [(ngModel)]="adminComment" 
@@ -203,9 +215,11 @@ export class DiagnosticsComponent implements OnInit {
   }
 
   loadDiagnostics() {
+    // L'errorInterceptor alerte sur 4xx/5xx ; on garde un fallback silencieux
+    // pour ne pas casser la liste s'il y a un soucis ponctuel.
     this.diagnosticService.getAll().subscribe({
-      next: (data) => this.diagnostics = data,
-      error: (err) => console.error('Erreur chargement diagnostics:', err)
+      next: (data) => (this.diagnostics = data),
+      error: () => (this.diagnostics = []),
     });
   }
 
@@ -231,13 +245,20 @@ export class DiagnosticsComponent implements OnInit {
       onConfirm: () => {
         if (!this.selectedRequest) return;
         this.diagnosticService.validate(this.selectedRequest.id, approve, this.adminComment).subscribe({
-          next: () => {
-            this.alertService.success(`Le diagnostic a été ${approve ? 'validé' : 'rejeté'} avec succès.`);
+          next: (updated) => {
+            const refundNote =
+              !approve && updated.feeAmount
+                ? ` ${updated.feeAmount} XOF ont été remboursés au technicien.`
+                : '';
+            this.alertService.success(
+              `Le diagnostic a été ${approve ? 'validé' : 'rejeté'} avec succès.${refundNote}`,
+            );
             this.loadDiagnostics();
             this.selectedRequest = null;
             this.adminComment = '';
           },
-          error: (err) => this.alertService.error('Erreur lors de la validation: ' + err.message)
+          // L'errorInterceptor a déjà signalé l'erreur ; on ne double pas l'alerte.
+          error: () => {},
         });
       }
     });

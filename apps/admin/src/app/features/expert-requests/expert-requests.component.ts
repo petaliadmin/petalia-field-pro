@@ -116,6 +116,26 @@ import { AlertConfirmService } from '../../core/services/alert-confirm.service';
                 <p class="text-xs text-primary/80 font-medium">{{ selectedRequest.expert?.specialization }}</p>
               </div>
 
+              <!-- Billing trail : montant débité côté wallet du technicien -->
+              <div *ngIf="selectedRequest.feeAmount" class="p-3 bg-amber-50 border border-amber-100 rounded-2xl flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <lucide-icon name="coins" class="w-4 h-4 text-amber-600" aria-hidden="true"></lucide-icon>
+                  <span class="text-[10px] font-black text-amber-700 uppercase tracking-widest">Débit Wallet</span>
+                </div>
+                <span class="text-sm font-black text-amber-700">{{ selectedRequest.feeAmount }} XOF</span>
+              </div>
+              <p *ngIf="selectedRequest.status === 'cancelled' && selectedRequest.feeAmount" class="text-[11px] font-bold text-emerald-700 px-1">
+                ✓ {{ selectedRequest.feeAmount }} XOF remboursés au technicien (annulation)
+              </p>
+
+              <div *ngIf="selectedRequest.context" class="p-3 bg-slate-50 border border-slate-100 rounded-2xl">
+                <div class="flex items-center gap-2 mb-1 text-slate-500">
+                  <lucide-icon name="file-text" class="w-3.5 h-3.5" aria-hidden="true"></lucide-icon>
+                  <span class="text-[10px] font-black uppercase tracking-widest">Contexte producteur</span>
+                </div>
+                <p class="text-xs text-slate-700 font-medium leading-relaxed">{{ selectedRequest.context }}</p>
+              </div>
+
               <div class="space-y-2 pt-2">
                 <label class="text-xs font-black text-slate-700 uppercase tracking-wider block ml-1">Avis & Recommandations</label>
                 <textarea [(ngModel)]="expertAdvice" 
@@ -167,8 +187,8 @@ export class ExpertRequestsComponent implements OnInit {
 
   loadRequests() {
     this.requestsService.getAllRequests().subscribe({
-      next: (data) => this.requests = data,
-      error: (err) => console.error('Erreur chargement demandes expert:', err)
+      next: (data) => (this.requests = data),
+      error: () => (this.requests = []),
     });
   }
 
@@ -199,13 +219,19 @@ export class ExpertRequestsComponent implements OnInit {
       onConfirm: () => {
         if (!this.selectedRequest) return;
         this.requestsService.respond(this.selectedRequest.id, this.expertAdvice, status).subscribe({
-          next: () => {
-            this.alertService.success(`L'avis expert a été ${status === 'completed' ? 'envoyé' : 'annulé'} avec succès.`);
+          next: (updated) => {
+            const refundNote =
+              status === 'cancelled' && updated.feeAmount
+                ? ` ${updated.feeAmount} XOF ont été remboursés au technicien.`
+                : '';
+            this.alertService.success(
+              `L'avis expert a été ${status === 'completed' ? 'envoyé' : 'annulé'} avec succès.${refundNote}`,
+            );
             this.loadRequests();
             this.selectedRequest = null;
             this.expertAdvice = '';
           },
-          error: (err) => this.alertService.error('Erreur lors de l\'envoi: ' + err.message)
+          error: () => {},
         });
       }
     });
