@@ -25,7 +25,16 @@
       "PowerShell(gh run *)",
       "PowerShell(Start-Process powershell -ArgumentList \"-NoExit\", \"-Command\", \"cd 'C:\\\\Developement\\\\petaliacropassist'; Write-Host 'Backend \\(Docker\\)' -ForegroundColor Cyan; docker compose up\")",
       "PowerShell(docker compose ps *)",
-      "Bash(npx nest *)"
+      "Bash(npx nest *)",
+      "Bash(git commit *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Developement\\\\petaliacropassist\\\\apps\\\\admin\\\\src\" -Recurse -File)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(Sort-Object)",
+      "Bash(npx tsc *)",
+      "Bash(node_modules/.bin/tsc *)",
+      "Bash(apps/admin/node_modules/.bin/tsc *)",
+      "Bash(curl -sv --max-time 6 http://52.73.53.182:3000/)",
+      "Bash(curl *)"
     ]
   }
 }
