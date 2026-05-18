@@ -25,5 +25,9 @@ export const routes: Routes = [
   {
     path: 'expert-requests',
     loadComponent: () => import('./features/expert-requests/expert-requests.component').then(c => c.ExpertRequestsComponent)
+  },
+  {
+    path: 'notifications',
+    loadComponent: () => import('./features/notifications/notifications.component').then(c => c.NotificationsComponent)
   }
 ];

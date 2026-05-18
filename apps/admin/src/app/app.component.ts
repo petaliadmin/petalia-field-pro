@@ -80,6 +80,10 @@ import { AlertConfirmComponent } from './shared/components/alert-confirm/alert-c
             <lucide-icon name="wallet" class="w-5 h-5"></lucide-icon>
             Gestion des Comptes
           </a>
+          <a routerLink="/notifications" routerLinkActive="bg-primary/10 text-primary" class="flex items-center gap-4 px-4 py-3.5 rounded-2xl font-bold text-slate-500 hover:bg-slate-50 transition-all group">
+            <lucide-icon name="send" class="w-5 h-5"></lucide-icon>
+            Diffusion Push FCM
+          </a>
         </nav>
 
         <div class="flex flex-col gap-2 pt-8 border-t border-slate-100">
