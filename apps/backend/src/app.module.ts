@@ -67,7 +67,9 @@ import * as winston from 'winston';
         type: 'postgres',
         url: configService.get<string>('DATABASE_URL'),
         autoLoadEntities: true,
-        synchronize: false, // Désactivé pour la sécurité du schéma en prod
+        synchronize: false,
+        migrations: [__dirname + '/migrations/*{.ts,.js}'],
+        migrationsRun: true,
       }),
       inject: [ConfigService],
     }),

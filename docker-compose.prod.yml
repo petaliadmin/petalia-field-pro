@@ -33,7 +33,7 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       NODE_ENV: production
-    command: sh -c "node ./node_modules/.bin/typeorm migration:run -d dist/data-source.js && node dist/main"
+    command: ["node", "dist/main"]
     ports:
       - "3000:3000"
     volumes:
