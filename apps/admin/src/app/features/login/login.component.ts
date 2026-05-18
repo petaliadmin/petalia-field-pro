@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { AuthService } from '../../core/services/auth.service';
 import { AlertConfirmService } from '../../core/services/alert-confirm.service';
+import { PHONE_E164_REGEX } from '../../core/constants/app.constants';
 
 @Component({
   selector: 'app-login',
@@ -111,6 +112,11 @@ export class LoginComponent {
     this.errorMessage.set(null);
 
     const phone = this.normalizePhone(this.phone);
+    if (!PHONE_E164_REGEX.test(phone)) {
+      this.loading.set(false);
+      this.errorMessage.set('Numéro invalide — format attendu : +221XXXXXXXXX');
+      return;
+    }
 
     this.auth.login(phone, this.pin).subscribe({
       next: (res) => {

@@ -3,13 +3,15 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
+export type NotificationData = Record<string, string | number | boolean>;
+
 export interface SendNotificationPayload {
   target: 'ALL' | 'INDIVIDUAL';
   userId?: string;
   fcmToken?: string;
   title: string;
   body: string;
-  data?: any;
+  data?: NotificationData;
 }
 
 export interface SendNotificationResponse {

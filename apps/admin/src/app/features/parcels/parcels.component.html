@@ -94,7 +94,7 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-100 text-sm font-medium text-slate-600">
-              <tr *ngFor="let parcel of filteredParcels" class="hover:bg-primary/5 transition-colors group">
+              <tr *ngFor="let parcel of filteredParcels; trackBy: trackById" class="hover:bg-primary/5 transition-colors group">
                 <td class="py-4 px-6">
                   <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full shrink-0"

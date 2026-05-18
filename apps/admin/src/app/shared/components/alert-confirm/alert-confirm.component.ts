@@ -71,12 +71,17 @@ export class AlertConfirmComponent implements OnInit, OnDestroy {
   private alertService = inject(AlertConfirmService);
   private sub1!: Subscription;
   private sub2!: Subscription;
+  private timers = new Map<string, ReturnType<typeof setTimeout>>();
 
   ngOnInit() {
     this.sub1 = this.alertService.alerts$.subscribe(alert => {
       this.alerts.push(alert);
       if (alert.duration && alert.duration > 0) {
-        setTimeout(() => this.removeAlert(alert.id), alert.duration);
+        const timer = setTimeout(() => {
+          this.timers.delete(alert.id);
+          this.removeAlert(alert.id);
+        }, alert.duration);
+        this.timers.set(alert.id, timer);
       }
     });
 
@@ -88,9 +93,16 @@ export class AlertConfirmComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.sub1?.unsubscribe();
     this.sub2?.unsubscribe();
+    this.timers.forEach(timer => clearTimeout(timer));
+    this.timers.clear();
   }
 
   removeAlert(id: string) {
+    const timer = this.timers.get(id);
+    if (timer) {
+      clearTimeout(timer);
+      this.timers.delete(id);
+    }
     this.alerts = this.alerts.filter(a => a.id !== id);
   }
 

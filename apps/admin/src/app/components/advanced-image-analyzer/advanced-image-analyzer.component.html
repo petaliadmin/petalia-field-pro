@@ -206,7 +206,7 @@
                   <div class="space-y-2 pt-2">
                     <!-- Red Channel -->
                     <div class="flex items-end gap-0.5 h-16 bg-slate-900/50 p-2 rounded-xl border border-slate-800">
-                      <div *ngFor="let val of biometrics.histogram.r"
+                      <div *ngFor="let val of biometrics.histogram.r; trackBy: trackByIndex"
                            class="flex-1 bg-rose-500/80 hover:bg-rose-500 rounded-t transition-all"
                            [style.height.%]="(val / maxHistValue) * 100"></div>
                     </div>
@@ -214,7 +214,7 @@
 
                     <!-- Green Channel -->
                     <div class="flex items-end gap-0.5 h-16 bg-slate-900/50 p-2 rounded-xl border border-slate-800">
-                      <div *ngFor="let val of biometrics.histogram.g"
+                      <div *ngFor="let val of biometrics.histogram.g; trackBy: trackByIndex"
                            class="flex-1 bg-emerald-500/80 hover:bg-emerald-500 rounded-t transition-all"
                            [style.height.%]="(val / maxHistValue) * 100"></div>
                     </div>
@@ -222,7 +222,7 @@
 
                     <!-- Blue Channel -->
                     <div class="flex items-end gap-0.5 h-16 bg-slate-900/50 p-2 rounded-xl border border-slate-800">
-                      <div *ngFor="let val of biometrics.histogram.b"
+                      <div *ngFor="let val of biometrics.histogram.b; trackBy: trackByIndex"
                            class="flex-1 bg-cyan-500/80 hover:bg-cyan-500 rounded-t transition-all"
                            [style.height.%]="(val / maxHistValue) * 100"></div>
                     </div>

@@ -1,18 +1,26 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
-import { NotificationService, SendNotificationPayload } from '../../core/services/notification.service';
+import { takeUntil } from 'rxjs';
+import {
+  NotificationService,
+  SendNotificationPayload,
+  NotificationData,
+} from '../../core/services/notification.service';
 import { UserService, UserAccount } from '../../core/services/user.service';
 import { AlertConfirmService } from '../../core/services/alert-confirm.service';
+import { BaseComponent } from '../../core/base/base.component';
+import { DEFAULT_NOTIFICATION_PAYLOAD } from '../../core/constants/app.constants';
 
 @Component({
   selector: 'app-notifications',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './notifications.component.html'
 })
-export class NotificationsComponent implements OnInit {
+export class NotificationsComponent extends BaseComponent implements OnInit {
   targetMode: 'ALL' | 'INDIVIDUAL' = 'ALL';
   users: UserAccount[] = [];
   selectedUserId = '';
@@ -20,29 +28,31 @@ export class NotificationsComponent implements OnInit {
 
   notificationTitle = '';
   notificationBody = '';
-  customDataJson = '{"click_action": "FLUTTER_NOTIFICATION_CLICK"}';
+  customDataJson = DEFAULT_NOTIFICATION_PAYLOAD;
 
   isSending = false;
 
-  // Simulateur Réaliste
   previewOS: 'ANDROID' | 'IOS' = 'ANDROID';
   previewDisplayMode: 'BANNER' | 'LOCKSCREEN' = 'BANNER';
 
   private notificationService = inject(NotificationService);
   private userService = inject(UserService);
   private alertConfirmService = inject(AlertConfirmService);
+  private cdr = inject(ChangeDetectorRef);
 
   ngOnInit() {
     this.loadUsers();
   }
 
   loadUsers() {
-    this.userService.getAll().subscribe({
+    this.userService.getAll().pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.users = res.filter(u => u.status === 'ACTIVE');
+        this.cdr.markForCheck();
       },
       error: () => {
         this.alertConfirmService.error('Erreur lors du chargement des utilisateurs.');
+        this.cdr.markForCheck();
       }
     });
   }
@@ -62,7 +72,7 @@ export class NotificationsComponent implements OnInit {
       case 'MAINTENANCE':
         this.notificationTitle = '⚙️ Maintenance Serveur Petalia';
         this.notificationBody = 'Une mise à jour des serveurs aura lieu ce soir à 23h00. Le mode hors-ligne reste 100% fonctionnel sur le terrain.';
-        this.customDataJson = '{"click_action": "FLUTTER_NOTIFICATION_CLICK"}';
+        this.customDataJson = DEFAULT_NOTIFICATION_PAYLOAD;
         break;
       case 'CREDIT':
         this.notificationTitle = '💳 Crédits Agronomiques Rechargés';
@@ -79,11 +89,11 @@ export class NotificationsComponent implements OnInit {
       return;
     }
 
-    let parsedData: any = {};
+    let parsedData: NotificationData = {};
     if (this.customDataJson) {
       try {
-        parsedData = JSON.parse(this.customDataJson);
-      } catch (e) {
+        parsedData = JSON.parse(this.customDataJson) as NotificationData;
+      } catch {
         this.alertConfirmService.error('Le format JSON des données additionnelles est invalide.');
         return;
       }
@@ -108,21 +118,22 @@ export class NotificationsComponent implements OnInit {
     }
 
     this.isSending = true;
-    this.notificationService.sendPushNotification(payload).subscribe({
+    this.notificationService.sendPushNotification(payload).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.isSending = false;
         if (res.success) {
           this.alertConfirmService.success(res.message || 'Notification push envoyée avec succès.');
-          // Reset form
           this.notificationTitle = '';
           this.notificationBody = '';
         } else {
           this.alertConfirmService.error(res.message || 'Échec de l\'envoi de la notification.');
         }
+        this.cdr.markForCheck();
       },
       error: (err) => {
         this.isSending = false;
         this.alertConfirmService.error(err.error?.message || 'Erreur lors de la diffusion push.');
+        this.cdr.markForCheck();
       }
     });
   }

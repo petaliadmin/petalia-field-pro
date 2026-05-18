@@ -12,12 +12,22 @@ export interface DiagnosticAiResult {
   recommendations: string;
 }
 
+export interface DiagnosticBiometricsHistogram {
+  r: number[];
+  g: number[];
+  b: number[];
+}
+
+/**
+ * Toujours fourni par le backend (analyse Sharp côté serveur) — pas de `?`
+ * sur les champs lus par le template du studio d'analyse, sinon Angular
+ * strict templates refuse l'expression `biometrics.blurScore * 100`.
+ */
 export interface DiagnosticBiometrics {
-  blurScore?: number;
-  chlorosisRatio?: number;
-  necrosisRatio?: number;
-  histogram?: { r: number[]; g: number[]; b: number[] };
-  [key: string]: unknown;
+  blurScore: number;
+  chlorosisRatio: number;
+  necrosisRatio: number;
+  histogram: DiagnosticBiometricsHistogram;
 }
 
 export interface DiagnosticRequest {

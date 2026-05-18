@@ -2,21 +2,22 @@ import { Component, OnInit, Input, Output, EventEmitter, ElementRef, ViewChild, 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
-import { DiagnosticService } from '../../core/services/diagnostic.service';
+import { takeUntil } from 'rxjs';
+import { DiagnosticService, DiagnosticBiometrics } from '../../core/services/diagnostic.service';
+import { BaseComponent } from '../../core/base/base.component';
+import { CANVAS_SIZE } from '../../core/constants/app.constants';
 
 @Component({
   selector: 'app-advanced-image-analyzer',
   standalone: true,
   imports: [CommonModule, LucideAngularModule, FormsModule],
   templateUrl: './advanced-image-analyzer.component.html',
-  styles: [`
-    :host { display: block; }
-  `]
+  styles: [`:host { display: block; }`]
 })
-export class AdvancedImageAnalyzerComponent implements OnInit, AfterViewInit {
-  @Input() photoUrl: string = '';
-  @Input() diagnosticId: string = '';
-  @Input() title: string = 'Examen Agronomique Approfondi';
+export class AdvancedImageAnalyzerComponent extends BaseComponent implements OnInit, AfterViewInit {
+  @Input() photoUrl = '';
+  @Input() diagnosticId = '';
+  @Input() title = 'Examen Agronomique Approfondi';
   @Output() close = new EventEmitter<void>();
 
   @ViewChild('canvas', { static: false }) canvasRef!: ElementRef<HTMLCanvasElement>;
@@ -26,7 +27,7 @@ export class AdvancedImageAnalyzerComponent implements OnInit, AfterViewInit {
   loupeX = 0;
   loupeY = 0;
 
-  biometrics: any = null;
+  biometrics: DiagnosticBiometrics | null = null;
   isLoadingBiometrics = false;
   maxHistValue = 1;
 
@@ -37,15 +38,18 @@ export class AdvancedImageAnalyzerComponent implements OnInit, AfterViewInit {
   startX = 0;
   startY = 0;
 
-  private ctx!: CanvasRenderingContext2D | null;
+  readonly trackByIndex = (i: number) => i;
+
+  private ctx: CanvasRenderingContext2D | null = null;
   private img = new Image();
   private offscreenCanvas = document.createElement('canvas');
-  private offscreenCtx = this.offscreenCanvas.getContext('2d');
+  private offscreenCtx: CanvasRenderingContext2D | null = null;
   private originalImageData: ImageData | null = null;
 
   private diagnosticService = inject(DiagnosticService);
 
   ngOnInit() {
+    this.offscreenCtx = this.offscreenCanvas.getContext('2d');
     this.loadBiometrics();
   }
 
@@ -56,17 +60,16 @@ export class AdvancedImageAnalyzerComponent implements OnInit, AfterViewInit {
   loadBiometrics() {
     if (!this.diagnosticId) return;
     this.isLoadingBiometrics = true;
-    this.diagnosticService.getBiometrics(this.diagnosticId).subscribe({
+    this.diagnosticService.getBiometrics(this.diagnosticId).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.biometrics = data;
         this.isLoadingBiometrics = false;
-        if (data && data.histogram) {
+        if (data?.histogram) {
           const allVals = [...data.histogram.r, ...data.histogram.g, ...data.histogram.b];
           this.maxHistValue = Math.max(...allVals, 1);
         }
       },
       error: () => {
-        // L'errorInterceptor a déjà signalé le problème côté UI.
         this.isLoadingBiometrics = false;
       },
     });
@@ -79,15 +82,14 @@ export class AdvancedImageAnalyzerComponent implements OnInit, AfterViewInit {
 
     this.img.crossOrigin = 'Anonymous';
     this.img.onload = () => {
-      // Normaliser la taille du canvas
-      canvas.width = 600;
-      canvas.height = 600;
-      this.offscreenCanvas.width = 600;
-      this.offscreenCanvas.height = 600;
+      canvas.width = CANVAS_SIZE;
+      canvas.height = CANVAS_SIZE;
+      this.offscreenCanvas.width = CANVAS_SIZE;
+      this.offscreenCanvas.height = CANVAS_SIZE;
 
       if (this.offscreenCtx) {
-        this.offscreenCtx.drawImage(this.img, 0, 0, 600, 600);
-        this.originalImageData = this.offscreenCtx.getImageData(0, 0, 600, 600);
+        this.offscreenCtx.drawImage(this.img, 0, 0, CANVAS_SIZE, CANVAS_SIZE);
+        this.originalImageData = this.offscreenCtx.getImageData(0, 0, CANVAS_SIZE, CANVAS_SIZE);
       }
 
       this.redrawCanvas();
@@ -106,8 +108,8 @@ export class AdvancedImageAnalyzerComponent implements OnInit, AfterViewInit {
     this.activeFilter = filter;
     if (!this.offscreenCtx || !this.originalImageData) return;
 
-    const w = 600;
-    const h = 600;
+    const w = CANVAS_SIZE;
+    const h = CANVAS_SIZE;
     const imgData = new ImageData(new Uint8ClampedArray(this.originalImageData.data), w, h);
     const data = imgData.data;
 
@@ -221,10 +223,8 @@ export class AdvancedImageAnalyzerComponent implements OnInit, AfterViewInit {
     this.ctx.stroke();
     this.ctx.clip();
 
-    // Calculer les coordonnées source sur l'offscreenCanvas en tenant compte du zoom et pan actuels
     const w = canvas.width;
     const h = canvas.height;
-    // Position relative au centre zoomé/panné
     const relX = (x - (w / 2 + this.panX)) / this.zoom + w / 2;
     const relY = (y - (h / 2 + this.panY)) / this.zoom + h / 2;
 

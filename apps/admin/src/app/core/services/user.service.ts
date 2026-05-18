@@ -2,6 +2,10 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import {
+  WalletAdminOperation,
+  WalletAdminTransactionResponse,
+} from '../models/wallet.model';
 
 export interface UserAccount {
   id: string;
@@ -12,6 +16,11 @@ export interface UserAccount {
   phone?: string;
   createdAt: string;
   walletBalance?: number;
+}
+
+interface WalletAdminApiResponse {
+  transaction: WalletAdminTransactionResponse;
+  newBalance: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -40,8 +49,13 @@ export class UserService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  performWalletOperation(userId: string, operationType: 'RECHARGE' | 'AJUSTEMENT' | 'REGULATION', amount: number, description: string): Observable<any> {
-    return this.http.post<any>(`${this.walletAdminUrl}/transactions`, {
+  performWalletOperation(
+    userId: string,
+    operationType: WalletAdminOperation,
+    amount: number,
+    description: string,
+  ): Observable<WalletAdminApiResponse> {
+    return this.http.post<WalletAdminApiResponse>(`${this.walletAdminUrl}/transactions`, {
       userId,
       operationType,
       amount,
