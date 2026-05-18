@@ -21,6 +21,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./apps/backend
+          dockerfile: ./apps/backend/Dockerfile.prod
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/petalia-backend:latest
 
@@ -50,39 +51,39 @@ jobs:
             set -ex
 
             echo "=== [1/6] System info ==="
-            whoami
-            uname -a
-            df -h
+            whoami && uname -a && df -h
 
             echo "=== [2/6] Docker install (if missing) ==="
             if ! command -v docker &> /dev/null; then
-              echo "Docker not found — installing..."
               curl -fsSL https://get.docker.com | sudo sh
               sudo usermod -aG docker $USER
-              newgrp docker
             fi
-            docker --version
-            docker compose version
+            docker --version && docker compose version
 
             echo "=== [3/6] Navigate to deploy dir ==="
-            ls ~/petalia/
+            mkdir -p ~/petalia
             cd ~/petalia
 
             echo "=== [4/6] Write .env ==="
-            cat > .env <<EOF
+            cat > .env << 'ENVEOF'
+            PORT=3000
+            APP_URL=http://${{ secrets.EC2_HOST }}:3000
+            NODE_ENV=production
             DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
             DB_USER=${{ secrets.DB_USER }}
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
-            EOF
-            echo ".env written with $(wc -l < .env) lines"
+            JWT_EXPIRES_IN=7d
+            TWILIO_ACCOUNT_SID=${{ secrets.TWILIO_ACCOUNT_SID }}
+            TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKEN }}
+            TWILIO_PHONE_NUMBER=${{ secrets.TWILIO_PHONE_NUMBER }}
+            ENVEOF
+            echo ".env written — $(wc -l < .env) lignes"
 
-            echo "=== [5/6] Pull images ==="
+            echo "=== [5/6] Pull & start ==="
             sudo docker compose -f docker-compose.prod.yml pull
-
-            echo "=== [6/6] Start containers ==="
             sudo docker compose -f docker-compose.prod.yml up -d
             sudo docker compose -f docker-compose.prod.yml ps
             sudo docker image prune -f
 
-            echo "=== Deploy complete ==="
+            echo "=== Deploy complete — API: http://${{ secrets.EC2_HOST }}:3000 ==="
