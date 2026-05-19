@@ -6,9 +6,10 @@ import { Parcel } from './entities/parcel.entity';
 import { SyncOutbox } from './entities/sync-outbox.entity';
 import { DocumentService } from './document.service';
 import { AgroService } from './agro.service';
+import { GeospatialModule } from '../geospatial/geospatial.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Parcel, SyncOutbox])],
+  imports: [TypeOrmModule.forFeature([Parcel, SyncOutbox]), GeospatialModule],
   controllers: [ParcelsController],
   providers: [ParcelsService, DocumentService, AgroService],
   exports: [ParcelsService, DocumentService, AgroService],

@@ -7,6 +7,7 @@ import { ParcelsModule } from './parcels/parcels.module';
 import { ExpertsModule } from './experts/experts.module';
 import { AuthModule } from './auth/auth.module';
 import { BotModule } from './bot/bot.module';
+import { GeospatialModule } from './geospatial/geospatial.module';
 import { WalletModule } from './wallet/wallet.module';
 import { DiagnosticsModule } from './diagnostics/diagnostics.module';
 import { UsersModule } from './users/users.module';

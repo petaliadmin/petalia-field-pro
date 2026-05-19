@@ -4,6 +4,7 @@ import { Repository, DeepPartial } from 'typeorm';
 import { Parcel } from './entities/parcel.entity';
 import { SyncOutbox } from './entities/sync-outbox.entity';
 import { AgroService } from './agro.service';
+import { GeospatialService } from '../geospatial/geospatial.service';
 
 type OutboxOperation = 'create' | 'update' | 'delete';
 
@@ -17,6 +18,7 @@ export class ParcelsService {
     @InjectRepository(SyncOutbox)
     private outboxRepository: Repository<SyncOutbox>,
     private agroService: AgroService,
+    private geospatialService: GeospatialService,
   ) {}
 
   /**
@@ -89,6 +91,18 @@ export class ParcelsService {
     const parcel = await this.parcelsRepository.findOne({ where: { id } });
     if (!parcel) throw new NotFoundException('Parcel not found');
     return parcel;
+  }
+
+  /**
+   * Proxy call to the external geospatial engine for a given parcel.
+   * Returns the engine JSON payload (metrics, tile URLs, etc.).
+   */
+  async analyzeParcel(id: string, requestedMetrics: string[] = []): Promise<any> {
+    const parcel = await this.findOne(id);
+    if (!parcel.boundary) {
+      throw new NotFoundException('Parcel geometry missing');
+    }
+    return this.geospatialService.analyzeParcel(parcel.boundary, requestedMetrics);
   }
 
   async create(parcelData: Partial<Parcel>): Promise<Parcel> {

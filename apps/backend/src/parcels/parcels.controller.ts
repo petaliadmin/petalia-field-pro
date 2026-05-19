@@ -21,6 +21,7 @@ import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Parcelles')
 @Controller('parcels')
+@UseGuards(JwtAuthGuard)
 export class ParcelsController {
   constructor(
     private readonly parcelsService: ParcelsService,
@@ -84,9 +85,11 @@ export class ParcelsController {
     return this.documentService.generateParcelPassport(parcel);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.parcelsService.findOne(id);
+
+  @Get(':id/analyze')
+  async analyzeParcel(@Param('id') id: string, @Query('metrics') metrics: string) {
+    const requestedMetrics = metrics ? metrics.split(',') : [];
+    return this.parcelsService.analyzeParcel(id, requestedMetrics);
   }
 
   @Patch(':id')
