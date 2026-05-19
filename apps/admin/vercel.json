@@ -1,0 +1,10 @@
+{
+  "cleanUrls": true,
+  "outputDirectory": "dist/petalia-admin/browser",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
