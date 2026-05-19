@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, OnInit, inject } from '@angular/core';
+import { Component, computed, OnInit, inject } from '@angular/core';
 import {
   RouterOutlet,
   RouterLink,
@@ -16,7 +16,6 @@ import { AlertConfirmService } from './core/services/alert-confirm.service';
 @Component({
   selector: 'app-root',
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterOutlet,
     RouterLink,
