@@ -1,5 +1,6 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, Logger } from '@nestjs/common';
 import { SystemService } from './system.service';
+import { ParcelsService } from '../parcels/parcels.service';
 
 @Controller('system')
 export class SystemController {
@@ -13,12 +14,44 @@ export class SystemController {
 
 @Controller('v1/ndvi')
 export class NdviController {
+  private readonly logger = new Logger(NdviController.name);
+
+  constructor(private readonly parcelsService: ParcelsService) {}
+
   @Get(':parcelId')
-  getNdvi(@Param('parcelId') parcelId: string) {
-    // Simulated NDVI — deterministic per parcel to keep UI consistent
+  async getNdvi(@Param('parcelId') parcelId: string) {
+    try {
+      const result = await this.parcelsService.analyzeParcel(parcelId, ['ndvi']);
+      
+      // Adaptative parsing for various possible response formats from the geospatial engine
+      let value = result?.metrics?.ndvi ?? result?.ndvi ?? result?.value;
+      if (value && typeof value === 'object') {
+        value = value.mean ?? value.value ?? value.average;
+      }
+
+      if (value !== undefined && value !== null && !isNaN(Number(value))) {
+        return {
+          value: +Number(value).toFixed(3),
+          parcelId,
+          fetchedAt: new Date().toISOString(),
+          source: 'external_engine',
+        };
+      }
+    } catch (err: any) {
+      this.logger.warn(
+        `Failed to fetch NDVI from external engine for parcel ${parcelId}: ${err?.message ?? err}. Falling back to simulation.`,
+      );
+    }
+
+    // Simulated NDVI fallback — deterministic per parcel to keep UI consistent
     const hash = parcelId.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
     const value = 0.35 + (hash % 100) / 220; // range ~0.35–0.80
-    return { value: +value.toFixed(3), parcelId, fetchedAt: new Date().toISOString() };
+    return {
+      value: +value.toFixed(3),
+      parcelId,
+      fetchedAt: new Date().toISOString(),
+      source: 'simulation_fallback',
+    };
   }
 }
 
