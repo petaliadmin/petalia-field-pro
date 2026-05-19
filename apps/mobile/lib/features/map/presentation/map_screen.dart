@@ -13,6 +13,7 @@ import '../../../core/utils/geo_utils.dart';
 import '../../../routes/route_names.dart';
 import '../../../theme/app_colors.dart';
 import '../../parcels/presentation/parcels_providers.dart';
+import '../../../core/services/ndvi_service.dart';
 import 'map_helpers.dart';
 import 'map_providers.dart';
 import 'parcel_bottom_sheet.dart';
@@ -111,6 +112,16 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     ? ref.watch(offlineTileProvider(effectiveLayer))
                     : null, // Web: use default network loading
               ),
+              if (effectiveLayer == MapLayer.ndvi) ...[
+                for (final p in parcels)
+                  if (ref.read(ndviServiceProvider).getCached(p.id)?.tileUrl != null)
+                    TileLayer(
+                      urlTemplate: ref.read(ndviServiceProvider).getCached(p.id)!.tileUrl!,
+                      maxZoom: 24,
+                      maxNativeZoom: 18,
+                      userAgentPackageName: 'com.petalia.fieldpro',
+                    ),
+              ],
               PolygonLayer(
                 polygons: [
                   for (final p in parcels)
@@ -356,6 +367,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               onChanged: (l) => ref.read(mapLayerProvider.notifier).state = l,
             ),
           ),
+          if (effectiveLayer == MapLayer.ndvi)
+            const Positioned(
+              left: 14,
+              bottom: 100,
+              child: NdviLegend(),
+            ),
         ],
       ),
     );

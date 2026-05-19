@@ -59,7 +59,13 @@ import {
   BarChart2,
   AlertCircle,
   Cpu,
+  Globe,
+  RotateCw,
+  TrendingDown,
+  Minus,
+  ImageOff,
 } from 'lucide-angular';
+
 import { authInterceptor } from './app/core/interceptors/auth.interceptor';
 import { errorInterceptor } from './app/core/interceptors/error.interceptor';
 
@@ -124,6 +130,11 @@ bootstrapApplication(AppComponent, {
         BarChart2,
         AlertCircle,
         Cpu,
+        Globe,
+        RotateCw,
+        TrendingDown,
+        Minus,
+        ImageOff,
       }),
     },
   ],

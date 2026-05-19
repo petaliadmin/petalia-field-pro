@@ -105,6 +105,27 @@ export class ParcelsService {
     return this.geospatialService.analyzeParcel(parcel.boundary, requestedMetrics);
   }
 
+  async getLatestAnalysis(id: string): Promise<any> {
+    const parcel = await this.findOne(id);
+    return this.geospatialService.getFieldLatest(parcel.id);
+  }
+
+  async getAlerts(id: string): Promise<any> {
+    const parcel = await this.findOne(id);
+    return this.geospatialService.getFieldAlerts(parcel.id);
+  }
+
+  async getTiles(id: string): Promise<any> {
+    const parcel = await this.findOne(id);
+    return this.geospatialService.getFieldTiles(parcel.id);
+  }
+
+  async getTimeseries(id: string): Promise<any> {
+    const parcel = await this.findOne(id);
+    return this.geospatialService.getFieldTimeseries(parcel.id);
+  }
+
+
   async create(parcelData: Partial<Parcel>): Promise<Parcel> {
     const healthScore = this.agroService.calculateHealthScore(new Date());
     const parcel = this.parcelsRepository.create({

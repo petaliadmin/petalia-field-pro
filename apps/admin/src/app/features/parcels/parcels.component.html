@@ -309,6 +309,143 @@
               <span class="text-xs font-black text-primary">{{ selectedParcelDetails.createdAt | date:'medium' }}</span>
             </div>
 
+            <!-- Section Géospatiale & NDVI (Sentinel-2) -->
+            <div class="p-5 bg-slate-50 border border-slate-200/60 rounded-[24px] space-y-4">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <lucide-icon name="globe" class="w-5 h-5 text-primary"></lucide-icon>
+                  <h4 class="text-sm font-black text-slate-900">Suivi Satellite (Sentinel-2)</h4>
+                </div>
+                <button (click)="refreshGeospatialData()" [disabled]="geospatialLoading" 
+                        class="px-2.5 py-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-50 rounded-xl transition-all flex items-center gap-1 text-[10px] font-black shadow-sm">
+                  <lucide-icon name="rotate-cw" [class.animate-spin]="geospatialLoading" class="w-3 h-3"></lucide-icon>
+                  Sync GEE
+                </button>
+              </div>
+
+              <!-- Loading spinner -->
+              <div *ngIf="geospatialLoading" class="py-8 flex flex-col items-center justify-center gap-3">
+                <div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                <p class="text-xs text-slate-400 font-bold">Interrogation de Google Earth Engine...</p>
+              </div>
+
+              <!-- Content when not loading -->
+              <div *ngIf="!geospatialLoading && latestAnalysis" class="space-y-4">
+                <!-- Bento stats -->
+                <div class="grid grid-cols-3 gap-2.5">
+                  <!-- NDVI Score -->
+                  <div class="p-3 bg-emerald-50/60 border border-emerald-100/80 rounded-2xl flex flex-col items-center text-center">
+                    <span class="text-[8px] font-black text-emerald-600 uppercase tracking-widest">NDVI Moyen</span>
+                    <span class="text-base font-black text-emerald-700 mt-1">
+                      {{ latestAnalysis.vegetation?.meanNdvi | percent:'1.0-1' }}
+                    </span>
+                    <span class="text-[8px] font-bold text-emerald-500/95 mt-0.5 uppercase tracking-wide">
+                      {{ latestAnalysis.vegetation?.health }}
+                    </span>
+                  </div>
+
+                  <!-- NDMI (Water) -->
+                  <div class="p-3 bg-blue-50/60 border border-blue-100/80 rounded-2xl flex flex-col items-center text-center">
+                    <span class="text-[8px] font-black text-blue-600 uppercase tracking-widest">NDMI Eau</span>
+                    <span class="text-base font-black text-blue-700 mt-1">
+                      {{ latestAnalysis.water?.meanNdmi | number:'1.2-2' }}
+                    </span>
+                    <span class="text-[8px] font-bold text-blue-500/95 mt-0.5 uppercase tracking-wide">Humidité</span>
+                  </div>
+
+                  <!-- Trend & Cloud -->
+                  <div class="p-3 bg-white border border-slate-200/60 rounded-2xl flex flex-col items-center text-center">
+                    <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Tendance</span>
+                    <div class="flex items-center gap-0.5 mt-1 text-slate-700 font-black text-xs">
+                      <lucide-icon *ngIf="latestAnalysis.vegetation?.trend === 'UP'" name="trending-up" class="w-3.5 h-3.5 text-emerald-500"></lucide-icon>
+                      <lucide-icon *ngIf="latestAnalysis.vegetation?.trend === 'DOWN'" name="trending-down" class="w-3.5 h-3.5 text-red-500"></lucide-icon>
+                      <lucide-icon *ngIf="latestAnalysis.vegetation?.trend === 'STABLE'" name="minus" class="w-3.5 h-3.5 text-slate-500"></lucide-icon>
+                      <span>{{ latestAnalysis.vegetation?.trend }}</span>
+                    </div>
+                    <span class="text-[8px] font-bold text-slate-400 mt-0.5">
+                      Nuages: {{ latestAnalysis.cloudCoverage | percent:'1.0-0' }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Satellite Thumbnail image -->
+                <div *ngIf="latestAnalysis.visualization?.thumbnailUrl" class="relative group rounded-2xl overflow-hidden border border-slate-200 shadow-sm h-36">
+                  <img [src]="latestAnalysis.visualization.thumbnailUrl" alt="Aperçu Sentinel-2" class="w-full h-full object-cover">
+                  <div class="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-slate-900/10 to-transparent flex items-end p-3">
+                    <span class="text-[10px] text-white font-bold">Imagerie Satellite Sentinel-2 ({{ latestAnalysis.analysisDate | date:'dd/MM/yyyy HH:mm' }})</span>
+                  </div>
+                </div>
+
+                <!-- Agronomic Alerts -->
+                <div *ngIf="latestAnalysis.alerts?.length" class="space-y-2">
+                  <h5 class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Alertes Agronomiques</h5>
+                  <div *ngFor="let alert of latestAnalysis.alerts" class="p-3 border rounded-xl flex gap-3"
+                       [ngClass]="{
+                         'bg-red-50/60 border-red-100 text-red-900': alert.severity === 'HIGH' || alert.severity === 'CRITICAL',
+                         'bg-amber-50/60 border-amber-100 text-amber-900': alert.severity === 'MEDIUM',
+                         'bg-blue-50/60 border-blue-100 text-blue-900': alert.severity === 'LOW'
+                       }">
+                    <lucide-icon name="alert-triangle" class="w-5 h-5 shrink-0" 
+                                 [ngClass]="{
+                                   'text-red-500': alert.severity === 'HIGH' || alert.severity === 'CRITICAL',
+                                   'text-amber-500': alert.severity === 'MEDIUM',
+                                   'text-blue-500': alert.severity === 'LOW'
+                                 }"></lucide-icon>
+                    <div class="space-y-0.5">
+                      <div class="flex items-center gap-1.5">
+                        <span class="text-xs font-black">{{ alert.alertType }}</span>
+                        <span class="text-[8px] px-1.5 py-0.5 rounded-full font-black uppercase"
+                              [ngClass]="{
+                                'bg-red-100 text-red-700': alert.severity === 'HIGH' || alert.severity === 'CRITICAL',
+                                'bg-amber-100 text-amber-700': alert.severity === 'MEDIUM',
+                                'bg-blue-100 text-blue-700': alert.severity === 'LOW'
+                              }">
+                          {{ alert.severity }}
+                        </span>
+                      </div>
+                      <p class="text-xs font-medium text-slate-600">{{ alert.message }}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Historical Timeseries -->
+                <div *ngIf="timeseries?.length" class="space-y-2">
+                  <h5 class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Séries Temporelles NDVI</h5>
+                  <div class="overflow-x-auto border border-slate-100 rounded-xl bg-white">
+                    <table class="w-full text-left border-collapse text-[11px]">
+                      <thead>
+                        <tr class="bg-slate-50 border-b border-slate-100 text-[9px] text-slate-400 font-bold uppercase tracking-wider">
+                          <th class="p-2.5 font-bold">Date de capture</th>
+                          <th class="p-2.5 font-bold">Index NDVI</th>
+                          <th class="p-2.5 font-bold">Index NDMI</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let point of timeseries" class="border-b border-slate-50 last:border-0 hover:bg-slate-50/50">
+                          <td class="p-2.5 text-slate-600 font-medium">{{ point.date | date:'dd/MM/yyyy' }}</td>
+                          <td class="p-2.5 font-black text-emerald-600">{{ point.ndvi }}</td>
+                          <td class="p-2.5 font-black text-blue-600">{{ point.ndmi }}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Placeholder when no GEE data exists yet -->
+              <div *ngIf="!geospatialLoading && !latestAnalysis" class="p-4 bg-white border border-dashed border-slate-200 rounded-2xl text-center space-y-3">
+                <lucide-icon name="image-off" class="w-8 h-8 text-slate-300 mx-auto"></lucide-icon>
+                <div class="space-y-1">
+                  <p class="text-xs font-black text-slate-700">Aucune imagerie Sentinel-2 disponible</p>
+                  <p class="text-[10px] text-slate-400 font-medium">Déclenchez une synchronisation pour interroger le moteur géospatial.</p>
+                </div>
+                <button (click)="refreshGeospatialData()" class="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold text-xs transition-all shadow-md shadow-primary/10">
+                  Déclencher l'Analyse
+                </button>
+              </div>
+            </div>
+
+
             <div class="mt-6 p-4 bg-slate-900 text-white rounded-2xl flex items-center justify-between shadow-xl">
               <div class="flex items-center gap-3">
                 <lucide-icon name="microscope" class="w-6 h-6 text-primary"></lucide-icon>

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { AlertConfirmService, AlertMessage, ConfirmDialogConfig } from '../../../core/services/alert-confirm.service';
@@ -69,6 +69,7 @@ export class AlertConfirmComponent implements OnInit, OnDestroy {
   confirmConfig: ConfirmDialogConfig | null = null;
 
   private alertService = inject(AlertConfirmService);
+  private cdr = inject(ChangeDetectorRef);
   private sub1!: Subscription;
   private sub2!: Subscription;
   private timers = new Map<string, ReturnType<typeof setTimeout>>();
@@ -76,6 +77,7 @@ export class AlertConfirmComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.sub1 = this.alertService.alerts$.subscribe(alert => {
       this.alerts.push(alert);
+      this.cdr.detectChanges();
       if (alert.duration && alert.duration > 0) {
         const timer = setTimeout(() => {
           this.timers.delete(alert.id);
@@ -87,6 +89,7 @@ export class AlertConfirmComponent implements OnInit, OnDestroy {
 
     this.sub2 = this.alertService.confirm$.subscribe(config => {
       this.confirmConfig = config;
+      this.cdr.detectChanges();
     });
   }
 
@@ -104,6 +107,7 @@ export class AlertConfirmComponent implements OnInit, OnDestroy {
       this.timers.delete(id);
     }
     this.alerts = this.alerts.filter(a => a.id !== id);
+    this.cdr.detectChanges();
   }
 
   confirm() {

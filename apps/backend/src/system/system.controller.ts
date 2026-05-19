@@ -19,12 +19,32 @@ export class NdviController {
   constructor(private readonly parcelsService: ParcelsService) {}
 
   @Get(':parcelId')
-  async getNdvi(@Param('parcelId') parcelId: string) {
+  async getNdvi(@Param('parcelId') parcelId: string, @Query('force') force?: string) {
     try {
-      const result = await this.parcelsService.analyzeParcel(parcelId, ['ndvi']);
+      let result: any = null;
+
+      // Si force n'est pas activé, essayer de récupérer la dernière analyse en cache
+      if (force !== 'true') {
+        try {
+          result = await this.parcelsService.getLatestAnalysis(parcelId);
+        } catch (e) {
+          this.logger.log(`No latest analysis found, will request a new one.`);
+        }
+      }
+
+      // Si aucune analyse en cache ou force est à true, lancer une nouvelle analyse
+      if (!result) {
+        result = await this.parcelsService.analyzeParcel(parcelId, [
+          'NDVI',
+          'NDWI',
+          'CLOUD',
+          'TILES',
+          'ALERTS',
+        ]);
+      }
       
       // Adaptative parsing for various possible response formats from the geospatial engine
-      let value = result?.metrics?.ndvi ?? result?.ndvi ?? result?.value;
+      let value = result?.metrics?.ndvi ?? result?.ndvi ?? result?.value ?? result?.vegetation?.meanNdvi;
       if (value && typeof value === 'object') {
         value = value.mean ?? value.value ?? value.average;
       }
@@ -33,7 +53,7 @@ export class NdviController {
         return {
           value: +Number(value).toFixed(3),
           parcelId,
-          fetchedAt: new Date().toISOString(),
+          fetchedAt: result?.analysisDate ?? new Date().toISOString(),
           source: 'external_engine',
         };
       }

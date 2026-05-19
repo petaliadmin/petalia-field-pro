@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
@@ -12,7 +12,6 @@ import { BaseComponent } from '../../core/base/base.component';
 @Component({
   selector: 'app-diagnostics',
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, LucideAngularModule, FormsModule, AdvancedImageAnalyzerComponent],
   templateUrl: './diagnostics.component.html',
   styles: [`:host { display: block; }`]

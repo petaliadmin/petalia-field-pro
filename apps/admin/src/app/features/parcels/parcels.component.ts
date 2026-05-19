@@ -1,8 +1,8 @@
-import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
-import { takeUntil } from 'rxjs';
+import { takeUntil, forkJoin } from 'rxjs';
 import { ParcelService, Parcel } from '../../core/services/parcel.service';
 import { AlertConfirmService } from '../../core/services/alert-confirm.service';
 import { environment } from '../../../environments/environment';
@@ -14,7 +14,6 @@ import { DEFAULT_LAT, DEFAULT_LNG } from '../../core/constants/app.constants';
 @Component({
   selector: 'app-parcels',
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, LucideAngularModule, AdvancedImageAnalyzerComponent],
   templateUrl: './parcels.component.html',
   styles: [`:host { display: block; }`]
@@ -39,6 +38,9 @@ export class ParcelsComponent extends BaseComponent implements OnInit {
   regionInput = '';
 
   selectedParcelDetails: Parcel | null = null;
+  latestAnalysis: any = null;
+  timeseries: any[] = [];
+  geospatialLoading = false;
 
   showAssignModal = false;
   assignParcel: Parcel | null = null;
@@ -148,7 +150,51 @@ export class ParcelsComponent extends BaseComponent implements OnInit {
 
   openDetailsModal(parcel: Parcel) {
     this.selectedParcelDetails = parcel;
+    this.latestAnalysis = null;
+    this.timeseries = [];
+    this.loadGeospatialData(parcel.id);
   }
+
+  loadGeospatialData(parcelId: string) {
+    this.geospatialLoading = true;
+    this.cdr.markForCheck();
+
+    forkJoin({
+      latest: this.parcelService.getLatestAnalysis(parcelId),
+      timeseries: this.parcelService.getTimeseries(parcelId)
+    }).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (res) => {
+        this.latestAnalysis = res.latest;
+        this.timeseries = res.timeseries || [];
+        this.geospatialLoading = false;
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.error('Failed to load geospatial data', err);
+        this.geospatialLoading = false;
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  refreshGeospatialData() {
+    if (!this.selectedParcelDetails) return;
+    this.geospatialLoading = true;
+    this.cdr.markForCheck();
+    this.parcelService.triggerAnalysis(this.selectedParcelDetails.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.loadGeospatialData(this.selectedParcelDetails!.id);
+        },
+        error: (err) => {
+          this.alertService.error('Erreur lors de la synchronisation GEE : ' + err.message);
+          this.geospatialLoading = false;
+          this.cdr.markForCheck();
+        }
+      });
+  }
+
 
   openDeleteModal(parcel: Parcel) {
     this.alertService.confirm({

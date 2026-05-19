@@ -78,6 +78,7 @@ class _ParcelDetailsScreenState extends ConsumerState<ParcelDetailsScreen>
       );
     }
 
+    final ndviSnapshot = ref.watch(ndviProvider(widget.parcelId)).valueOrNull;
     final area = GeoUtils.polygonAreaHa(parcel.boundary);
 
     return Scaffold(
@@ -189,6 +190,13 @@ class _ParcelDetailsScreenState extends ConsumerState<ParcelDetailsScreen>
                         maxNativeZoom: 20,
                         userAgentPackageName: 'com.petalia.fieldpro',
                       ),
+                      if (ndviSnapshot?.tileUrl != null && ndviSnapshot!.tileUrl!.isNotEmpty)
+                        TileLayer(
+                          urlTemplate: ndviSnapshot.tileUrl!,
+                          maxZoom: 22,
+                          maxNativeZoom: 20,
+                          userAgentPackageName: 'com.petalia.fieldpro',
+                        ),
                       PolygonLayer(
                         polygons: [
                           Polygon(
@@ -649,6 +657,9 @@ class _OverviewTab extends ConsumerWidget {
     final parcel = ref.watch(parcelByIdProvider(parcelId));
     if (parcel == null) return const SizedBox.shrink();
 
+    final ndvi = ref.watch(ndviProvider(parcelId)).valueOrNull;
+    final alerts = ndvi != null ? (ndvi as dynamic).alerts as List<GeospatialAlert>? : null;
+
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
@@ -769,6 +780,89 @@ class _OverviewTab extends ConsumerWidget {
 
         // Ligne 2: Cycle de Culture
         _LifecycleBox(parcel: parcel),
+
+        if (ndvi?.thumbnailUrl != null && ndvi!.thumbnailUrl!.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          _BentoBox(
+            title: 'Capture Satellite (GEE)',
+            icon: Icons.satellite_rounded,
+            iconColor: AppColors.primary,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.network(
+                ndvi.thumbnailUrl!,
+                height: 160,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (context, _, __) => Container(
+                  height: 160,
+                  color: Colors.grey.shade900.withOpacity(0.2),
+                  alignment: Alignment.center,
+                  child: const Icon(Icons.image_not_supported_rounded, color: Colors.grey),
+                ),
+              ),
+            ),
+          ),
+        ],
+
+        if (ndvi != null && alerts != null && alerts.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          _BentoBox(
+            title: 'Alertes Satellites',
+            icon: Icons.warning_amber_rounded,
+            iconColor: Colors.redAccent,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: alerts.map((alert) {
+                final isHigh = alert.severity == 'HIGH';
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: isHigh ? Colors.red.withOpacity(0.05) : Colors.orange.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isHigh ? Colors.red.withOpacity(0.2) : Colors.orange.withOpacity(0.2),
+                    ),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        isHigh ? Icons.error_outline_rounded : Icons.warning_amber_rounded,
+                        color: isHigh ? Colors.red : Colors.orange,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              alert.message,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              Fmt.relative(alert.createdAt, AppLocalizations.of(context)),
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: AppColors.textMutedOf(context),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ],
         const SizedBox(height: 12),
 
         _BentoBox(

@@ -14,7 +14,7 @@ extension MapLayerX on MapLayer {
     MapLayer.satellite =>
       'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     MapLayer.ndvi =>
-      'https://tile.openstreetmap.org/{z}/{x}/{y}.png', // Placeholder
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
   };
 
   String label(BuildContext context) {

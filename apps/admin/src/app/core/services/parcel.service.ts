@@ -89,6 +89,23 @@ export class ParcelService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
+  getLatestAnalysis(id: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}/latest`);
+  }
+
+  getAlerts(id: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}/alerts`);
+  }
+
+  getTimeseries(id: string): Observable<any> {
+    return this.http.get<any[]>(`${this.apiUrl}/${id}/timeseries`);
+  }
+
+  triggerAnalysis(id: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}/analyze?metrics=NDVI,NDWI,CLOUD,TILES,ALERTS`);
+  }
+
+
   /**
    * Normalisation centralisée de la forme renvoyée par le backend
    * (champs nommés indifféremment owner/ownerName, etc.). On expose

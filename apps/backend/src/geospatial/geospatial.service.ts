@@ -35,4 +35,41 @@ export class GeospatialService {
     const response = await firstValueFrom(response$);
     return response.data;
   }
+
+  private getHeaders(): Record<string, string> {
+    const headers: Record<string, string> = {};
+    if (this.apiKey) {
+      headers['X-API-Key'] = this.apiKey;
+    }
+    return headers;
+  }
+
+  async getFieldLatest(fieldId: string): Promise<any> {
+    const url = `${this.baseUrl}/v1/fields/${fieldId}/latest`;
+    const response$ = this.httpService.get(url, { headers: this.getHeaders() });
+    const response = await firstValueFrom(response$);
+    return response.data;
+  }
+
+  async getFieldAlerts(fieldId: string): Promise<any> {
+    const url = `${this.baseUrl}/v1/fields/${fieldId}/alerts`;
+    const response$ = this.httpService.get(url, { headers: this.getHeaders() });
+    const response = await firstValueFrom(response$);
+    return response.data;
+  }
+
+  async getFieldTiles(fieldId: string): Promise<any> {
+    const url = `${this.baseUrl}/v1/fields/${fieldId}/tiles`;
+    const response$ = this.httpService.get(url, { headers: this.getHeaders() });
+    const response = await firstValueFrom(response$);
+    return response.data;
+  }
+
+  async getFieldTimeseries(fieldId: string): Promise<any> {
+    const url = `${this.baseUrl}/v1/fields/${fieldId}/timeseries`;
+    const response$ = this.httpService.get(url, { headers: this.getHeaders() });
+    const response = await firstValueFrom(response$);
+    return response.data;
+  }
 }
+

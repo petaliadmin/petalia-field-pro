@@ -8,6 +8,7 @@ void main() {
         value: 0.72,
         fetchedAt: DateTime.utc(2026, 5, 12, 8, 0),
         parcelId: 'parcel-123',
+        alerts: const [],
       );
 
       final restored = NdviSnapshot.fromMap(original.toMap());
