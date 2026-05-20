@@ -103,7 +103,7 @@ export class ParcelService {
   }
 
   triggerAnalysis(id: string): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${id}/analyze?metrics=NDVI,NDWI,CLOUD,TILES,ALERTS`);
+    return this.http.post<any>(`${this.apiUrl}/${id}/analyze`, {});
   }
 
   /**
