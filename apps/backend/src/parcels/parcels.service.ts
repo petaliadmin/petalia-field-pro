@@ -102,7 +102,7 @@ export class ParcelsService {
     if (!parcel.boundary) {
       throw new NotFoundException('Parcel geometry missing');
     }
-    return this.geospatialService.analyzeParcel(parcel.boundary, requestedMetrics);
+    return this.geospatialService.analyzeParcel(parcel.id, parcel.boundary, requestedMetrics);
   }
 
   async getLatestAnalysis(id: string): Promise<any> {

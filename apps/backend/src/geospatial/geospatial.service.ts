@@ -18,10 +18,10 @@ export class GeospatialService {
    * The engine expects a POST to /v1/analyses with a CreateAnalysisRequest.
    * Returns the raw JSON response from the engine.
    */
-  async analyzeParcel(geometry: any, requestedMetrics: string[] = []): Promise<any> {
+  async analyzeParcel(fieldId: string, geometry: any, requestedMetrics: string[] = []): Promise<any> {
     const url = `${this.baseUrl}/v1/analyses`;
     const payload = {
-      fieldId: 'placeholder', // backend generates its own ID; engine does not need it
+      fieldId,
       geometry,
       requestedMetrics,
     };
