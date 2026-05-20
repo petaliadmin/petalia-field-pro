@@ -13,6 +13,8 @@ import {
   UploadedFiles,
   Res,
   BadRequestException,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
@@ -27,6 +29,10 @@ import { ApiTags } from '@nestjs/swagger';
 @Controller('parcels')
 @UseGuards(JwtAuthGuard)
 export class ParcelsController {
+  // Tile URL cache: avoids calling getLatestAnalysis on every tile request.
+  // Key: parcelId, Value: { url: tileUrlTemplate, exp: expiry timestamp }
+  private readonly _tileUrlCache = new Map<string, { url: string; exp: number }>();
+
   constructor(
     private readonly parcelsService: ParcelsService,
     private readonly documentService: DocumentService,
@@ -91,16 +97,23 @@ export class ParcelsController {
   }
 
 
-  @Get(':id/analyze')
-  async analyzeParcel(@Param('id') id: string, @Query('metrics') metrics: string) {
-    const requestedMetrics = metrics ? metrics.split(',') : [];
-    // Convert generic metrics query parameter to uppercase engine enum values
-    const upperMetrics = requestedMetrics.map(m => m.toUpperCase());
+  /**
+   * Triggers a fresh satellite analysis and waits for completion (up to 2 min).
+   * Use POST because this is a stateful operation that creates an analysis job.
+   * Returns the full result including NDVI, NDMI, NDRE, SAVI, EVI2, alerts, tiles.
+   */
+  @Post(':id/analyze')
+  async analyzeParcel(@Param('id') id: string) {
     try {
-      return await this.parcelsService.analyzeParcel(id, upperMetrics);
-    } catch (err) {
-      // Fallback
-      return this.getSimulatedAnalysis(id);
+      const result = await this.parcelsService.analyzeParcel(id);
+      // Invalidate cached tile URL so the next tile request fetches the fresh one.
+      this._tileUrlCache.delete(id);
+      return result;
+    } catch (err: any) {
+      throw new HttpException(
+        { message: 'GEE analysis failed', detail: err?.message },
+        HttpStatus.BAD_GATEWAY,
+      );
     }
   }
 
@@ -108,8 +121,11 @@ export class ParcelsController {
   async getLatest(@Param('id') id: string) {
     try {
       return await this.parcelsService.getLatestAnalysis(id);
-    } catch (err) {
-      return this.getSimulatedAnalysis(id);
+    } catch (err: any) {
+      throw new HttpException(
+        { message: 'GEE latest analysis unavailable', detail: err?.message },
+        HttpStatus.BAD_GATEWAY,
+      );
     }
   }
 
@@ -117,8 +133,11 @@ export class ParcelsController {
   async getAlerts(@Param('id') id: string) {
     try {
       return await this.parcelsService.getAlerts(id);
-    } catch (err) {
-      return this.getSimulatedAnalysis(id).alerts;
+    } catch (err: any) {
+      throw new HttpException(
+        { message: 'GEE alerts unavailable', detail: err?.message },
+        HttpStatus.BAD_GATEWAY,
+      );
     }
   }
 
@@ -126,8 +145,11 @@ export class ParcelsController {
   async getTiles(@Param('id') id: string) {
     try {
       return await this.parcelsService.getTiles(id);
-    } catch (err) {
-      return this.getSimulatedAnalysis(id).visualization;
+    } catch (err: any) {
+      throw new HttpException(
+        { message: 'GEE tiles unavailable', detail: err?.message },
+        HttpStatus.BAD_GATEWAY,
+      );
     }
   }
 
@@ -135,8 +157,11 @@ export class ParcelsController {
   async getTimeseries(@Param('id') id: string) {
     try {
       return await this.parcelsService.getTimeseries(id);
-    } catch (err) {
-      return this.getSimulatedTimeseries(id);
+    } catch (err: any) {
+      throw new HttpException(
+        { message: 'GEE timeseries unavailable', detail: err?.message },
+        HttpStatus.BAD_GATEWAY,
+      );
     }
   }
 
@@ -175,8 +200,21 @@ export class ParcelsController {
   ) {
     try {
       if (!z || !x || !y) throw new BadRequestException('z, x, y params are required');
-      const analysis = await this.parcelsService.getLatestAnalysis(id);
-      const tileUrlTemplate = analysis?.visualization?.tileUrl;
+
+      // Cache the tile URL template per parcel (1 hour TTL) so we don't call
+      // getLatestAnalysis on every individual tile request.
+      let tileUrlTemplate: string | undefined;
+      const cached = this._tileUrlCache.get(id);
+      if (cached && cached.exp > Date.now()) {
+        tileUrlTemplate = cached.url;
+      } else {
+        const analysis = await this.parcelsService.getLatestAnalysis(id);
+        tileUrlTemplate = analysis?.visualization?.tileUrl;
+        if (tileUrlTemplate) {
+          this._tileUrlCache.set(id, { url: tileUrlTemplate, exp: Date.now() + 3_600_000 });
+        }
+      }
+
       if (!tileUrlTemplate) {
         return res.status(404).json({ message: 'No tile URL available' });
       }
@@ -185,8 +223,8 @@ export class ParcelsController {
       res.set('Content-Type', contentType);
       res.set('Cache-Control', 'public, max-age=3600');
       return res.send(buffer);
-    } catch (err) {
-      return res.status(502).json({ message: 'Failed to proxy GEE tile', error: err.message });
+    } catch (err: any) {
+      return res.status(502).json({ message: 'Failed to proxy GEE tile', error: err?.message });
     }
   }
 

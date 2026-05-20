@@ -443,7 +443,7 @@
 
               <!-- Content when not loading -->
               <div *ngIf="!geospatialLoading && latestAnalysis" class="space-y-4">
-                <!-- Bento stats -->
+                <!-- Bento stats — Row 1: NDVI · NDMI · Trend -->
                 <div class="grid grid-cols-3 gap-2.5">
                   <!-- NDVI Score -->
                   <div class="p-3 bg-emerald-50/60 border border-emerald-100/80 rounded-2xl flex flex-col items-center text-center">
@@ -451,32 +451,100 @@
                     <span class="text-base font-black text-emerald-700 mt-1">
                       {{ latestAnalysis.vegetation?.meanNdvi | percent:'1.0-1' }}
                     </span>
-                    <span class="text-[8px] font-bold text-emerald-500/95 mt-0.5 uppercase tracking-wide">
+                    <span class="text-[8px] font-bold mt-0.5 uppercase tracking-wide px-1.5 py-0.5 rounded-full"
+                          [ngClass]="{
+                            'bg-emerald-100 text-emerald-700': latestAnalysis.vegetation?.health === 'EXCELLENT',
+                            'bg-green-100 text-green-700': latestAnalysis.vegetation?.health === 'GOOD',
+                            'bg-amber-100 text-amber-700': latestAnalysis.vegetation?.health === 'MODERATE',
+                            'bg-red-100 text-red-700': latestAnalysis.vegetation?.health === 'POOR'
+                          }">
                       {{ latestAnalysis.vegetation?.health }}
                     </span>
                   </div>
 
-                  <!-- NDMI (Water) -->
-                  <div class="p-3 bg-blue-50/60 border border-blue-100/80 rounded-2xl flex flex-col items-center text-center">
-                    <span class="text-[8px] font-black text-blue-600 uppercase tracking-widest">NDMI Eau</span>
-                    <span class="text-base font-black text-blue-700 mt-1">
+                  <!-- NDMI (Water stress) -->
+                  <div class="p-3 rounded-2xl flex flex-col items-center text-center"
+                       [ngClass]="latestAnalysis.water?.meanNdmi < -0.10
+                         ? 'bg-red-50/60 border border-red-100/80'
+                         : 'bg-blue-50/60 border border-blue-100/80'">
+                    <span class="text-[8px] font-black uppercase tracking-widest"
+                          [ngClass]="latestAnalysis.water?.meanNdmi < -0.10 ? 'text-red-600' : 'text-blue-600'">
+                      NDMI Hydrique
+                    </span>
+                    <span class="text-base font-black mt-1"
+                          [ngClass]="latestAnalysis.water?.meanNdmi < -0.10 ? 'text-red-700' : 'text-blue-700'">
                       {{ latestAnalysis.water?.meanNdmi | number:'1.2-2' }}
                     </span>
-                    <span class="text-[8px] font-bold text-blue-500/95 mt-0.5 uppercase tracking-wide">Humidité</span>
+                    <span *ngIf="latestAnalysis.water?.meanNdmi < -0.10"
+                          class="text-[8px] font-bold text-red-500 mt-0.5">⚠ Irrigation</span>
+                    <span *ngIf="latestAnalysis.water?.meanNdmi >= -0.10"
+                          class="text-[8px] font-bold text-blue-500/95 mt-0.5">Humidité OK</span>
                   </div>
 
                   <!-- Trend & Cloud -->
                   <div class="p-3 bg-white border border-slate-200/60 rounded-2xl flex flex-col items-center text-center">
                     <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Tendance</span>
-                    <div class="flex items-center gap-0.5 mt-1 text-slate-700 font-black text-xs">
-                      <lucide-icon *ngIf="latestAnalysis.vegetation?.trend === 'UP'" name="trending-up" class="w-3.5 h-3.5 text-emerald-500"></lucide-icon>
-                      <lucide-icon *ngIf="latestAnalysis.vegetation?.trend === 'DOWN'" name="trending-down" class="w-3.5 h-3.5 text-red-500"></lucide-icon>
-                      <lucide-icon *ngIf="latestAnalysis.vegetation?.trend === 'STABLE'" name="minus" class="w-3.5 h-3.5 text-slate-500"></lucide-icon>
+                    <div class="flex items-center gap-0.5 mt-1 font-black text-xs"
+                         [ngClass]="{
+                           'text-emerald-600': latestAnalysis.vegetation?.trend === 'UP',
+                           'text-red-600': latestAnalysis.vegetation?.trend === 'DOWN',
+                           'text-slate-600': latestAnalysis.vegetation?.trend === 'STABLE' || latestAnalysis.vegetation?.trend === 'UNKNOWN'
+                         }">
+                      <lucide-icon *ngIf="latestAnalysis.vegetation?.trend === 'UP'" name="trending-up" class="w-3.5 h-3.5"></lucide-icon>
+                      <lucide-icon *ngIf="latestAnalysis.vegetation?.trend === 'DOWN'" name="trending-down" class="w-3.5 h-3.5"></lucide-icon>
+                      <lucide-icon *ngIf="latestAnalysis.vegetation?.trend === 'STABLE'" name="minus" class="w-3.5 h-3.5"></lucide-icon>
+                      <lucide-icon *ngIf="latestAnalysis.vegetation?.trend === 'UNKNOWN'" name="help-circle" class="w-3.5 h-3.5 text-slate-400"></lucide-icon>
                       <span>{{ latestAnalysis.vegetation?.trend }}</span>
                     </div>
-                    <span class="text-[8px] font-bold text-slate-400 mt-0.5">
-                      Nuages: {{ latestAnalysis.cloudCoverage | percent:'1.0-0' }}
+                    <span class="text-[8px] font-bold mt-0.5"
+                          [ngClass]="latestAnalysis.cloudCoverage > 0.30 ? 'text-amber-500' : 'text-slate-400'">
+                      ☁ {{ latestAnalysis.cloudCoverage | percent:'1.0-0' }} nuages
                     </span>
+                  </div>
+                </div>
+
+                <!-- Row 2: NDRE · SAVI · EVI2 (advanced indices) -->
+                <div *ngIf="latestAnalysis.vegetation?.ndreeMean !== null || latestAnalysis.vegetation?.saviMean !== null"
+                     class="grid grid-cols-3 gap-2.5">
+
+                  <!-- NDRE — Nitrogen / Chlorophyll stress -->
+                  <div *ngIf="latestAnalysis.vegetation?.ndreeMean !== null"
+                       class="p-3 rounded-2xl flex flex-col items-center text-center"
+                       [ngClass]="latestAnalysis.vegetation?.ndreeMean < 0.20
+                         ? 'bg-orange-50/60 border border-orange-100/80'
+                         : 'bg-lime-50/60 border border-lime-100/80'">
+                    <span class="text-[8px] font-black uppercase tracking-widest"
+                          [ngClass]="latestAnalysis.vegetation?.ndreeMean < 0.20 ? 'text-orange-600' : 'text-lime-600'">
+                      NDRE Azoté
+                    </span>
+                    <span class="text-base font-black mt-1"
+                          [ngClass]="latestAnalysis.vegetation?.ndreeMean < 0.20 ? 'text-orange-700' : 'text-lime-700'">
+                      {{ latestAnalysis.vegetation?.ndreeMean | number:'1.2-2' }}
+                    </span>
+                    <span *ngIf="latestAnalysis.vegetation?.ndreeMean < 0.20"
+                          class="text-[8px] font-bold text-orange-500 mt-0.5">⚠ Analyse foliaire</span>
+                    <span *ngIf="latestAnalysis.vegetation?.ndreeMean >= 0.20"
+                          class="text-[8px] font-bold text-lime-600 mt-0.5">Azote OK</span>
+                  </div>
+
+                  <!-- SAVI — Soil-adjusted (young crops) -->
+                  <div *ngIf="latestAnalysis.vegetation?.saviMean !== null"
+                       class="p-3 bg-amber-50/60 border border-amber-100/80 rounded-2xl flex flex-col items-center text-center">
+                    <span class="text-[8px] font-black text-amber-600 uppercase tracking-widest">SAVI Sol</span>
+                    <span class="text-base font-black text-amber-700 mt-1">
+                      {{ latestAnalysis.vegetation?.saviMean | number:'1.2-2' }}
+                    </span>
+                    <span class="text-[8px] font-bold text-amber-500/95 mt-0.5">Jeunes Cultures</span>
+                  </div>
+
+                  <!-- EVI2 — Dense canopy -->
+                  <div *ngIf="latestAnalysis.vegetation?.evi2Mean !== null"
+                       class="p-3 bg-teal-50/60 border border-teal-100/80 rounded-2xl flex flex-col items-center text-center">
+                    <span class="text-[8px] font-black text-teal-600 uppercase tracking-widest">EVI2 Dense</span>
+                    <span class="text-base font-black text-teal-700 mt-1">
+                      {{ latestAnalysis.vegetation?.evi2Mean | number:'1.2-2' }}
+                    </span>
+                    <span class="text-[8px] font-bold text-teal-500/95 mt-0.5">Canopée Dense</span>
                   </div>
                 </div>
 

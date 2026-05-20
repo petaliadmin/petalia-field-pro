@@ -2,7 +2,7 @@ import { Component, OnInit, AfterViewInit, OnDestroy, inject, ChangeDetectorRef 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
-import { takeUntil, forkJoin, interval, switchMap, take, takeWhile } from 'rxjs';
+import { takeUntil, forkJoin, interval, switchMap, take, takeWhile, catchError, of } from 'rxjs';
 import { ParcelService, Parcel, ParcelStatus } from '../../core/services/parcel.service';
 import { AlertConfirmService } from '../../core/services/alert-confirm.service';
 import { environment } from '../../../environments/environment';
@@ -186,12 +186,20 @@ export class ParcelsComponent extends BaseComponent implements OnInit, AfterView
 
     forkJoin({
       latest: this.parcelService.getLatestAnalysis(parcelId),
-      timeseries: this.parcelService.getTimeseries(parcelId)
+      alerts: this.parcelService.getAlerts(parcelId).pipe(catchError(() => of([]))),
+      timeseries: this.parcelService.getTimeseries(parcelId).pipe(catchError(() => of([])))
     }).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.latestAnalysis = res.latest;
+        // Merge alerts from dedicated endpoint with any embedded in /latest,
+        // deduplicating by id so we don't show duplicates.
+        if (this.latestAnalysis) {
+          const merged = [...(res.alerts || []), ...(res.latest?.alerts || [])];
+          this.latestAnalysis.alerts = merged.filter(
+            (a: any, i: number, arr: any[]) => arr.findIndex((b: any) => b.id === a.id) === i
+          );
+        }
         this.timeseries = res.timeseries || [];
-        // Always use the backend-proxied URLs — never a direct GEE URL
         this.thumbnailProxyUrl = this.parcelService.getThumbnailUrl(parcelId);
         this.satelliteTileUrl = this.parcelService.getTileUrlTemplate(parcelId);
         this.overlayGeeSatelliteLayer();
@@ -200,7 +208,6 @@ export class ParcelsComponent extends BaseComponent implements OnInit, AfterView
       },
       error: (err) => {
         console.error('Failed to load geospatial data', err);
-        // Still set proxy URL as a fallback attempt
         this.thumbnailProxyUrl = this.parcelService.getThumbnailUrl(parcelId);
         this.geospatialLoading = false;
         this.cdr.markForCheck();
@@ -263,6 +270,10 @@ export class ParcelsComponent extends BaseComponent implements OnInit, AfterView
           
           if (res.latest?.status === 'COMPLETED') {
             this.geospatialLoading = false;
+            // Refresh the satellite tile overlay now that new data is available.
+            this.thumbnailProxyUrl = this.parcelService.getThumbnailUrl(targetParcelId);
+            this.satelliteTileUrl = this.parcelService.getTileUrlTemplate(targetParcelId);
+            this.overlayGeeSatelliteLayer();
             this.alertService.success('Analyse GEE terminée avec succès !');
           } else if (res.latest?.status === 'FAILED') {
             this.geospatialLoading = false;

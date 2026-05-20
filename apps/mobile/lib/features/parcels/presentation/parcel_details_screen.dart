@@ -658,7 +658,7 @@ class _OverviewTab extends ConsumerWidget {
     if (parcel == null) return const SizedBox.shrink();
 
     final ndvi = ref.watch(ndviProvider(parcelId)).valueOrNull;
-    final alerts = ndvi != null ? (ndvi as dynamic).alerts as List<GeospatialAlert>? : null;
+    final alerts = ndvi?.alerts;
 
     return ListView(
       padding: const EdgeInsets.all(20),
@@ -780,6 +780,12 @@ class _OverviewTab extends ConsumerWidget {
 
         // Ligne 2: Cycle de Culture
         _LifecycleBox(parcel: parcel),
+
+        // Indices avancés — NDMI, NDRE, tendance (visibles uniquement si données disponibles)
+        if (ndvi != null) ...[
+          const SizedBox(height: 12),
+          _SatelliteIndicesBox(ndvi: ndvi),
+        ],
 
         if (ndvi?.thumbnailUrl != null && ndvi!.thumbnailUrl!.isNotEmpty) ...[
           const SizedBox(height: 12),
@@ -1070,6 +1076,224 @@ class _BentoBox extends StatelessWidget {
 /// Calcule dynamiquement à partir de [Parcel.semisDate] et du catalogue
 /// [CropsCatalog] / [BbchCatalog]. Affiche un fallback quand `semisDate`
 /// est manquant ou la culture inconnue.
+// ---------------------------------------------------------------------------
+// Satellite indices bento — NDMI, NDRE, SAVI, trend, health, cloud cover
+// ---------------------------------------------------------------------------
+class _SatelliteIndicesBox extends StatelessWidget {
+  const _SatelliteIndicesBox({required this.ndvi});
+  final NdviSnapshot ndvi;
+
+  @override
+  Widget build(BuildContext context) {
+    return _BentoBox(
+      title: 'Indices Satellite Sentinel-2',
+      icon: Icons.analytics_rounded,
+      iconColor: AppColors.primary,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 4),
+          // Trend + Health badge row
+          Row(
+            children: [
+              _TrendBadge(trend: ndvi.trend),
+              const SizedBox(width: 8),
+              _HealthBadge(health: ndvi.health),
+              if (ndvi.isCloudObstructed) ...[
+                const SizedBox(width: 8),
+                _CloudBadge(coverage: ndvi.cloudCoverage),
+              ],
+            ],
+          ),
+          const SizedBox(height: 12),
+          // Index grid
+          Row(
+            children: [
+              if (ndvi.ndmi != null)
+                Expanded(child: _IndexTile(
+                  label: 'NDMI',
+                  value: ndvi.ndmi!,
+                  description: 'Stress Hydrique',
+                  icon: Icons.water_drop_rounded,
+                  color: ndvi.hasWaterStress ? Colors.red : Colors.blue,
+                  warning: ndvi.hasWaterStress ? 'Irrigation recommandée' : null,
+                )),
+              if (ndvi.ndmi != null && ndvi.ndre != null) const SizedBox(width: 8),
+              if (ndvi.ndre != null)
+                Expanded(child: _IndexTile(
+                  label: 'NDRE',
+                  value: ndvi.ndre!,
+                  description: 'Stress Azoté',
+                  icon: Icons.science_rounded,
+                  color: ndvi.hasNitrogenStress ? Colors.orange : Colors.green,
+                  warning: ndvi.hasNitrogenStress ? 'Analyse foliaire conseillée' : null,
+                )),
+            ],
+          ),
+          if (ndvi.savi != null || ndvi.evi2 != null) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                if (ndvi.savi != null)
+                  Expanded(child: _IndexTile(
+                    label: 'SAVI',
+                    value: ndvi.savi!,
+                    description: 'Sol Ajusté',
+                    icon: Icons.terrain_rounded,
+                    color: Colors.brown,
+                  )),
+                if (ndvi.savi != null && ndvi.evi2 != null) const SizedBox(width: 8),
+                if (ndvi.evi2 != null)
+                  Expanded(child: _IndexTile(
+                    label: 'EVI2',
+                    value: ndvi.evi2!,
+                    description: 'Végétation Dense',
+                    icon: Icons.forest_rounded,
+                    color: Colors.green.shade700,
+                  )),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _IndexTile extends StatelessWidget {
+  const _IndexTile({
+    required this.label,
+    required this.value,
+    required this.description,
+    required this.icon,
+    required this.color,
+    this.warning,
+  });
+  final String label;
+  final double value;
+  final String description;
+  final IconData icon;
+  final Color color;
+  final String? warning;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 14, color: color),
+              const SizedBox(width: 4),
+              Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: color, letterSpacing: 0.5)),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value.toStringAsFixed(3),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: color),
+          ),
+          Text(description, style: TextStyle(fontSize: 10, color: AppColors.textMutedOf(context))),
+          if (warning != null) ...[
+            const SizedBox(height: 4),
+            Text(warning!, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.redAccent)),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _TrendBadge extends StatelessWidget {
+  const _TrendBadge({required this.trend});
+  final String trend;
+
+  @override
+  Widget build(BuildContext context) {
+    final (icon, color, label) = switch (trend) {
+      'UP'     => (Icons.trending_up_rounded,   Colors.green,  'Hausse'),
+      'DOWN'   => (Icons.trending_down_rounded, Colors.red,    'Déclin'),
+      'STABLE' => (Icons.trending_flat_rounded, Colors.blue,   'Stable'),
+      _        => (Icons.help_outline_rounded,  Colors.grey,   'Inconnu'),
+    };
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12, color: color),
+          const SizedBox(width: 4),
+          Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: color)),
+        ],
+      ),
+    );
+  }
+}
+
+class _HealthBadge extends StatelessWidget {
+  const _HealthBadge({required this.health});
+  final String health;
+
+  @override
+  Widget build(BuildContext context) {
+    final (color, label) = switch (health) {
+      'EXCELLENT' => (Colors.green.shade700, 'Excellent'),
+      'GOOD'      => (Colors.lightGreen,     'Bonne'),
+      'MODERATE'  => (Colors.orange,         'Moyenne'),
+      _           => (Colors.red,            'Faible'),
+    };
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: color)),
+    );
+  }
+}
+
+class _CloudBadge extends StatelessWidget {
+  const _CloudBadge({required this.coverage});
+  final double coverage;
+
+  @override
+  Widget build(BuildContext context) {
+    final pct = (coverage * 100).toStringAsFixed(0);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.grey.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.cloud_rounded, size: 12, color: Colors.grey),
+          const SizedBox(width: 4),
+          Text('$pct% nuages', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.grey)),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+
 class _LifecycleBox extends StatelessWidget {
   const _LifecycleBox({required this.parcel});
   final Parcel parcel;

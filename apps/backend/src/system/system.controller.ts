@@ -34,13 +34,7 @@ export class NdviController {
 
       // Si aucune analyse en cache ou force est à true, lancer une nouvelle analyse
       if (!result) {
-        result = await this.parcelsService.analyzeParcel(parcelId, [
-          'NDVI',
-          'NDWI',
-          'CLOUD',
-          'TILES',
-          'ALERTS',
-        ]);
+        result = await this.parcelsService.analyzeParcel(parcelId);
       }
       
       // Adaptative parsing for various possible response formats from the geospatial engine

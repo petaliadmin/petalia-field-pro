@@ -4,7 +4,7 @@ import { Repository, DeepPartial } from 'typeorm';
 import { Parcel } from './entities/parcel.entity';
 import { SyncOutbox } from './entities/sync-outbox.entity';
 import { AgroService } from './agro.service';
-import { GeospatialService } from '../geospatial/geospatial.service';
+import { GeospatialService, ALL_METRICS } from '../geospatial/geospatial.service';
 
 type OutboxOperation = 'create' | 'update' | 'delete';
 
@@ -97,12 +97,11 @@ export class ParcelsService {
    * Proxy call to the external geospatial engine for a given parcel.
    * Returns the engine JSON payload (metrics, tile URLs, etc.).
    */
-  async analyzeParcel(id: string, requestedMetrics: string[] = []): Promise<any> {
+  async analyzeParcel(id: string): Promise<any> {
     const parcel = await this.findOne(id);
-    if (!parcel.boundary) {
-      throw new NotFoundException('Parcel geometry missing');
-    }
-    return this.geospatialService.analyzeParcel(parcel.id, parcel.boundary, requestedMetrics);
+    if (!parcel.boundary) throw new NotFoundException('Parcel geometry missing');
+    // Uses full metrics suite: NDVI, NDWI, CLOUD, TILES, ALERTS, NDRE, SAVI, EVI2
+    return this.geospatialService.analyzeParcel(parcel.id, parcel.boundary, ALL_METRICS);
   }
 
   async getLatestAnalysis(id: string): Promise<any> {

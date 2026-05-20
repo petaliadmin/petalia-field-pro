@@ -114,13 +114,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               ),
               if (effectiveLayer == MapLayer.ndvi) ...[
                 for (final p in parcels)
-                  if (ref.read(ndviServiceProvider).getCached(p.id)?.tileUrl != null)
-                    TileLayer(
-                      urlTemplate: ref.read(ndviServiceProvider).getCached(p.id)!.tileUrl!,
-                      maxZoom: 24,
-                      maxNativeZoom: 18,
-                      userAgentPackageName: 'com.petalia.fieldpro',
-                    ),
+                  // ref.watch triggers the fetch and rebuilds when data arrives.
+                  _NdviTileLayer(parcelId: p.id),
               ],
               PolygonLayer(
                 polygons: [
@@ -375,6 +370,23 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ),
         ],
       ),
+    );
+  }
+}
+
+class _NdviTileLayer extends ConsumerWidget {
+  const _NdviTileLayer({required this.parcelId});
+  final String parcelId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tileUrl = ref.watch(ndviProvider(parcelId)).valueOrNull?.tileUrl;
+    if (tileUrl == null || tileUrl.isEmpty) return const SizedBox.shrink();
+    return TileLayer(
+      urlTemplate: tileUrl,
+      maxZoom: 24,
+      maxNativeZoom: 18,
+      userAgentPackageName: 'com.petalia.fieldpro',
     );
   }
 }
