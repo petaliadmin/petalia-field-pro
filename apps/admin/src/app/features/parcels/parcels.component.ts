@@ -1,15 +1,16 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { takeUntil, forkJoin } from 'rxjs';
-import { ParcelService, Parcel } from '../../core/services/parcel.service';
+import { ParcelService, Parcel, ParcelStatus } from '../../core/services/parcel.service';
 import { AlertConfirmService } from '../../core/services/alert-confirm.service';
 import { environment } from '../../../environments/environment';
 import { AdvancedImageAnalyzerComponent } from '../../components/advanced-image-analyzer/advanced-image-analyzer.component';
 import { trackById } from '../../core/utils/track-by';
 import { BaseComponent } from '../../core/base/base.component';
 import { DEFAULT_LAT, DEFAULT_LNG } from '../../core/constants/app.constants';
+import * as L from 'leaflet';
 
 @Component({
   selector: 'app-parcels',
@@ -18,7 +19,7 @@ import { DEFAULT_LAT, DEFAULT_LNG } from '../../core/constants/app.constants';
   templateUrl: './parcels.component.html',
   styles: [`:host { display: block; }`]
 })
-export class ParcelsComponent extends BaseComponent implements OnInit {
+export class ParcelsComponent extends BaseComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly trackById = trackById;
   parcels: Parcel[] = [];
   loading = true;
@@ -46,11 +47,24 @@ export class ParcelsComponent extends BaseComponent implements OnInit {
   assignParcel: Parcel | null = null;
   assignTechnicianInput = '';
 
+  activeView: 'split' | 'map' | 'list' = 'split';
+  map: L.Map | null = null;
+  parcelLayers: L.FeatureGroup | null = null;
+
   private parcelService = inject(ParcelService);
   private alertService = inject(AlertConfirmService);
   private cdr = inject(ChangeDetectorRef);
 
   ngOnInit() {
+    (window as any).angularParcelsComponentRef = {
+      openDetails: (id: string) => {
+        const found = this.parcels.find(p => p.id === id);
+        if (found) {
+          this.openDetailsModal(found);
+          this.cdr.markForCheck();
+        }
+      }
+    };
     this.loadParcels();
   }
 
@@ -60,6 +74,7 @@ export class ParcelsComponent extends BaseComponent implements OnInit {
       next: (data) => {
         this.parcels = data;
         this.loading = false;
+        this.updateMapFeatures();
         this.cdr.markForCheck();
       },
       error: () => {
@@ -242,5 +257,184 @@ export class ParcelsComponent extends BaseComponent implements OnInit {
           this.cdr.markForCheck();
         }
       });
+  }
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.initMap();
+    }, 150);
+  }
+
+  override ngOnDestroy() {
+    if (this.map) {
+      this.map.remove();
+      this.map = null;
+    }
+    (window as any).angularParcelsComponentRef = null;
+    super.ngOnDestroy();
+  }
+
+  initMap() {
+    const mapEl = document.getElementById('map-admin');
+    if (!mapEl || this.map) return;
+
+    this.map = L.map('map-admin', {
+      center: [DEFAULT_LAT, DEFAULT_LNG],
+      zoom: 7,
+      zoomControl: false
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(this.map);
+
+    L.control.zoom({
+      position: 'bottomright'
+    }).addTo(this.map);
+
+    this.parcelLayers = L.featureGroup().addTo(this.map);
+
+    if (this.parcels.length > 0) {
+      this.updateMapFeatures();
+    }
+  }
+
+  setView(view: 'split' | 'map' | 'list') {
+    this.activeView = view;
+    if (view !== 'list') {
+      setTimeout(() => {
+        if (!this.map) {
+          this.initMap();
+        } else {
+          this.map.invalidateSize();
+          this.updateMapFeatures();
+        }
+      }, 150);
+    }
+    this.cdr.markForCheck();
+  }
+
+  updateMapFeatures() {
+    const layers = this.parcelLayers;
+    if (!this.map || !layers) return;
+
+    layers.clearLayers();
+
+    const renderable = this.filteredParcels;
+    if (renderable.length === 0) return;
+
+    const bounds: L.LatLngBoundsExpression = [];
+
+    renderable.forEach(parcel => {
+      const color = this.getStatusColor(parcel.status);
+      let layer: L.Layer | null = null;
+
+      // 1. Polygon rendering
+      if (parcel.boundary && parcel.boundary.coordinates && parcel.boundary.coordinates.length > 0) {
+        layer = L.geoJSON(parcel.boundary as any, {
+          style: {
+            color: color,
+            fillColor: color,
+            fillOpacity: 0.35,
+            weight: 3,
+            dashArray: '4'
+          }
+        });
+      }
+
+      // 2. Pulse Marker rendering
+      if (parcel.location?.lat && parcel.location?.lng) {
+        const latLng: [number, number] = [parcel.location.lat, parcel.location.lng];
+        
+        const markerIcon = L.divIcon({
+          className: `pulse-marker-${parcel.status}`,
+          iconSize: [14, 14],
+          iconAnchor: [7, 7]
+        });
+
+        const pointMarker = L.marker(latLng, { icon: markerIcon });
+        
+        if (layer) {
+          layer = L.featureGroup([layer, pointMarker]);
+        } else {
+          layer = pointMarker;
+        }
+        
+        bounds.push(latLng);
+      }
+
+      if (layer) {
+        const popupContent = `
+          <div class="p-2 min-w-[200px]">
+            <div class="flex items-center justify-between gap-3 border-b border-slate-100 pb-2 mb-2">
+              <span class="text-xs font-black text-slate-800">${parcel.ownerName}</span>
+              <span class="text-[9px] font-black px-1.5 py-0.5 rounded ${this.getStatusBgTextClass(parcel.status)}">
+                ${this.statusLabel(parcel.status)}
+              </span>
+            </div>
+            <div class="space-y-1 text-[10px] text-slate-500 font-medium mb-3">
+              <div>Culture : <span class="font-bold text-slate-700">${parcel.cropType || 'Non spécifié'}</span></div>
+              <div>Superficie : <span class="font-bold text-slate-700">${parcel.area} ha</span></div>
+              <div>Région : <span class="font-bold text-slate-700">${parcel.location?.region || 'Saint-Louis'}</span></div>
+            </div>
+            <button onclick="window.angularParcelsComponentRef.openDetails('${parcel.id}')"
+                    class="w-full py-2 bg-primary hover:bg-primary-dark text-white rounded-xl text-[10px] font-black text-center transition-all shadow-md shadow-primary/10">
+              VOIR LES DÉTAILS
+            </button>
+          </div>
+        `;
+        layer.bindPopup(popupContent);
+        layers.addLayer(layer);
+      }
+    });
+
+    if (bounds.length > 0 && this.activeView !== 'list') {
+      try {
+        this.map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
+      } catch (e) {
+        console.warn('Could not fit map bounds:', e);
+      }
+    }
+  }
+
+  focusParcelOnMap(parcel: Parcel) {
+    if (!this.map || !parcel.location?.lat || !parcel.location?.lng) return;
+
+    if (this.activeView === 'list') {
+      this.setView('split');
+    }
+
+    setTimeout(() => {
+      this.map!.setView([parcel.location!.lat, parcel.location!.lng], 15);
+      
+      // Open matching popup
+      this.parcelLayers!.eachLayer((layer: any) => {
+        const popup = layer.getPopup();
+        if (popup && popup.getContent().includes(parcel.id)) {
+          layer.openPopup();
+        }
+      });
+    }, 150);
+  }
+
+  getStatusColor(status: ParcelStatus): string {
+    const colors: Record<ParcelStatus, string> = {
+      healthy: '#10b981',
+      water_stress: '#f59e0b',
+      infection: '#ef4444',
+      unknown: '#94a3b8'
+    };
+    return colors[status] || '#94a3b8';
+  }
+
+  getStatusBgTextClass(status: ParcelStatus): string {
+    const classes: Record<ParcelStatus, string> = {
+      healthy: 'bg-emerald-100 text-emerald-700',
+      water_stress: 'bg-amber-100 text-amber-700',
+      infection: 'bg-red-100 text-red-700',
+      unknown: 'bg-slate-100 text-slate-600'
+    };
+    return classes[status] || 'bg-slate-100 text-slate-600';
   }
 }

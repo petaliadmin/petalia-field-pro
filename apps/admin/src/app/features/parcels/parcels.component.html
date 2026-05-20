@@ -1,15 +1,39 @@
 
     <div class="space-y-6">
-      <div class="flex justify-between items-center">
+      <div class="flex justify-between items-center flex-wrap gap-4">
         <div>
           <h2 class="text-2xl font-black text-slate-900 tracking-tight">Parcelles</h2>
           <p class="text-slate-500 font-medium">{{ parcels.length }} parcelles enregistrées</p>
         </div>
 
-        <button (click)="openCreateModal()" class="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-2xl font-black text-sm shadow-xl shadow-primary/20 hover:bg-primary-dark transition-all">
-          <lucide-icon name="plus" class="w-5 h-5"></lucide-icon>
-          Nouvelle Parcelle
-        </button>
+        <div class="flex items-center gap-3">
+          <!-- Bascule de Vues -->
+          <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-2xl border border-slate-200">
+            <button (click)="setView('split')" 
+                    [class]="activeView === 'split' ? 'bg-white text-primary shadow-sm border-slate-200' : 'text-slate-500 hover:text-slate-800'"
+                    class="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition-all border border-transparent">
+              <lucide-icon name="layers" class="w-3.5 h-3.5"></lucide-icon>
+              Mixte
+            </button>
+            <button (click)="setView('map')" 
+                    [class]="activeView === 'map' ? 'bg-white text-primary shadow-sm border-slate-200' : 'text-slate-500 hover:text-slate-800'"
+                    class="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition-all border border-transparent">
+              <lucide-icon name="map" class="w-3.5 h-3.5"></lucide-icon>
+              Carte
+            </button>
+            <button (click)="setView('list')" 
+                    [class]="activeView === 'list' ? 'bg-white text-primary shadow-sm border-slate-200' : 'text-slate-500 hover:text-slate-800'"
+                    class="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition-all border border-transparent">
+              <lucide-icon name="sliders" class="w-3.5 h-3.5"></lucide-icon>
+              Tableau
+            </button>
+          </div>
+
+          <button (click)="openCreateModal()" class="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-2xl font-black text-xs shadow-xl shadow-primary/20 hover:bg-primary-dark transition-all">
+            <lucide-icon name="plus" class="w-4 h-4"></lucide-icon>
+            Nouvelle Parcelle
+          </button>
+        </div>
       </div>
 
       <!-- Filters & Search -->
@@ -78,7 +102,7 @@
       </div>
 
       <!-- Parcels Table -->
-      <div *ngIf="!loading" class="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
+      <div *ngIf="!loading && activeView === 'list'" class="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse">
             <thead>
@@ -186,6 +210,94 @@
               </tr>
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- Split Screen & Map View -->
+      <div *ngIf="!loading && activeView !== 'list'" class="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-280px)] min-h-[500px]">
+        <!-- Left side: List pane (visible in split view, hidden in map-only view) -->
+        <div *ngIf="activeView === 'split'" class="lg:col-span-4 bg-white rounded-3xl border border-gray-100 shadow-sm flex flex-col overflow-hidden h-full">
+          <div class="p-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between shrink-0">
+            <h3 class="text-sm font-black text-slate-800">Parcelles ({{ filteredParcels.length }})</h3>
+            <span class="text-[10px] bg-slate-200/60 text-slate-600 px-2 py-0.5 rounded-full font-bold">
+              Filtré
+            </span>
+          </div>
+          
+          <div class="flex-1 overflow-y-auto p-4 space-y-3">
+            <div *ngFor="let parcel of filteredParcels; trackBy: trackById" 
+                 (click)="focusParcelOnMap(parcel)"
+                 class="p-4 bg-slate-50 border border-slate-200/50 rounded-2xl hover:border-primary/30 hover:bg-primary/5 hover:shadow-md transition-all cursor-pointer group flex flex-col gap-2.5">
+              
+              <div class="flex items-start justify-between gap-2">
+                <div class="truncate">
+                  <span class="font-black text-slate-900 text-sm group-hover:text-primary transition-colors truncate block">
+                    {{ parcel.ownerName }}
+                  </span>
+                  <span class="text-[10px] text-slate-400 font-bold block mt-0.5 truncate">
+                    ID: #{{ parcel.id.split('-')[0] }}
+                  </span>
+                </div>
+                <span class="text-[9px] font-black px-2 py-1 rounded-lg whitespace-nowrap shrink-0"
+                      [ngClass]="{
+                        'bg-emerald-100 text-emerald-700': parcel.status === 'healthy',
+                        'bg-amber-100 text-amber-700': parcel.status === 'water_stress',
+                        'bg-red-100 text-red-700': parcel.status === 'infection',
+                        'bg-slate-100 text-slate-600': parcel.status === 'unknown'
+                      }">
+                  {{ statusLabel(parcel.status) }}
+                </span>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2 text-xs font-bold text-slate-500">
+                <div class="flex items-center gap-1.5 truncate text-emerald-700">
+                  <lucide-icon name="leaf" class="w-3.5 h-3.5 text-emerald-500 shrink-0"></lucide-icon>
+                  <span class="truncate">{{ parcel.cropType || 'Non spécifié' }}</span>
+                </div>
+                <div class="flex items-center gap-1.5 text-slate-600">
+                  <lucide-icon name="layers" class="w-3.5 h-3.5 text-amber-500 shrink-0"></lucide-icon>
+                  <span>{{ parcel.area }} ha</span>
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between border-t border-slate-200/60 pt-2.5 mt-1.5 text-[10px] text-slate-400 font-bold">
+                <div class="flex items-center gap-1">
+                  <lucide-icon name="map-pin" class="w-3.5 h-3.5 text-primary shrink-0"></lucide-icon>
+                  <span>{{ parcel.location?.region || 'Saint-Louis' }}</span>
+                </div>
+                
+                <div class="flex items-center gap-1">
+                  <button (click)="openDetailsModal(parcel); $event.stopPropagation()" title="Détails" class="p-1.5 bg-white border border-slate-200 text-slate-600 hover:bg-primary hover:text-white rounded-lg transition-all flex items-center justify-center">
+                    <lucide-icon name="eye" class="w-3.5 h-3.5"></lucide-icon>
+                  </button>
+                  <button (click)="openEditModal(parcel); $event.stopPropagation()" title="Modifier" class="p-1.5 bg-white border border-slate-200 text-slate-600 hover:bg-amber-500 hover:text-white rounded-lg transition-all flex items-center justify-center">
+                    <lucide-icon name="edit" class="w-3.5 h-3.5"></lucide-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="filteredParcels.length === 0" class="text-center py-12 text-slate-400 text-xs font-bold">
+              <lucide-icon name="map-pin" class="w-8 h-8 mx-auto mb-2 text-slate-300"></lucide-icon>
+              Aucune parcelle ne correspond
+            </div>
+          </div>
+        </div>
+
+        <!-- Right side: Leaflet Map Container -->
+        <div [class]="activeView === 'split' ? 'lg:col-span-8' : 'lg:col-span-12'" class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden h-full relative">
+          <div class="map-wrapper relative h-full w-full">
+            <div id="map-admin" class="map-instance absolute inset-0"></div>
+            
+            <!-- Map legend floating in top right -->
+            <div class="absolute top-4 right-4 bg-white/95 backdrop-blur-md border border-slate-200/80 rounded-2xl p-4 shadow-lg z-[400] text-[10px] font-black space-y-2 text-slate-700">
+              <div class="text-[9px] uppercase tracking-widest text-slate-400 border-b border-slate-100 pb-1 mb-1 font-black">Santé des cultures</div>
+              <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Sain</div>
+              <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Stress Hydrique</div>
+              <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> Infection</div>
+              <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span> Inconnu</div>
+            </div>
+          </div>
         </div>
       </div>
 

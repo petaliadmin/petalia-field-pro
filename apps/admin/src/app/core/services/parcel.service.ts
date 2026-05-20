@@ -17,6 +17,7 @@ export interface Parcel {
   location?: { lat: number; lng: number; region?: string };
   status: ParcelStatus;
   cropType?: string;
+  boundary?: { type: string; coordinates: number[][][] };
   createdAt: string;
 }
 
@@ -140,6 +141,7 @@ export class ParcelService {
       },
       status: derivedStatus,
       cropType: item.crop || item.cropType || 'Non spécifié',
+      boundary: item.boundary,
       createdAt: item.createdAt || new Date().toISOString(),
     };
   }
