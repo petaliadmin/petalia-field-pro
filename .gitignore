@@ -60,3 +60,9 @@ apps/mobile/.dart_tool/
 apps/mobile/.flutter-plugins
 apps/mobile/.flutter-plugins-dependencies
 
+# Angular build cache
+apps/admin/.angular/
+
+# Local debug scripts
+apps/backend/query.js
+
