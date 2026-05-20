@@ -2,7 +2,7 @@ import { Component, OnInit, AfterViewInit, OnDestroy, inject, ChangeDetectorRef 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
-import { takeUntil, forkJoin } from 'rxjs';
+import { takeUntil, forkJoin, interval, switchMap, take, takeWhile } from 'rxjs';
 import { ParcelService, Parcel, ParcelStatus } from '../../core/services/parcel.service';
 import { AlertConfirmService } from '../../core/services/alert-confirm.service';
 import { environment } from '../../../environments/environment';
@@ -10,7 +10,8 @@ import { AdvancedImageAnalyzerComponent } from '../../components/advanced-image-
 import { trackById } from '../../core/utils/track-by';
 import { BaseComponent } from '../../core/base/base.component';
 import { DEFAULT_LAT, DEFAULT_LNG } from '../../core/constants/app.constants';
-import * as L from 'leaflet';
+import * as leafletNamespace from 'leaflet';
+const L = (leafletNamespace as any).default || leafletNamespace;
 
 @Component({
   selector: 'app-parcels',
@@ -74,8 +75,10 @@ export class ParcelsComponent extends BaseComponent implements OnInit, AfterView
       next: (data) => {
         this.parcels = data;
         this.loading = false;
-        this.updateMapFeatures();
         this.cdr.markForCheck();
+        setTimeout(() => {
+          this.initMap();
+        }, 150);
       },
       error: () => {
         this.loading = false;
@@ -194,20 +197,56 @@ export class ParcelsComponent extends BaseComponent implements OnInit, AfterView
 
   refreshGeospatialData() {
     if (!this.selectedParcelDetails) return;
+    const targetParcelId = this.selectedParcelDetails.id;
     this.geospatialLoading = true;
     this.cdr.markForCheck();
-    this.parcelService.triggerAnalysis(this.selectedParcelDetails.id)
-      .pipe(takeUntil(this.destroy$))
+
+    this.parcelService.triggerAnalysis(targetParcelId)
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap(() => {
+          // Poll every 2.5 seconds for up to 12 times (30 seconds total)
+          return interval(2500).pipe(
+            switchMap(() => forkJoin({
+              latest: this.parcelService.getLatestAnalysis(targetParcelId),
+              timeseries: this.parcelService.getTimeseries(targetParcelId)
+            })),
+            take(12),
+            takeWhile(
+              (res) => res.latest && res.latest.status !== 'COMPLETED' && res.latest.status !== 'FAILED',
+              true // include the last element (so we get the COMPLETED or FAILED response)
+            )
+          );
+        })
+      )
       .subscribe({
-        next: () => {
-          this.loadGeospatialData(this.selectedParcelDetails!.id);
+        next: (res) => {
+          if (this.selectedParcelDetails?.id !== targetParcelId) return;
+
+          this.latestAnalysis = res.latest;
+          this.timeseries = res.timeseries || [];
+          
+          if (res.latest?.status === 'COMPLETED') {
+            this.geospatialLoading = false;
+            this.alertService.success('Analyse GEE terminée avec succès !');
+          } else if (res.latest?.status === 'FAILED') {
+            this.geospatialLoading = false;
+            this.alertService.error("L'analyse GEE a échoué.");
+          }
+          this.cdr.markForCheck();
         },
         error: (err) => {
+          if (this.selectedParcelDetails?.id !== targetParcelId) return;
           this.alertService.error('Erreur lors de la synchronisation GEE : ' + err.message);
           this.geospatialLoading = false;
           this.cdr.markForCheck();
         }
       });
+  }
+
+  handleImageError(event: Event) {
+    const img = event.target as HTMLImageElement;
+    img.src = 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&q=80&w=600';
   }
 
 
@@ -302,7 +341,12 @@ export class ParcelsComponent extends BaseComponent implements OnInit, AfterView
 
   setView(view: 'split' | 'map' | 'list') {
     this.activeView = view;
-    if (view !== 'list') {
+    if (view === 'list') {
+      if (this.map) {
+        this.map.remove();
+        this.map = null;
+      }
+    } else {
       setTimeout(() => {
         if (!this.map) {
           this.initMap();
