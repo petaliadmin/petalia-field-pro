@@ -14,7 +14,7 @@ export class GeospatialService {
   }
 
   /**
-   * Sends a geometry payload to the external petalia‑geospacial‑engine.
+   * Sends a geometry payload to the external petalia-geospacial-engine.
    * The engine expects a POST to /v1/analyses with a CreateAnalysisRequest.
    * Returns the raw JSON response from the engine.
    */
@@ -28,7 +28,7 @@ export class GeospatialService {
 
     const headers: Record<string, string> = {};
     if (this.apiKey) {
-      headers['X-API-Key'] = this.apiKey; // Header utilisé par le moteur géospatial pour l'authentification
+      headers['X-API-Key'] = this.apiKey;
     }
 
     const response$ = this.httpService.post(url, payload, { headers });
@@ -71,5 +71,20 @@ export class GeospatialService {
     const response = await firstValueFrom(response$);
     return response.data;
   }
-}
 
+  /**
+   * Proxies an authenticated GEE URL (thumbnail or map tile).
+   * The frontend never contacts GEE directly — the backend handles the auth header.
+   * Returns { buffer, contentType } so the controller can stream the binary response.
+   */
+  async proxyGeeUrl(targetUrl: string): Promise<{ buffer: Buffer; contentType: string }> {
+    const headers = this.getHeaders();
+    const response$ = this.httpService.get(targetUrl, {
+      headers,
+      responseType: 'arraybuffer',
+    });
+    const response = await firstValueFrom(response$);
+    const contentType = (response.headers['content-type'] as string) || 'image/png';
+    return { buffer: Buffer.from(response.data), contentType };
+  }
+}

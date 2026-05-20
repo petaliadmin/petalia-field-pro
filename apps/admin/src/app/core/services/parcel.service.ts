@@ -106,6 +106,22 @@ export class ParcelService {
     return this.http.get<any>(`${this.apiUrl}/${id}/analyze?metrics=NDVI,NDWI,CLOUD,TILES,ALERTS`);
   }
 
+  /**
+   * Returns the backend proxy URL for the Sentinel-2 thumbnail.
+   * The backend fetches the GEE image with its API key and streams it to the browser.
+   */
+  getThumbnailUrl(id: string): string {
+    return `${this.apiUrl}/${id}/thumbnail`;
+  }
+
+  /**
+   * Returns the backend proxy tile URL template for Leaflet integration.
+   * Format: /parcels/{id}/tile?z={z}&x={x}&y={y}
+   */
+  getTileUrlTemplate(id: string): string {
+    return `${this.apiUrl}/${id}/tile?z={z}&x={x}&y={y}`;
+  }
+
 
   /**
    * Normalisation centralisée de la forme renvoyée par le backend

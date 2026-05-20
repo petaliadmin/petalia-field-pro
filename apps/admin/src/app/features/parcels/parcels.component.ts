@@ -44,6 +44,13 @@ export class ParcelsComponent extends BaseComponent implements OnInit, AfterView
   timeseries: any[] = [];
   geospatialLoading = false;
 
+  /** Backend-proxied URL for the Sentinel-2 thumbnail (avoids GEE auth issues in the browser). */
+  thumbnailProxyUrl: string | null = null;
+  /** Backend-proxied tile URL template for Leaflet (replaces GEE tile URL directly). */
+  satelliteTileUrl: string | null = null;
+  /** Leaflet satellite tile layer — removed when switching parcels. */
+  private satelliteLayer: L.TileLayer | null = null;
+
   showAssignModal = false;
   assignParcel: Parcel | null = null;
   assignTechnicianInput = '';
@@ -184,15 +191,43 @@ export class ParcelsComponent extends BaseComponent implements OnInit, AfterView
       next: (res) => {
         this.latestAnalysis = res.latest;
         this.timeseries = res.timeseries || [];
+        // Always use the backend-proxied URLs — never a direct GEE URL
+        this.thumbnailProxyUrl = this.parcelService.getThumbnailUrl(parcelId);
+        this.satelliteTileUrl = this.parcelService.getTileUrlTemplate(parcelId);
+        this.overlayGeeSatelliteLayer();
         this.geospatialLoading = false;
         this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Failed to load geospatial data', err);
+        // Still set proxy URL as a fallback attempt
+        this.thumbnailProxyUrl = this.parcelService.getThumbnailUrl(parcelId);
         this.geospatialLoading = false;
         this.cdr.markForCheck();
       }
     });
+  }
+
+  /**
+   * Adds (or replaces) a Leaflet tile layer that proxies GEE satellite imagery
+   * through the backend, so the browser never needs to authenticate with GEE.
+   */
+  private overlayGeeSatelliteLayer() {
+    const map = this.map;
+    const tileUrl = this.satelliteTileUrl;
+    if (!map || !tileUrl) return;
+    // Remove the previous satellite layer if it exists
+    if (this.satelliteLayer) {
+      map.removeLayer(this.satelliteLayer);
+      this.satelliteLayer = null;
+    }
+    const layer = L.tileLayer(tileUrl, {
+      maxZoom: 19,
+      opacity: 0.85,
+      attribution: '© Google Earth Engine / Sentinel-2'
+    });
+    layer.addTo(map);
+    this.satelliteLayer = layer;
   }
 
   refreshGeospatialData() {

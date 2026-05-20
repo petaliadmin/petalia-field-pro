@@ -11,12 +11,16 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFiles,
+  Res,
+  BadRequestException,
 } from '@nestjs/common';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
+import type { Response } from 'express';
 import { ParcelsService } from './parcels.service';
 import { CreateParcelDto } from './dto/create-parcel.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { DocumentService } from './document.service';
+import { GeospatialService } from '../geospatial/geospatial.service';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Parcelles')
@@ -26,6 +30,7 @@ export class ParcelsController {
   constructor(
     private readonly parcelsService: ParcelsService,
     private readonly documentService: DocumentService,
+    private readonly geospatialService: GeospatialService,
   ) {}
 
   @Post()
@@ -132,6 +137,56 @@ export class ParcelsController {
       return await this.parcelsService.getTimeseries(id);
     } catch (err) {
       return this.getSimulatedTimeseries(id);
+    }
+  }
+
+  /**
+   * Proxy GEE thumbnail image via the backend (avoids browser auth issues).
+   * Usage: <img src="/parcels/{id}/thumbnail">
+   */
+  @Get(':id/thumbnail')
+  async getThumbnail(@Param('id') id: string, @Res() res: Response) {
+    try {
+      const analysis = await this.parcelsService.getLatestAnalysis(id);
+      const thumbnailUrl = analysis?.visualization?.thumbnailUrl;
+      if (!thumbnailUrl) {
+        return res.status(404).json({ message: 'No thumbnail available' });
+      }
+      const { buffer, contentType } = await this.geospatialService.proxyGeeUrl(thumbnailUrl);
+      res.set('Content-Type', contentType);
+      res.set('Cache-Control', 'public, max-age=3600');
+      return res.send(buffer);
+    } catch (err) {
+      return res.status(502).json({ message: 'Failed to proxy GEE thumbnail', error: err.message });
+    }
+  }
+
+  /**
+   * Proxy a specific GEE map tile via the backend.
+   * Usage: tileUrl = "/parcels/{id}/tile?z={z}&x={x}&y={y}"
+   */
+  @Get(':id/tile')
+  async getMapTile(
+    @Param('id') id: string,
+    @Query('z') z: string,
+    @Query('x') x: string,
+    @Query('y') y: string,
+    @Res() res: Response,
+  ) {
+    try {
+      if (!z || !x || !y) throw new BadRequestException('z, x, y params are required');
+      const analysis = await this.parcelsService.getLatestAnalysis(id);
+      const tileUrlTemplate = analysis?.visualization?.tileUrl;
+      if (!tileUrlTemplate) {
+        return res.status(404).json({ message: 'No tile URL available' });
+      }
+      const tileUrl = tileUrlTemplate.replace('{z}', z).replace('{x}', x).replace('{y}', y);
+      const { buffer, contentType } = await this.geospatialService.proxyGeeUrl(tileUrl);
+      res.set('Content-Type', contentType);
+      res.set('Cache-Control', 'public, max-age=3600');
+      return res.send(buffer);
+    } catch (err) {
+      return res.status(502).json({ message: 'Failed to proxy GEE tile', error: err.message });
     }
   }
 

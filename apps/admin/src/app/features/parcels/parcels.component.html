@@ -480,21 +480,24 @@
                   </div>
                 </div>
 
-                <!-- Satellite Thumbnail image -->
+                <!-- Satellite Thumbnail image — loaded via backend proxy (avoids GEE auth) -->
                 <div class="relative group rounded-2xl overflow-hidden border border-slate-200 shadow-sm h-36 bg-slate-100">
-                  <img *ngIf="latestAnalysis.visualization?.thumbnailUrl" 
-                       [src]="latestAnalysis.visualization.thumbnailUrl" 
+                  <img *ngIf="thumbnailProxyUrl" 
+                       [src]="thumbnailProxyUrl" 
                        (error)="handleImageError($event)"
                        alt="Aperçu Sentinel-2" 
-                       class="w-full h-full object-cover">
-                  <img *ngIf="!latestAnalysis.visualization?.thumbnailUrl" 
+                       class="w-full h-full object-cover transition-opacity duration-300">
+                  <img *ngIf="!thumbnailProxyUrl" 
                        src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&q=80&w=600" 
                        alt="Aperçu Sentinel-2 (Défaut)" 
                        class="w-full h-full object-cover opacity-75 grayscale-[20%]">
                   <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent flex flex-col justify-end p-3">
-                    <span class="text-[10px] text-white font-black">Imagerie Satellite Sentinel-2</span>
+                    <span class="text-[10px] text-white font-black flex items-center gap-1.5">
+                      <span class="inline-block w-1.5 h-1.5 rounded-full {{ thumbnailProxyUrl ? 'bg-emerald-400' : 'bg-amber-400' }}"></span>
+                      Imagerie Satellite Sentinel-2
+                    </span>
                     <span class="text-[8px] text-slate-300 font-bold mt-0.5">
-                      {{ latestAnalysis.visualization?.thumbnailUrl ? 'Mise à jour : ' + (latestAnalysis.analysisDate | date:'dd/MM/yyyy HH:mm') : 'Lien expiré (Sync requise)' }}
+                      {{ latestAnalysis.analysisDate ? 'Mise à jour : ' + (latestAnalysis.analysisDate | date:'dd/MM/yyyy HH:mm') : 'Sync requise' }}
                     </span>
                   </div>
                 </div>
